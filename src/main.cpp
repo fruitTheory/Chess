@@ -2,7 +2,8 @@
 #include <iostream>
 #include "SFML/Graphics.hpp"
 #include "chess_window.hpp"
-//#include "chess_board.hpp"
+#include "chess_pieces.hpp"
+#include "chess_board.hpp"
 
 
 void board_setup(sf::RenderWindow* window);
@@ -24,23 +25,28 @@ int main(){
     ChessboardWindow window;
     window.getWindow().isOpen();
     window.getWindow().pollEvent(event);
-
-    // initialize pieces
-    sf::CircleShape pawn(48.f, 3); // triangle
-    sf::CircleShape rook(48.f, 4); //rook.rotate(90); // square
     
-    sf::CircleShape king(48.f, 8); // octagon
-    sf::CircleShape queen(48.f, 100); // circle
+    // // initialize pieces
+    // sf::CircleShape pawn(48.f, 3); // triangle
+    // sf::CircleShape rook(48.f, 4); //rook.rotate(90); // square
+    
+    // sf::CircleShape king(48.f, 8); // octagon
+    // sf::CircleShape queen(48.f, 100); // circle
+    Chessboard board;
+    board.create(window);
+    
+    ChessPieces piece;
+    sf::CircleShape& pawn = piece.get_piece(PieceType::PAWN);
 
-    //set piece original positions
+    // set piece original positions
     for(int i = 0; i < 8; i++){
             pawn.setPosition(96 * i, (96 * 6) + 8);
             window.getWindow().draw(pawn);
     }
-    for(int i = 0; i < 2; i++){
-            pawn.setPosition(96 * (i * 6), (96 * 7) + 8);
-            window.getWindow().draw(rook);
-    }
+    // for(int i = 0; i < 2; i++){
+    //         pawn.setPosition(96 * (i * 6), (96 * 7) + 8);
+    //         window.getWindow().draw(rook);
+    // }
 
 
     while (window.getWindow().isOpen()){

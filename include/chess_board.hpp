@@ -11,5 +11,5 @@ private:
 
 public:
     Chessboard();
-    void create(ChessboardWindow window);
+    void create(ChessboardWindow& window);
 };
