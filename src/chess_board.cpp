@@ -4,13 +4,15 @@
 Chessboard::Chessboard():
 base_color(185,195,205,255),
 square_color(0,45,85,255),
+//highlight_color()
 board_square_size(96.f, 96.f) 
 {
     // other initializers
 }
 
 void Chessboard::create(ChessboardWindow& window){
-
+    
+    base_color + square_color;
     window.getWindow().clear(base_color); // initial color
     sf::RectangleShape board_square(board_square_size);
     board_square.setFillColor(square_color);

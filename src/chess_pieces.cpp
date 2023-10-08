@@ -9,6 +9,7 @@ queen(48.f, 100)
 
 }
 
+// 48 unit size piece
 sf::CircleShape& ChessPieces::get_piece(PieceType piece){
     switch (piece)
     {

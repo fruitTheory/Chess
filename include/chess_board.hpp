@@ -7,6 +7,7 @@ class Chessboard{
 private:
     const sf::Color base_color;
     const sf::Color square_color;
+    const sf::Color highlight_color;
     const sf::Vector2f board_square_size;
 
 public:
