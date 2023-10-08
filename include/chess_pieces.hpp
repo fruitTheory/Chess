@@ -6,6 +6,7 @@ enum class PieceType {
     PAWN, ROOK, KING, QUEEN
 };
 
+// Class for all chess pieces
 class ChessPieces{
 private:
     sf::CircleShape pawn;

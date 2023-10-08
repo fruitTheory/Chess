@@ -6,15 +6,12 @@ base_color(185,195,205,255),
 square_color(0,45,85,255),
 board_square_size(96.f, 96.f) 
 {
-    // hi im fucking pointless
+    // other initializers
 }
 
 void Chessboard::create(ChessboardWindow& window){
 
-    window.getWindow().clear(base_color);
-    //window.getWindow.clear(base_color);
-
-    window.getWindow().clear(base_color);; // initial color
+    window.getWindow().clear(base_color); // initial color
     sf::RectangleShape board_square(board_square_size);
     board_square.setFillColor(square_color);
 
