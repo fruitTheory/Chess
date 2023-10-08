@@ -17,38 +17,56 @@ int main(){
     sf::CircleShape& pawn = piece.get_piece(PieceType::PAWN);
     sf::CircleShape& rook = piece.get_piece(PieceType::ROOK);
 
-    // set piece original positions
-    for(int i = 0; i < 8; i++){
-            pawn.setPosition(96 * i, (96 * 6) + 8);
-            window.getWindow().draw(pawn);
-    }
+    sf::CircleShape& A2_pawn = piece.get_piece(PieceType::PAWN);
+    A2_pawn.setPosition(0, 576);
+    window.getWindow().draw(A2_pawn);
 
-    rook.setPosition(20, 20);
-    rook.setOrigin(24, 24);
-    rook.rotate(90);
-    window.getWindow().draw(rook);
+    sf::CircleShape& B2_pawn = piece.get_piece(PieceType::PAWN);
+    B2_pawn.setPosition(96, 576);
+    window.getWindow().draw(B2_pawn);
+
     window.getWindow().display(); // display window
 
-    // extern int window_width; extern int window_height;
+    bool pressed;
     
     sf::Event event;
+
     while (window.getWindow().isOpen()){
         while (window.getWindow().pollEvent(event))
             if (event.type == sf::Event::Closed){ window.getWindow().close(); }
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+        
+        pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+        if (pressed){
             sf::Vector2i localPosition = mouse_click_position(window);
             if(localPosition.x > 0 && localPosition.y > 0){
                 std::cout << "Clicked\n";
                 std::cout << localPosition.x << " " << localPosition.y << std::endl;
+                board.create(window);
+
+                sf::CircleShape& B2_pawn = piece.get_piece(PieceType::PAWN);
+                B2_pawn.setPosition(96, 576);
+                window.getWindow().draw(B2_pawn);
+
+                // set position of object to cursor position offset by size of object to center
+                A2_pawn.setPosition(localPosition.x-48, localPosition.y-48);
+                window.getWindow().draw(A2_pawn);
+                window.getWindow().display();
+
             }
+            
         }
     }
 
     return EXIT_SUCCESS;
 }
 
+/*
+Will probably need to store state of board pieces to redraw
+*/
+
 sf::Vector2i mouse_click_position(ChessboardWindow& window){
+
         extern int window_width; extern int window_height;
 
         sf::Vector2i localPosition = sf::Mouse::getPosition(window.getWindow());

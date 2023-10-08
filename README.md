@@ -1,6 +1,6 @@
 # Chess-Ai
 
-Initial idea is to create a simple chess 'ai' that can play at a very basic level. Choosing C++ for its object-oriented workflow, and to learn as well. Though the overlooked challenge of actually creating the game will take some time first.
+Initial idea is to create a simple chess 'ai' that can play at a very basic level. Choosing C++ for its object-oriented workflow, and to learn as well. The overlooked challenge of actually creating the game will take some time first.
 ## Features
 
 
