@@ -11,49 +11,45 @@ int main(){
 
     ChessboardWindow window; // window object
     Chessboard board; // board object
-    board.create(window);
+    board.create(window); // create board
     
-    ChessPieces piece;
-    sf::CircleShape& pawn = piece.get_piece(PieceType::PAWN);
-    sf::CircleShape& rook = piece.get_piece(PieceType::ROOK);
+    ChessPieces chess_pieces; // chess piece object
 
-    sf::CircleShape& A2_pawn = piece.get_piece(PieceType::PAWN);
-    A2_pawn.setPosition(0, 576);
-    window.getWindow().draw(A2_pawn);
+    // get piece from chess pieces
+    sf::CircleShape& A2_pawn = chess_pieces.get_piece(1);
 
-    sf::CircleShape& B2_pawn = piece.get_piece(PieceType::PAWN);
-    B2_pawn.setPosition(96, 576);
-    window.getWindow().draw(B2_pawn);
+    chess_pieces.initialize_piece_position(window); // initial pieces
+    window.getWindow().display(); // display window initially
 
-    window.getWindow().display(); // display window
-
-    bool pressed;
-    
+    // init vars
+    bool pressed = false;
     sf::Event event;
 
     while (window.getWindow().isOpen()){
         while (window.getWindow().pollEvent(event))
             if (event.type == sf::Event::Closed){ window.getWindow().close(); }
 
-        
+        // on pressed stuff
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
         if (pressed){
-            sf::Vector2i localPosition = mouse_click_position(window);
-            if(localPosition.x > 0 && localPosition.y > 0){
+
+            sf::Vector2i mouse_position = mouse_click_position(window);
+
+            if(mouse_position.x > 0 && mouse_position.y > 0){
+
                 std::cout << "Clicked\n";
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
+                std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
                 board.create(window);
 
-                sf::CircleShape& B2_pawn = piece.get_piece(PieceType::PAWN);
-                B2_pawn.setPosition(96, 576);
-                window.getWindow().draw(B2_pawn);
-
                 // set position of object to cursor position offset by size of object to center
-                A2_pawn.setPosition(localPosition.x-48, localPosition.y-48);
-                window.getWindow().draw(A2_pawn);
-                window.getWindow().display();
+                A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
+                window.getWindow().draw(A2_pawn); // hard code redraw pawn
+                chess_pieces.initialize_piece_position(window);
+                
 
             }
+
+        window.getWindow().display();
             
         }
     }
@@ -61,10 +57,7 @@ int main(){
     return EXIT_SUCCESS;
 }
 
-/*
-Will probably need to store state of board pieces to redraw
-*/
-
+// Returns mouse position within bounds of window, else returns -1
 sf::Vector2i mouse_click_position(ChessboardWindow& window){
 
         extern int window_width; extern int window_height;
@@ -77,3 +70,7 @@ sf::Vector2i mouse_click_position(ChessboardWindow& window){
         sf::Vector2i fail = {-1, -1};
         return fail; // out of bounds
 }
+
+/*
+Will probably need to store state of board pieces to redraw
+*/

@@ -25,7 +25,7 @@ void Chessboard::create(ChessboardWindow& window){
     4 dark squares - board_size/4 = 192
     to flip board, swap which flop has the offset(+96)
     */
-   
+
     int flop = 0;
     for(int y = 0; y < 8; y++){
         int current_y = y * 96; // y position
@@ -34,13 +34,13 @@ void Chessboard::create(ChessboardWindow& window){
                 board_square.setPosition((192 * x) + 96, current_y);
                 window.getWindow().draw(board_square);
                 sf::FloatRect test = board_square.getGlobalBounds();
-                std::cout << test.left << " " << test.top << std::endl;
+                //std::cout << test.left << " " << test.top << std::endl;
             }
             if(flop == 1){
                 board_square.setPosition((192 * x), current_y);
                 window.getWindow().draw(board_square);
                 sf::FloatRect test = board_square.getGlobalBounds();
-                std::cout << test.left << " - " << test.top << std::endl;
+                //std::cout << test.left << " - " << test.top << std::endl;
             }
         }
         flop ^= 1;
