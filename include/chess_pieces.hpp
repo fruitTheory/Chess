@@ -12,6 +12,10 @@ enum class PieceType {
     KING
 };
 
+enum Letters { a = 1, b, c, d, e, f, g, h };
+
+enum Pieces { N = 1, B, R, Q, K };
+
 // Class for all chess pieces - uses shapes can use texture later
 class ChessPieces{
 private:
@@ -26,6 +30,7 @@ public:
     ChessPieces();
     sf::CircleShape& get_piece(int piece_type);
     void initialize_piece_position(ChessboardWindow& window);
+    void move_piece_basic();
 };
 
 /*

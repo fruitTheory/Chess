@@ -24,10 +24,10 @@ int main(){
     // init vars
     bool pressed = false;
     sf::Event event;
-
+    chess_pieces.move_piece_basic();
     while (window.getWindow().isOpen()){
-        while (window.getWindow().pollEvent(event))
-            if (event.type == sf::Event::Closed){ window.getWindow().close(); }
+        while (window.getWindow().pollEvent(event)){
+            if (event.type == sf::Event::Closed){ window.getWindow().close(); } }
 
         // on pressed stuff
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
@@ -45,11 +45,13 @@ int main(){
                 A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
                 window.getWindow().draw(A2_pawn); // hard code redraw pawn
                 chess_pieces.initialize_piece_position(window);
-                
+
 
             }
 
         window.getWindow().display();
+        // sf::Time delayTime = sf::milliseconds(500); // 500 milliseconds or 0.5 seconds
+        // sf::sleep(delayTime);
             
         }
     }
@@ -71,6 +73,3 @@ sf::Vector2i mouse_click_position(ChessboardWindow& window){
         return fail; // out of bounds
 }
 
-/*
-Will probably need to store state of board pieces to redraw
-*/

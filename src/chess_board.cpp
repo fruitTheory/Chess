@@ -46,9 +46,3 @@ void Chessboard::create(ChessboardWindow& window){
         flop ^= 1;
     }
 }
-
-/*  well I probably actually need to create light and dark squares 
-    dark_square[8][4]
-    light_square[8][4] 
-    bounding returns x: 96 y: 0 - first dark square - th
-*/
