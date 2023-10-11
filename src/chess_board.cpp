@@ -1,5 +1,5 @@
 #include "chess_board.hpp"
-#include "chess_window.hpp"
+#include "chessboard_window.hpp"
 #include <iostream>
 
 Chessboard::Chessboard():
@@ -11,7 +11,7 @@ board_square_size(96.f, 96.f)
     // other initializers
 }
 
-// Clear and create board
+// Clear window and create board
 void Chessboard::create(ChessboardWindow& window){
     
     window.getWindow().clear(base_color); // initial color
@@ -33,16 +33,13 @@ void Chessboard::create(ChessboardWindow& window){
             if(flop == 0){
                 board_square.setPosition((192 * x) + 96, current_y);
                 window.getWindow().draw(board_square);
-                sf::FloatRect test = board_square.getGlobalBounds();
-                //std::cout << test.left << " " << test.top << std::endl;
             }
             if(flop == 1){
                 board_square.setPosition((192 * x), current_y);
                 window.getWindow().draw(board_square);
-                sf::FloatRect test = board_square.getGlobalBounds();
-                //std::cout << test.left << " - " << test.top << std::endl;
             }
         }
         flop ^= 1;
     }
+    
 }

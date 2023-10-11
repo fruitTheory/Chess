@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "chess_window.hpp"
+#include "chessboard_window.hpp"
 
 class Chessboard{
 private:

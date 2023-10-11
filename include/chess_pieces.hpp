@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "chess_window.hpp"
+#include "chessboard_window.hpp"
+#include "chess_board.hpp"
 
 enum class PieceType {
     PAWN = 1, 
@@ -27,10 +28,19 @@ private:
     sf::CircleShape king; 
     sf::CircleShape queen;
 public:
+
+    struct Move {
+        int pieceType;
+        int letter;
+        int number;
+    };
     ChessPieces();
-    sf::CircleShape& get_piece(int piece_type);
-    void initialize_piece_position(ChessboardWindow& window);
-    void move_piece_basic();
+    sf::CircleShape& get_piece_basic(int piece_type);
+    void draw_pieces(ChessboardWindow& window);
+    Move get_piece();
+    void set_piece(ChessboardWindow& window, Chessboard& board);
+
+
 };
 
 /*

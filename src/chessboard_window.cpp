@@ -1,4 +1,4 @@
-#include "chess_window.hpp"
+#include "chessboard_window.hpp"
 
 int window_width = 768;
 int window_height = 768;
