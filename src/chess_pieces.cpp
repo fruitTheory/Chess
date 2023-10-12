@@ -1,34 +1,20 @@
 #include "chess_pieces.hpp"
-#include "chess_board.hpp"
+#include "chess_utility.hpp"
 #include <iostream>
 #include <utility>
 
+sf::CircleShape piece[64]; // storage or pieces
+
 ChessPieces::ChessPieces():
-null(0.f, 3),
+null(0.f, 0),
 pawn(48.f, 3),
-knight(48.f, 5),
 bishop(48.f, 4),
+knight(48.f, 5),
 rook(48.f, 6),
 king(48.f, 8),
 queen(48.f, 100)
 {
 
-}
-
-// 48 unit size piece
-sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
-    switch (piece_type)
-    {
-    case 1: return pawn; break;
-    case 2: return knight; break;
-    case 3: return bishop; break;
-    case 4: return rook; break;
-    case 5: return king; break;
-    case 6: return queen; break;
-    default:
-        return null;
-        break;
-    }
 }
 
 // Map for piece placement
@@ -57,42 +43,24 @@ int color_map[64] =
     2, 2, 2, 2, 2, 2, 2, 2
 };
 
-// X and Y Map that uses top left value of 96 unit(size) squares
-const std::pair<int, int> square_map[8][8] = {
-    {{0, 0},   {96, 0},   {192, 0},   {288, 0},   {384, 0},   {480, 0},   {576, 0},   {672, 0}},
-    {{0, 96},  {96, 96},  {192, 96},  {288, 96},  {384, 96},  {480, 96},  {576, 96},  {672, 96}},
-    {{0, 192}, {96, 192}, {192, 192}, {288, 192}, {384, 192}, {480, 192}, {576, 192}, {672, 192}},
-    {{0, 288}, {96, 288}, {192, 288}, {288, 288}, {384, 288}, {480, 288}, {576, 288}, {672, 288}},
-    {{0, 384}, {96, 384}, {192, 384}, {288, 384}, {384, 384}, {480, 384}, {576, 384}, {672, 384}},
-    {{0, 480}, {96, 480}, {192, 480}, {288, 480}, {384, 480}, {480, 480}, {576, 480}, {672, 480}},
-    {{0, 576}, {96, 576}, {192, 576}, {288, 576}, {384, 576}, {480, 576}, {576, 576}, {672, 576}},
-    {{0, 672}, {96, 672}, {192, 672}, {288, 672}, {384, 672}, {480, 672}, {576, 672}, {672, 672}}
-};
-
-// General Notation mapping
-std::pair<Letters, int> notation_map[8][8] = {
-    {{a, 8}, {b, 8}, {c, 8}, {d, 8}, {e, 8}, {f, 8}, {g, 8}, {h, 8}},
-    {{a, 7}, {b, 7}, {c, 7}, {d, 7}, {e, 7}, {f, 7}, {g, 7}, {h, 7}},
-    {{a, 6}, {b, 6}, {c, 6}, {d, 6}, {e, 6}, {f, 6}, {g, 6}, {h, 6}},
-    {{a, 5}, {b, 5}, {c, 5}, {d, 5}, {e, 5}, {f, 5}, {g, 5}, {h, 5}},
-    {{a, 4}, {b, 4}, {c, 4}, {d, 4}, {e, 4}, {f, 4}, {g, 4}, {h, 4}},
-    {{a, 3}, {b, 3}, {c, 3}, {d, 3}, {e, 3}, {f, 3}, {g, 3}, {h, 3}},
-    {{a, 2}, {b, 2}, {c, 2}, {d, 2}, {e, 2}, {f, 2}, {g, 2}, {h, 2}},
-    {{a, 1}, {b, 1}, {c, 1}, {d, 1}, {e, 1}, {f, 1}, {g, 1}, {h, 1}},
-};
-
-// Letter notations mapping
-std::map<char, Letters> letter_notation_map = {
-    {'a', a},{'b', b},{'c', c},{'d', d},
-    {'e', e},{'f', f},{'g', g},{'h', h}
-};
-
 // Piece notations mapping
 std::map<char, Pieces> piece_notation_map = {
     {'N', N},{'B', B},{'R', R},{'Q', Q},{'K', K}
 };
 
-sf::CircleShape piece[64];
+// 48 unit size piece
+sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
+    switch (piece_type)
+    {
+    case 1: return pawn; break;
+    case 2: return bishop; break;
+    case 3: return knight; break;
+    case 4: return rook; break;
+    case 5: return queen; break;
+    case 6: return king; break;
+    default: return null; break;
+    }
+}
 
 // Set pieces on board in default places
 void ChessPieces::draw_pieces(ChessboardWindow& window){
@@ -112,7 +80,7 @@ void ChessPieces::draw_pieces(ChessboardWindow& window){
 }
 
 // Basic move pieces
-ChessPieces::Move ChessPieces::get_piece(){
+ChessPieces::Move ChessPieces::get_move(){
 
     ChessPieces::Move move;
     std::string input_move;
@@ -121,46 +89,37 @@ ChessPieces::Move ChessPieces::get_piece(){
     std::cin >> input_move; // should be some form of Ba7 or a6
 
     if(input_move.length() == 3){ // for pieces
-        move.pieceType = piece_notation_map[input_move[0]];
+        move.piece_type = piece_notation_map[input_move[0]];
         move.letter = letter_notation_map[input_move[1]];
-        move.number = input_move[2] - '0'; 
-        std::cout << move.pieceType << std::endl;
+        move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
+        std::cout << move.piece_type << std::endl;
         std::cout << move.letter << std::endl;
         std::cout <<  move.number << std::endl;
     }
     else if(input_move.length() == 2){ // for pawns
-        move.pieceType = 0;
+        move.piece_type = 0;
         move.letter = letter_notation_map[input_move[0]];
-        move.number = input_move[1] - '0'; // -'0' converts 0-9 char to numeral
+        move.number = input_move[1] - '0'; 
         std::cout << move.letter << std::endl;
         std::cout <<  move.number << std::endl;
     }
+    else{ std::cout << "Not a valid piece" << std::endl; }
 
     return move;
-
 }
 
 void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
 
-    ChessPieces::Move move_input = get_piece();
+    ChessPieces::Move move_input = get_move();
     sf::CircleShape selected_piece = piece[0];
-
-    board.create(window);
     selected_piece.setPosition(square_map[5][3].first, square_map[5][3].second);
 
     piece_map[0] = 0; // clears piece
-    piece_map[42] = 4;
-    color_map[42] = color_map[0];
+    piece_map[42] = 4; // overwrite piece in posiiton
+    color_map[42] = color_map[0]; // set color to previous
 
+    board.create(window);
     draw_pieces(window);
-
-    // window.getWindow().draw(selected_piece);
-    // window.getWindow().display();
-    // get_piece(move_input)
-
-    // // set position of object to cursor position offset by size of object to center
-    // A2_pawn.setPosition(square_map[6][3].first, square_map[6][3].second);
-    // window.getWindow().draw(A2_pawn); // hard code redraw pawn
 
 }
 

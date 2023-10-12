@@ -3,10 +3,13 @@
 #include "SFML/Graphics.hpp"
 #include "chessboard_window.hpp"
 
+extern const std::pair<int, int> square_map[8][8];
+
 class Chessboard{
 private:
     const sf::Color base_color;
-    const sf::Color square_color;
+    const sf::Color dark_square_color;
+    const sf::Color light_square_color;
     const sf::Color highlight_color;
     const sf::Vector2f board_square_size;
 

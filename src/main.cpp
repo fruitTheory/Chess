@@ -11,11 +11,10 @@ int main(){
 
     ChessboardWindow window; // window object
     Chessboard board; // board object
-    board.create(window); // create board
-    
-    ChessPieces chess_pieces; // chess piece object
-    chess_pieces.draw_pieces(window); // initial pieces
+    ChessPieces chess_pieces; // chess pieces object
 
+    board.create(window);
+    chess_pieces.draw_pieces(window);
     chess_pieces.set_piece(window, board);
 
     bool pressed = false;
@@ -38,7 +37,6 @@ int main(){
 
                 // get piece from chess pieces
                 // sf::CircleShape& A2_pawn = chess_pieces.get_piece_basic(1);
-
                 // board.create(window);
                 // // set position of object to cursor position offset by size of object to center
                 // A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
