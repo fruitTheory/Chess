@@ -37,7 +37,7 @@ void Chessboard::create(ChessboardWindow& window){
 
     /*
     This board setup method, sets light and dark squares based on odd or even
-    And for every increment of y row, it sets an offset -1x for dark and +1x for light
+    And for every increment of y row, it offsets -1x for dark and +1x for light
     To flip board make !not even, and swap +1x -1x
     */
     int offset = 0;

@@ -4,8 +4,11 @@
 #include "chessboard_window.hpp"
 #include "chess_board.hpp"
 
-enum PieceType { PAWN = 1, KNIGHT, BISHOP, ROOK, QUEEN, KING };
-enum Pieces { N = 1, B, R, Q, K };
+enum class Pieces { P = 1, B, N, R, Q, K };
+extern const std::map<char, Pieces> piece_notation_map;
+
+enum class Letters { a = 1, b, c, d, e, f, g, h };
+extern const std::map<char, Letters> letter_notation_map;
 
 // Class for all chess pieces - uses shapes can use texture later
 class ChessPieces{
@@ -19,7 +22,7 @@ private:
     sf::CircleShape queen;
 public:
 
-    struct Move {
+    struct Selection {
         int piece_type;
         int letter;
         int number;
@@ -27,7 +30,7 @@ public:
     ChessPieces();
     sf::CircleShape& get_piece_basic(int piece_type);
     void draw_pieces(ChessboardWindow& window);
-    Move get_move();
+    Selection select_piece(bool destination);
     void set_piece(ChessboardWindow& window, Chessboard& board);
 
 };

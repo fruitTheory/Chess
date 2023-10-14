@@ -3,8 +3,10 @@
 #include <iostream>
 #include <utility>
 
-sf::CircleShape piece[64]; // storage or pieces
+// storage of created shapes(pieces)
+sf::CircleShape piece[64];
 
+// Constructor
 ChessPieces::ChessPieces():
 null(0.f, 0),
 pawn(48.f, 3),
@@ -44,26 +46,33 @@ int color_map[64] =
 };
 
 // Piece notations mapping
-std::map<char, Pieces> piece_notation_map = {
-    {'N', N},{'B', B},{'R', R},{'Q', Q},{'K', K}
+const std::map<char, Pieces> piece_notation_map = {
+    {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
 };
 
-// 48 unit size piece
+// Letter notations mapping
+const std::map<char, Letters> letter_notation_map = {
+    {'a', Letters::a},{'b', Letters::b},{'c', Letters::c},{'d', Letters::d},
+    {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
+};
+
+// Returns a chess piece of type CircleShape
 sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
-    switch (piece_type)
-    {
-    case 1: return pawn; break;
-    case 2: return bishop; break;
-    case 3: return knight; break;
-    case 4: return rook; break;
-    case 5: return queen; break;
-    case 6: return king; break;
-    default: return null; break;
-    }
+    switch (piece_type){
+    case 1: return pawn; break;   case 2: return bishop; break;
+    case 3: return knight; break; case 4: return rook; break;
+    case 5: return queen; break;  case 6: return king; break;
+    default: return null; break; }
 }
 
-// Set pieces on board in default places
+// Set pieces on board in default places - Updates draw
 void ChessPieces::draw_pieces(ChessboardWindow& window){
+
+    // Pieces pawn;
+    // Pieces::P;
+    // Pieces::B;
+
+    // piece[num].setPosition(square_map[y][x].first, square_map[y][x].second);
 
     int num = 0;
     for(int y = 0; y < 8; y++){
@@ -72,56 +81,90 @@ void ChessPieces::draw_pieces(ChessboardWindow& window){
             piece[num].setPosition(square_map[y][x].first, square_map[y][x].second);
             if(color_map[num] == 1){ piece[num].setFillColor(sf::Color::Black); }
             if(color_map[num] == 2){ piece[num].setFillColor(sf::Color::White); }
-            window.getWindow().draw(piece[num]);
+            window.getWindow().draw(piece[num]); 
             num++;
         }
     }
     window.getWindow().display();
 }
 
-// Basic move pieces
-ChessPieces::Move ChessPieces::get_move(){
+// Returns player piece selection or piece destination when using true
+ChessPieces::Selection ChessPieces::select_piece(bool destination){
 
-    ChessPieces::Move move;
+    ChessPieces::Selection selection;
     std::string input_move;
 
-    std::cout << "Select a piece\n";
+    select_piece:
+    if(!destination){ std::cout << "Select a piece - Ex: Ba7, a6, Ne4\n";}
+    else{std::cout << "Select a destination\n";}
     std::cin >> input_move; // should be some form of Ba7 or a6
 
     if(input_move.length() == 3){ // for pieces
-        move.piece_type = piece_notation_map[input_move[0]];
-        move.letter = letter_notation_map[input_move[1]];
-        move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
-        std::cout << move.piece_type << std::endl;
-        std::cout << move.letter << std::endl;
-        std::cout <<  move.number << std::endl;
+        selection.piece_type = static_cast<int>(piece_notation_map.at(input_move[0]));
+        selection.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
+        selection.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
+        std::cout << selection.piece_type << std::endl;
+        std::cout << selection.letter << std::endl;
+        std::cout <<  selection.number << std::endl;
     }
     else if(input_move.length() == 2){ // for pawns
-        move.piece_type = 0;
-        move.letter = letter_notation_map[input_move[0]];
-        move.number = input_move[1] - '0'; 
-        std::cout << move.letter << std::endl;
-        std::cout <<  move.number << std::endl;
+        selection.piece_type = 0;
+        selection.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
+        selection.number = input_move[1] - '0'; 
+        std::cout << selection.letter << std::endl;
+        std::cout <<  selection.number << std::endl;
     }
-    else{ std::cout << "Not a valid piece" << std::endl; }
+    else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
 
-    return move;
+    return selection;
 }
+
 
 void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
 
-    ChessPieces::Move move_input = get_move();
-    sf::CircleShape selected_piece = piece[0];
-    selected_piece.setPosition(square_map[5][3].first, square_map[5][3].second);
+    ChessPieces::Selection selection_input = select_piece(false);
+    ChessPieces::Selection destination_input = select_piece(true);
 
-    piece_map[0] = 0; // clears piece
-    piece_map[42] = 4; // overwrite piece in posiiton
-    color_map[42] = color_map[0]; // set color to previous
+    //B -- a 7 --  8 x 8 -- 64 
+
+    int number = destination_input.number;
+    int letter = destination_input.letter;
+
+    sf::CircleShape selected_piece = piece[0];
+    selected_piece.setPosition(square_map[number][letter].first, square_map[number][letter].second);
+
+    // piece_map[0] = 0; // clears piece
+    // piece_map[42] = 4; // overwrite piece in posiiton
+    // color_map[42] = color_map[0]; // set color to previous
 
     board.create(window);
+    // window.getWindow().draw(selected_piece); 
+    // window.getWindow().display();
     draw_pieces(window);
 
 }
+
+/*
+
+  A B C D E F G H
+8 0 0 0 0 0 0 0 0 8
+7 1 1 1 1 1 1 1 1 7
+6 1 1 1 1 1 1 1 1 6
+5 1 1 1 1 1 1 1 1 5
+4 1 1 1 1 1 1 1 1 4
+3 1 1 1 1 1 1 1 1 3
+2 1 1 1 1 1 1 1 1 2
+1 0 0 0 0 0 0 0 0 1
+  A B C D E F G H
+
+Move storage - reverse moves 
+King state - checks / checkmate / stalemate
+-8 +8 check in front behind
+-1 +1 check left right
+-8-1 -8+1, +8+1 +8-1, diagonals
+bounds check?
+
+*/
 
 /*
 Takes input: a6->a7, Bb7, Ne4, Ke8->Kd7
@@ -150,16 +193,5 @@ Piece rules:
 
 
 Set piece: set piece to new spot clear spot if necessary
-
-  A B C D E F G H
-8 0 0 0 0 0 0 0 0 8
-7 1 1 1 1 1 1 1 1 7
-6 1 1 1 1 1 1 1 1 6
-5 1 1 1 1 1 1 1 1 5
-4 1 1 1 1 1 1 1 1 4
-3 1 1 1 1 1 1 1 1 3
-2 1 1 1 1 1 1 1 1 2
-1 0 0 0 0 0 0 0 0 1
-  A B C D E F G H
 
 */

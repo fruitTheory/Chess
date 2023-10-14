@@ -1,7 +1,7 @@
 #include "chessboard_window.hpp"
 
-int window_width = 768;
-int window_height = 768;
+int window_width = 868;
+int window_height = 868;
 
 ChessboardWindow::ChessboardWindow():
 window_title("Chessboard"),
