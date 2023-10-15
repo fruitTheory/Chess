@@ -57,34 +57,176 @@ const std::map<char, Letters> letter_notation_map = {
 };
 
 // Returns a chess piece of type CircleShape
-sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
-    switch (piece_type){
-    case 1: return pawn; break;   case 2: return bishop; break;
-    case 3: return knight; break; case 4: return rook; break;
-    case 5: return queen; break;  case 6: return king; break;
-    default: return null; break; }
+// sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
+//     switch (piece_type){
+//     case 1: return pawn; break;   case 2: return bishop; break;
+//     case 3: return knight; break; case 4: return rook; break;
+//     case 5: return queen; break;  case 6: return king; break;
+//     default: return null; break; }
+// }
+
+void ChessPieces::Set_ID(int ID){ object_id = ID; }
+int ChessPieces::Get_ID(){ return object_id; }
+
+// returns piece type of shape
+sf::CircleShape ChessPieces::get_piece_type(){ return piece_type; }
+
+// Takes a vector of type ChessPieces and creates 32 objects which are pushed into that vector
+void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
+        for(int i = 1; i <= 32; i++){
+        ChessPieces piece;
+        piece.Set_ID(i);
+        chess_pieces.push_back(piece);
+    } // create 32 objects with ID's
 }
 
-// Set pieces on board in default places - Updates draw
-void ChessPieces::draw_pieces(ChessboardWindow& window){
+    /*
+        ID Mapping for Chess Pieces:
+    White Pieces:                   Black Pieces:
+    // white_pawn_1   : 1           // black_pawn_1   : 17
+    // white_pawn_2   : 2           // black_pawn_2   : 18
+    // white_pawn_3   : 3           // black_pawn_3   : 19
+    // white_pawn_4   : 4           // black_pawn_4   : 20
+    // white_pawn_5   : 5           // black_pawn_5   : 21
+    // white_pawn_6   : 6           // black_pawn_6   : 22
+    // white_pawn_7   : 7           // black_pawn_7   : 23
+    // white_pawn_8   : 8           // black_pawn_8   : 24
+    // white_bishop_1 : 9           // black_bishop_1 : 25
+    // white_bishop_2 : 10          // black_bishop_2 : 26
+    // white_knight_1 : 11          // black_knight_1 : 27
+    // white_knight_2 : 12          // black_knight_2 : 28
+    // white_rook_1   : 13          // black_rook_1   : 29
+    // white_rook_2   : 14          // black_rook_2   : 30
+    // white_king     : 15          // black_king     : 31
+    // white_queen    : 16          // black_queen    : 32    
 
-    // Pieces pawn;
-    // Pieces::P;
-    // Pieces::B;
+    */
 
-    // piece[num].setPosition(square_map[y][x].first, square_map[y][x].second);
+// Takes a vector of type ChessPieces
+void ChessPieces::draw_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
 
-    int num = 0;
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 8; x++){
-            piece[num] = ChessPieces::get_piece_basic(piece_map[num]);
-            piece[num].setPosition(square_map[y][x].first, square_map[y][x].second);
-            if(color_map[num] == 1){ piece[num].setFillColor(sf::Color::Black); }
-            if(color_map[num] == 2){ piece[num].setFillColor(sf::Color::White); }
-            window.getWindow().draw(piece[num]); 
-            num++;
+    for(int i = 0; i < 32; i++){
+
+        // set white pawns 1 to 8
+        if(chess_pieces[i].object_id <= 8){
+            chess_pieces[i].pawn.setPosition(square_map[6][i].first, square_map[6][i].second);
+            window.getWindow().draw(chess_pieces[i].pawn);
         }
+        // set white bishops 9, 10
+        if(chess_pieces[i].object_id == 9){
+            chess_pieces[i].bishop.setPosition(square_map[7][2].first, square_map[7][2].second);
+            window.getWindow().draw(chess_pieces[i].bishop);
+        }
+        if(chess_pieces[i].object_id == 10){
+            chess_pieces[i].bishop.setPosition(square_map[7][5].first, square_map[7][5].second);
+            window.getWindow().draw(chess_pieces[i].bishop);
+        }
+        // set white knights 11, 12
+        if(chess_pieces[i].object_id == 11){
+            chess_pieces[i].knight.setPosition(square_map[7][1].first, square_map[7][1].second);
+            window.getWindow().draw(chess_pieces[i].knight);
+        }
+        if(chess_pieces[i].object_id == 12){
+            chess_pieces[i].knight.setPosition(square_map[7][6].first, square_map[7][6].second);
+            window.getWindow().draw(chess_pieces[i].knight);
+        }
+        // set white rooks 13, 14
+        if(chess_pieces[i].object_id == 13){
+            chess_pieces[i].rook.setPosition(square_map[7][0].first, square_map[7][0].second);
+            window.getWindow().draw(chess_pieces[i].rook);
+        }
+        if(chess_pieces[i].object_id == 14){
+            chess_pieces[i].rook.setPosition(square_map[7][7].first, square_map[7][7].second);
+            window.getWindow().draw(chess_pieces[i].rook);
+        }
+        // set white queen 5
+        if(chess_pieces[i].object_id == 15){
+            chess_pieces[i].queen.setPosition(square_map[7][3].first, square_map[7][3].second);
+            window.getWindow().draw(chess_pieces[i].queen);
+        }
+        // set white king 6
+        if(chess_pieces[i].object_id == 16){
+            chess_pieces[i].king.setPosition(square_map[7][4].first, square_map[7][4].second);
+            window.getWindow().draw(chess_pieces[i].king);
+        }
+        // set white piece colors
+        if(chess_pieces[i].object_id <= 16){
+            chess_pieces[i].pawn.setFillColor(sf::Color::Black);
+            chess_pieces[i].bishop.setFillColor(sf::Color::Black);
+            chess_pieces[i].knight.setFillColor(sf::Color::Black);
+            chess_pieces[i].queen.setFillColor(sf::Color::Black);
+            chess_pieces[i].king.setFillColor(sf::Color::Black);
+            // window.getWindow().draw(chess_pieces[i].pawn);
+            // window.getWindow().draw(chess_pieces[i].bishop);
+            // window.getWindow().draw(chess_pieces[i].knight);
+        }
+
+        // set black pawns
+        if(chess_pieces[i].object_id > 16 && chess_pieces[i].object_id <= 24){
+            chess_pieces[i].pawn.setPosition(square_map[1][i-16].first, square_map[1][i-16].second);
+            chess_pieces[i].pawn.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].pawn);
+        }
+
+        int black_y = 0;
+        // set black bishops 25, 26
+        if(chess_pieces[i].object_id == 25){
+            chess_pieces[i].bishop.setPosition(square_map[black_y][2].first, square_map[black_y][2].second);
+            chess_pieces[i].bishop.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].bishop);
+        }
+
+        if(chess_pieces[i].object_id == 26){
+            chess_pieces[i].bishop.setPosition(square_map[black_y][5].first, square_map[black_y][5].second);
+            chess_pieces[i].bishop.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].bishop);
+        }
+
+        // set black knights 27, 28
+        if(chess_pieces[i].object_id == 27){
+            chess_pieces[i].knight.setPosition(square_map[black_y][1].first, square_map[black_y][1].second);
+            chess_pieces[i].knight.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].knight);
+        }
+        if(chess_pieces[i].object_id == 28){
+            chess_pieces[i].knight.setPosition(square_map[black_y][6].first, square_map[black_y][6].second);
+            chess_pieces[i].knight.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].knight);
+        }
+
+        // set black rooks 29, 30
+        if(chess_pieces[i].object_id == 29){
+            chess_pieces[i].rook.setPosition(square_map[black_y][0].first, square_map[black_y][0].second);
+            chess_pieces[i].rook.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].rook);
+        }
+        if(chess_pieces[i].object_id == 30){
+            chess_pieces[i].rook.setPosition(square_map[black_y][7].first, square_map[black_y][7].second);
+            chess_pieces[i].rook.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].rook);
+        }
+
+        // set black queen 31
+        if(chess_pieces[i].object_id == 31){
+            chess_pieces[i].queen.setPosition(square_map[black_y][3].first, square_map[black_y][3].second);
+            chess_pieces[i].queen.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].queen);
+        }
+
+        // set black king 32
+        if(chess_pieces[i].object_id == 32){
+            chess_pieces[i].king.setPosition(square_map[black_y][4].first, square_map[black_y][4].second);
+            chess_pieces[i].king.setFillColor(sf::Color::Black);
+            window.getWindow().draw(chess_pieces[i].king);
+        }
+
+        // set black piece colors
+        if(chess_pieces[i].object_id > 16 || chess_pieces[i].object_id <= 32){
+            chess_pieces[i].king.setFillColor(sf::Color::Black);
+        }
+
     }
+
     window.getWindow().display();
 }
 
@@ -125,12 +267,14 @@ void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
     ChessPieces::Selection selection_input = select_piece(false);
     ChessPieces::Selection destination_input = select_piece(true);
 
-    //B -- a 7 --  8 x 8 -- 64 
-
-    int number = destination_input.number;
-    int letter = destination_input.letter;
+    // If playing as white - need to invert number, can keep letter same, if black then opposite
+    int invert_num = (8 - destination_input.number) + 1;
+    int number = invert_num - 1; // -1 for array
+    int letter = destination_input.letter - 1;
 
     sf::CircleShape selected_piece = piece[0];
+
+    // set piece position
     selected_piece.setPosition(square_map[number][letter].first, square_map[number][letter].second);
 
     // piece_map[0] = 0; // clears piece
@@ -138,9 +282,9 @@ void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
     // color_map[42] = color_map[0]; // set color to previous
 
     board.create(window);
-    // window.getWindow().draw(selected_piece); 
-    // window.getWindow().display();
-    draw_pieces(window);
+    window.getWindow().draw(selected_piece); 
+    window.getWindow().display();
+    // draw_pieces(window);
 
 }
 

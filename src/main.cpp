@@ -14,7 +14,13 @@ int main(){
     ChessPieces chess_pieces; // chess pieces object
 
     board.create(window);
-    chess_pieces.draw_pieces(window);
+
+    std::vector<ChessPieces> pieces;
+    std::cout << pieces.size() << std::endl;
+    chess_pieces.create_chess_pieces(pieces);
+    std::cout << pieces.size() << std::endl;
+
+    chess_pieces.draw_pieces(window, pieces);
     chess_pieces.set_piece(window, board);
 
     bool pressed = false;

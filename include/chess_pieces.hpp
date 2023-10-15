@@ -20,6 +20,9 @@ private:
     sf::CircleShape rook; 
     sf::CircleShape king; 
     sf::CircleShape queen;
+    sf::CircleShape piece_type;
+    int object_id;
+
 public:
 
     struct Selection {
@@ -28,11 +31,14 @@ public:
         int number;
     };
     ChessPieces();
-    sf::CircleShape& get_piece_basic(int piece_type);
-    void draw_pieces(ChessboardWindow& window);
+    //sf::CircleShape& get_piece_basic(int piece_type);
+    void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
+    void draw_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
     Selection select_piece(bool destination);
     void set_piece(ChessboardWindow& window, Chessboard& board);
-
+    void Set_ID(int ID);
+    int Get_ID();
+    sf::CircleShape get_piece_type();
 };
 
 /*

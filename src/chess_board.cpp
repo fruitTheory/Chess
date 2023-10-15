@@ -16,7 +16,6 @@ const std::pair<int, int> square_map[8][8] = {
 };
 
 Chessboard::Chessboard():
-base_color(185,195,205,255),
 dark_square_color(0,45,85,255),
 light_square_color(185,195,205,255),
 board_square_size(96.f, 96.f) 
@@ -36,9 +35,9 @@ void Chessboard::create(ChessboardWindow& window){
     light_square.setFillColor(light_square_color);
 
     /*
-    This board setup method, sets light and dark squares based on odd or even
+    This method sets light and dark squares based on odd or even
     And for every increment of y row, it offsets -1x for dark and +1x for light
-    To flip board make !not even, and swap +1x -1x
+    To flip board make !not even, and swap +offsets -offsets
     */
     int offset = 0;
     int flop = 0;

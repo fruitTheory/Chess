@@ -25,3 +25,28 @@ sf::Vector2i mouse_click_position(ChessboardWindow& window){
         sf::Vector2i fail = {-1, -1};
         return fail; // out of bounds
 }
+
+// temp sprite setup, simple processing 
+sf::Sprite setup_sprite(ChessboardWindow& window){
+        
+        sf::Vector2f halve(0.5f, 0.5f);
+        sf::Color bg(185,195,205,255);
+
+        sf::Texture texture;
+        if(!texture.loadFromFile("./img/white_queen.png")) { puts("Error"); }
+        sf::Sprite sprite(texture);
+
+        sprite.setTexture(texture);
+        sprite.setPosition(50, 50);
+        sf::Vector2u originalSize = sprite.getTexture()->getSize();
+
+        float scaleX = 48.0f / originalSize.x;
+        float scaleY = 48.0f / originalSize.y;
+        sprite.setScale(scaleX, scaleY);
+
+        window.getWindow().clear(bg);
+        window.getWindow().draw(sprite);
+        window.getWindow().display();
+
+        return sprite;
+}

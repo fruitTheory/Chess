@@ -7,7 +7,6 @@ extern const std::pair<int, int> square_map[8][8];
 
 class Chessboard{
 private:
-    const sf::Color base_color;
     const sf::Color dark_square_color;
     const sf::Color light_square_color;
     const sf::Color highlight_color;
