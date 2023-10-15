@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-// X and Y Map that uses top left value of 96 unit(size) squares
+// A map of X and Y pairs that uses top left value of 96 unit(size) squares
 const std::pair<int, int> square_map[8][8] = {
     {{0, 0},   {96, 0},   {192, 0},   {288, 0},   {384, 0},   {480, 0},   {576, 0},   {672, 0}},
     {{0, 96},  {96, 96},  {192, 96},  {288, 96},  {384, 96},  {480, 96},  {576, 96},  {672, 96}},
@@ -35,9 +35,8 @@ void Chessboard::create(ChessboardWindow& window){
     light_square.setFillColor(light_square_color);
 
     /*
-    This method sets light and dark squares based on odd or even
-    And for every increment of y row, it offsets -1x for dark and +1x for light
-    To flip board make !not even, and swap +offsets -offsets
+    Sets light and dark squares based on odd or even
+    To flip board make modulus !not even, and swap +offsets -offsets
     */
     int offset = 0;
     int flop = 0;

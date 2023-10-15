@@ -45,9 +45,7 @@ public:
 
     void Set_ID(int ID);
     int Get_ID();
-
     Pieces get_piece_type(int object_id);
-    //sf::CircleShape get_piece_type(std::vector<ChessPieces>& chess_pieces);
 };
 
 /*
