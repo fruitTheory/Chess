@@ -20,7 +20,7 @@ int main(){
     chess_pieces.create_chess_pieces(pieces);
     std::cout << pieces.size() << std::endl;
 
-    chess_pieces.draw_pieces(window, pieces);
+    chess_pieces.setup_board(window, pieces);
     chess_pieces.set_piece(window, board);
 
     bool pressed = false;
