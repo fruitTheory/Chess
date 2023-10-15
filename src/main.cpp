@@ -28,7 +28,6 @@ int main(){
         while (window.getWindow().pollEvent(event)){
             if (event.type == sf::Event::Closed){ window.getWindow().close(); } }
 
-        // on pressed stuff
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
         if (pressed){
 

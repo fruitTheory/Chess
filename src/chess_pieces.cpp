@@ -30,7 +30,7 @@ const std::map<char, Letters> letter_notation_map = {
 void ChessPieces::Set_ID(int ID){ object_id = ID; }
 int ChessPieces::Get_ID(){ return object_id; }
 
-// Return piece type from Pieces enum based on objects id
+// Returns a piece type, also determines the amount of pieces for each type, based on the object id
 Pieces ChessPieces::get_piece_type(int object_id) {
     
     if(object_id > 0 && object_id <= 8 || (object_id > 16 && object_id <= 24)) { return Pieces::P; }

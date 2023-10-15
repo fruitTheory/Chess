@@ -26,11 +26,9 @@ board_square_size(96.f, 96.f)
 // Clear window and create board
 void Chessboard::create(ChessboardWindow& window){
 
-    // int light square
     sf::RectangleShape dark_square(board_square_size);
     dark_square.setFillColor(dark_square_color);
     
-    // int light square
     sf::RectangleShape light_square(board_square_size);
     light_square.setFillColor(light_square_color);
 
