@@ -16,9 +16,7 @@ int main(){
     board.create(window);
 
     std::vector<ChessPieces> pieces;
-    std::cout << pieces.size() << std::endl;
     chess_pieces.create_chess_pieces(pieces);
-    std::cout << pieces.size() << std::endl;
 
     chess_pieces.setup_pieces(window, pieces);
     chess_pieces.move_piece(window, board);

@@ -4,7 +4,7 @@
 #include "chessboard_window.hpp"
 #include "chess_board.hpp"
 
-enum class Pieces { P = 1, B, N, R, Q, K };
+enum class Pieces { None = 0, P, B, N, R, Q, K };
 extern const std::map<char, Pieces> piece_notation_map;
 
 enum class Letters { a = 1, b, c, d, e, f, g, h };
@@ -12,6 +12,7 @@ extern const std::map<char, Letters> letter_notation_map;
 
 // Class for all chess pieces - uses shapes can use texture later
 class ChessPieces{
+    
 private:
     sf::CircleShape null;
     sf::CircleShape pawn;
@@ -34,7 +35,7 @@ public:
     };
 
     void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
-    void move_piece_colors(std::vector<ChessPieces>& chess_pieces);
+    void set_piece_colors(std::vector<ChessPieces>& chess_pieces);
     void place_pieces(std::vector<ChessPieces>& chess_pieces);
     void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
     void setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
@@ -45,7 +46,8 @@ public:
     void Set_ID(int ID);
     int Get_ID();
 
-    sf::CircleShape get_piece_type();
+    Pieces get_piece_type(int object_id);
+    //sf::CircleShape get_piece_type(std::vector<ChessPieces>& chess_pieces);
 };
 
 /*
