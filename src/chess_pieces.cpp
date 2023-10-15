@@ -92,7 +92,7 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
     // white_king     : 16          // black_king     : 32    
 
     */
-void ChessPieces::setup_color(std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::move_piece_colors(std::vector<ChessPieces>& chess_pieces){
 
     // Set all piece colors based on id
     for(int i = 0; i < 32; i++){
@@ -117,7 +117,7 @@ void ChessPieces::setup_color(std::vector<ChessPieces>& chess_pieces){
 
 
 // Set initial piece positions
-void ChessPieces::setup_pieces(std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
 
     int black_y = 0; // y for black pieces 
     int white_y = 7; // y for white pieces
@@ -194,7 +194,7 @@ void ChessPieces::setup_pieces(std::vector<ChessPieces>& chess_pieces){
 }
 
 // Takes a vector of type ChessPieces
-void ChessPieces::draw_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
 
     // draw pieces - note that minus -1 from object_id for index
     for(int i = 0; i < 32; i++){
@@ -226,11 +226,11 @@ void ChessPieces::draw_pieces(ChessboardWindow& window, std::vector<ChessPieces>
 
 }
 
-// Initialize board
-void ChessPieces::setup_board(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
-    setup_color(chess_pieces);
-    setup_pieces(chess_pieces);
-    draw_pieces(window, chess_pieces);
+// Use to setup initial chess board on pieces
+void ChessPieces::setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
+    move_piece_colors(chess_pieces);
+    place_pieces(chess_pieces);
+    render_pieces(window, chess_pieces);
     window.getWindow().display();
 }
 
@@ -266,7 +266,7 @@ ChessPieces::Selection ChessPieces::select_piece(bool destination){
 }
 
 
-void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
+void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board){
 
     ChessPieces::Selection selection_input = select_piece(false);
     ChessPieces::Selection destination_input = select_piece(true);
@@ -288,7 +288,7 @@ void ChessPieces::set_piece(ChessboardWindow& window, Chessboard& board){
     board.create(window);
     window.getWindow().draw(selected_piece); 
     window.getWindow().display();
-    // draw_pieces(window);
+    // render_pieces(window);
 
 }
 

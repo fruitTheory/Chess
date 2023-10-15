@@ -25,22 +25,22 @@ private:
 
 public:
 
+    ChessPieces();
+
     struct Selection {
         int piece_type;
         int letter;
         int number;
     };
-    ChessPieces();
+
     void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
-
-    void draw_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
-    void setup_color(std::vector<ChessPieces>& chess_pieces);
-    void setup_pieces(std::vector<ChessPieces>& chess_pieces);
-    void setup_board(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
-
+    void move_piece_colors(std::vector<ChessPieces>& chess_pieces);
+    void place_pieces(std::vector<ChessPieces>& chess_pieces);
+    void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
+    void setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
 
     Selection select_piece(bool destination);
-    void set_piece(ChessboardWindow& window, Chessboard& board);
+    void move_piece(ChessboardWindow& window, Chessboard& board);
 
     void Set_ID(int ID);
     int Get_ID();
