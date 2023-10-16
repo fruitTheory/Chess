@@ -29,7 +29,7 @@ public:
     ChessPieces();
 
     struct Move {
-        int piece_type;
+        Pieces piece_type;
         int letter;
         int number;
     };
@@ -38,7 +38,7 @@ public:
     void set_piece_colors(std::vector<ChessPieces>& chess_pieces);
     void place_pieces(std::vector<ChessPieces>& chess_pieces);
     void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
-    void setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
+    void setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     Move move_input(bool destination);
     void move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);

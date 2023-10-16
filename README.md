@@ -14,6 +14,7 @@ Initial idea is to create a simple chess 'ai' that can play at a very basic leve
 
 ```mingw32-make``` ```make```
 
+![board test](./img/chessboard3.png)
 ## Roadmap
 - Highlight squares on click
 - Place pieces in a forward thinking manner 

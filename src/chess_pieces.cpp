@@ -16,7 +16,7 @@ queen(48.f, 100)
 
 }
 
-int piece_map_v2[8][8] = 
+int piece_map[8][8] = 
 {
     {29, 27, 25, 31, 32, 26, 28, 30},
     {17, 18, 19, 20, 21, 22, 23, 24},
@@ -117,7 +117,7 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
             // note that the object id returned from map_value is an abstract version not the class version
-            int map_value = piece_map_v2[y][x]; // an objects id at a started position position ex:{0, 0}
+            int map_value = piece_map[y][x]; // an objects id at a started position position ex:{0, 0}
             Pieces type = chess_pieces[map_value-1].get_piece_type(); // type of piece that object id is
 
             if(type == Pieces::P){chess_pieces[map_value-1].pawn.setPosition(square_map[y][x].first, square_map[y][x].second);}
@@ -150,7 +150,9 @@ void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPiece
 }
 
 // Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
-void ChessPieces::setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+    window.getWindow().clear();
+    board.create(window);
     set_piece_colors(chess_pieces);
     place_pieces(chess_pieces);
     render_pieces(window, chess_pieces);
@@ -169,12 +171,12 @@ ChessPieces::Move ChessPieces::move_input(bool destination){
     std::cin >> input_move; // should be some form of Ba7 or a6
 
     if(input_move.length() == 2){ // for pawns
-        move.piece_type = 0;
+        move.piece_type = Pieces::P;
         move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
         move.number = input_move[1] - '0';
     }
     else if(input_move.length() == 3){ // for pieces
-        move.piece_type = static_cast<int>(piece_notation_map.at(input_move[0]));
+        move.piece_type = (piece_notation_map.at(input_move[0]));
         move.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
         move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
     }
@@ -186,26 +188,39 @@ ChessPieces::Move ChessPieces::move_input(bool destination){
 
 void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
 
+    Pieces type;
+
+    // Move start section Bc1 - Be4
+
     ChessPieces::Move move_start = move_input(false);
-    ChessPieces::Move move_destination = move_input(true);
 
-    // B a 7 
+    int invert_start_num = (8 - move_start.number) + 1; // If playing as white - must invert number
+    int start_number = invert_start_num - 1; // -1 for arrays
+    int start_letter = move_start.letter - 1;
 
-    // If playing as white - need to invert number, can keep letter same, if black then opposite
-    int invert_num = (8 - move_destination.number) + 1;
-    int number = invert_num - 1; // -1 for array
-    int letter = move_destination.letter - 1;
+    int piece_id= piece_map[start_number][start_letter];
+    type = chess_pieces[piece_id-1].get_piece_type();
 
-    // selected piece
+    // Move end section
 
-    // set piece position
+    ChessPieces::Move move_end = move_input(true);
 
-    board.create(window);
-    // window.getWindow().draw(selected piece); 
-    window.getWindow().display();
-    // render_pieces(window);
+    int invert_dest_num = (8 - move_end.number) + 1;
+    int end_number = invert_dest_num - 1; // -1 for arrays
+    int end_letter = move_end.letter - 1;
+
+    std::cout << start_number << " " << start_letter << "\n";
+    std::cout << end_number << " " << end_letter << "\n";
+
+    piece_map[start_number][start_letter] = 0;
+    piece_map[end_number][end_letter] = piece_id;
+
+    // setup everything
+
+    setup_pieces(window, board, chess_pieces);
 
 }
+
 
 /*
 

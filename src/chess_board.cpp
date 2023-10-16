@@ -47,12 +47,10 @@ void Chessboard::create(ChessboardWindow& window){
                 window.getWindow().draw(light_square);
             } 
             else{
-            dark_square.setPosition(square_map[y][x-offset].first, square_map[y][x-offset].second);
-            window.getWindow().draw(dark_square);
+                dark_square.setPosition(square_map[y][x-offset].first, square_map[y][x-offset].second);
+                window.getWindow().draw(dark_square);
             }
         }
-        window.getWindow().display();
-        window.getWindow().isOpen();
         flop ^= 1;
     }
 

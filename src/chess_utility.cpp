@@ -50,3 +50,7 @@ sf::Sprite setup_sprite(ChessboardWindow& window){
 
         return sprite;
 }
+
+void reset_board(){
+
+}
