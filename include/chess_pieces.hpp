@@ -28,7 +28,7 @@ public:
 
     ChessPieces();
 
-    struct Selection {
+    struct Move {
         int piece_type;
         int letter;
         int number;
@@ -40,7 +40,7 @@ public:
     void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
     void setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
 
-    Selection select_piece(bool destination);
+    Move move_input(bool destination);
     void move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);

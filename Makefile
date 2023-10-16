@@ -17,6 +17,8 @@ LINKED_LIBRARIES = -lsfml-window -lsfml-system -lsfml-graphics
 
 # ${OBJECTS} ${LIBRARY_DIR} ${LINKED_LIBRARIES}
 all: ${OBJECTS}
+	if not exist "bin" mkdir bin
+	if not exist "build" mkdir build
 	${CC} ${FLAGS} ${INCLUDES} ${OBJECTS} ${SOURCES}main.cpp ${LIBRARY_DIR} ${LINKED_LIBRARIES} -o ${BINARIES}main
 	mingw32-make run
 

@@ -1,12 +1,12 @@
 #include "chessboard_window.hpp"
 
-int window_width = 868;
-int window_height = 868;
+int window_width = 800;
+int window_height = 800;
 
 ChessboardWindow::ChessboardWindow():
 window_title("Chessboard"),
 window_parameters(window_width, window_height),
-default_style(sf::Style::Default)
+default_style(sf::Style::Close)
 {
     settings.antialiasingLevel = 8;
     window.create(window_parameters, window_title, default_style, settings);

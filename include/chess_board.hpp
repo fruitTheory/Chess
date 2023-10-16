@@ -15,4 +15,5 @@ private:
 public:
     Chessboard();
     void create(ChessboardWindow& window);
+    void create_notation_helper(ChessboardWindow& window);
 };

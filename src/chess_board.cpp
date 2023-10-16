@@ -1,6 +1,7 @@
 #include "chess_board.hpp"
 #include "chessboard_window.hpp"
 #include <iostream>
+#include "chess_pieces.hpp"
 
 
 // A map of X and Y pairs that uses top left value of 96 unit(size) squares
@@ -55,7 +56,37 @@ void Chessboard::create(ChessboardWindow& window){
         flop ^= 1;
     }
 
+    create_notation_helper(window);
     window.getWindow().display();
     
 }
 
+void Chessboard::create_notation_helper(ChessboardWindow& window){
+    
+    sf::Text text;
+    sf::Font font;
+    if (!font.loadFromFile("./font/DejaVuSans.ttf")){puts("Didnt load .ttf");}
+    
+    const char temp_letters[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    const char temp_numbers[8] = {'1', '2', '3', '4', '5', '6', '7', '8'};
+
+    // Use -x to flip board
+    text.setFont(font);
+    text.setCharacterSize(16);
+    text.setFillColor(light_square_color);
+
+    // Create letter notation
+    for(int x = 0; x < 8; x++){
+        text.setString(temp_letters[x]);
+        text.setPosition((x * 96) + 2, 768);
+        window.getWindow().draw(text);
+    }
+
+    // Create number notation
+    for(int x = 0; x < 8; x++){
+        text.setString(temp_numbers[x]);
+        text.setPosition(768 + 3, 672 - (x * 96) + 2);
+        window.getWindow().draw(text);
+    }
+
+}
