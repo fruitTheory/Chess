@@ -19,7 +19,7 @@ int main(){
     chess_pieces.create_chess_pieces(pieces);
 
     chess_pieces.setup_pieces(window, pieces);
-    chess_pieces.move_piece(window, board);
+    //chess_pieces.move_piece(window, board, pieces);
 
     bool pressed = false;
     sf::Event event;

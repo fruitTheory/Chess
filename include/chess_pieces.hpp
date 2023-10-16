@@ -41,11 +41,11 @@ public:
     void setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
 
     Selection select_piece(bool destination);
-    void move_piece(ChessboardWindow& window, Chessboard& board);
+    void move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);
     int Get_ID();
-    Pieces get_piece_type(int object_id);
+    Pieces get_piece_type();
 };
 
 /*

@@ -16,6 +16,19 @@ queen(48.f, 100)
 
 }
 
+int piece_map_v2[8][8] = 
+{
+    {29, 27, 25, 31, 32, 26, 28, 30},
+    {17, 18, 19, 20, 21, 22, 23, 24},
+    {0,  0,  0,  0,  0,  0,  0,  0},
+    {0,  0,  0,  0,  0,  0,  0,  0},
+    {0,  0,  0,  0,  0,  0,  0,  0},
+    {0,  0,  0,  0,  0,  0,  0,  0},
+    {1,  2,  3,  4,  5,  6,  7,  8},
+    {13, 11, 9, 15, 16, 10, 12, 14}
+};
+
+
 // Piece notations mapping
 const std::map<char, Pieces> piece_notation_map = {
     {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
@@ -27,11 +40,14 @@ const std::map<char, Letters> letter_notation_map = {
     {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
 };
 
+// Sets objects int object_id
 void ChessPieces::Set_ID(int ID){ object_id = ID; }
+
+// Returns objects int object_id
 int ChessPieces::Get_ID(){ return object_id; }
 
 // Returns a piece type, also determines the amount of pieces for each type, based on the object id
-Pieces ChessPieces::get_piece_type(int object_id) {
+Pieces ChessPieces::get_piece_type() {
     
     if(object_id > 0 && object_id <= 8 || (object_id > 16 && object_id <= 24)) { return Pieces::P; }
     if(object_id == 9 || object_id == 10 || object_id == 25 || object_id == 26) { return Pieces::B; }
@@ -43,7 +59,7 @@ Pieces ChessPieces::get_piece_type(int object_id) {
     return Pieces::None;
 }
 
-// Takes a vector of type ChessPieces and creates 32 objects which are pushed into that vector
+// Uses a vector of type ChessPieces and creates 32 objects which are pushed into that vector
 void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
@@ -72,13 +88,15 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
     // white_king     : 16          // black_king     : 32    
     */
 
-// Initialize all piece colors based on objects id
+// Set  colors based on object id
 void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
 
     sf::Color piece_color = {0,0,255,255};
-    for(int i = 0; i < 32; i++){
 
-        Pieces type = get_piece_type(chess_pieces[i].object_id);
+    for(int i = 0; i < 32; i++){
+        
+        //Pieces type = get_piece_type(chess_pieces[i].object_id);
+        Pieces type = chess_pieces[i].get_piece_type();
 
         if(chess_pieces[i].object_id <= 16){ piece_color = sf::Color::White; }
         if(chess_pieces[i].object_id > 16 && chess_pieces[i].object_id <= 32){ piece_color = sf::Color::Black; }
@@ -96,33 +114,30 @@ void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
 // Set initial piece positions
 void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
 
-    int offset = 0;
-    int num = 0;
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            if(num < 32){ // only 32 pieces
-                if(y > 1) offset = 4; // cheap trick to shorten, probably not great, if team1 is created offset y by 4
-                Pieces type = get_piece_type(chess_pieces[num].object_id);
-                if(type == Pieces::P) { chess_pieces[num].pawn.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::B) { chess_pieces[num].bishop.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::N) { chess_pieces[num].knight.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::R) { chess_pieces[num].rook.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::Q) { chess_pieces[num].queen.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::K) { chess_pieces[num].king.setPosition(square_map[y+offset][x].first, square_map[y+offset][x].second);}
-                if(type == Pieces::None) { puts("Do Nothing");}
-                // std::cout << "y " << y+offset << " ";
-            }
-            num++;
+            // note that the object id returned from map_value is an abstract version not the class version
+            int map_value = piece_map_v2[y][x]; // an objects id at a started position position ex:{0, 0}
+            Pieces type = chess_pieces[map_value-1].get_piece_type(); // type of piece that object id is
+
+            if(type == Pieces::P){chess_pieces[map_value-1].pawn.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::B) { chess_pieces[map_value-1].bishop.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::N) { chess_pieces[map_value-1].knight.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::R) { chess_pieces[map_value-1].rook.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::Q) { chess_pieces[map_value-1].queen.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::K) { chess_pieces[map_value-1].king.setPosition(square_map[y][x].first, square_map[y][x].second);}
+
         }
     }
 }
 
-// Renders all pieces
+// Draws all pieces
 void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
 
     for(int i = 0; i < 32; i++){
 
-    Pieces type = get_piece_type(chess_pieces[i].object_id);
+    //Pieces type = get_piece_type(chess_pieces[i].object_id);
+    Pieces type = chess_pieces[i].get_piece_type();
 
     if(type == Pieces::P) { window.getWindow().draw(chess_pieces[i].pawn);}
     if(type == Pieces::B) { window.getWindow().draw(chess_pieces[i].bishop);}
@@ -134,7 +149,7 @@ void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPiece
     }
 }
 
-// Use to setup initial chess board on pieces
+// Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
 void ChessPieces::setup_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
     set_piece_colors(chess_pieces);
     place_pieces(chess_pieces);
@@ -153,20 +168,15 @@ ChessPieces::Selection ChessPieces::select_piece(bool destination){
     else{std::cout << "Select a destination\n";}
     std::cin >> input_move; // should be some form of Ba7 or a6
 
-    if(input_move.length() == 3){ // for pieces
+    if(input_move.length() == 2){ // for pawns
+        selection.piece_type = 0;
+        selection.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
+        selection.number = input_move[1] - '0';
+    }
+    else if(input_move.length() == 3){ // for pieces
         selection.piece_type = static_cast<int>(piece_notation_map.at(input_move[0]));
         selection.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
         selection.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
-        std::cout << selection.piece_type << std::endl;
-        std::cout << selection.letter << std::endl;
-        std::cout <<  selection.number << std::endl;
-    }
-    else if(input_move.length() == 2){ // for pawns
-        selection.piece_type = 0;
-        selection.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
-        selection.number = input_move[1] - '0'; 
-        std::cout << selection.letter << std::endl;
-        std::cout <<  selection.number << std::endl;
     }
     else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
 
@@ -174,26 +184,26 @@ ChessPieces::Selection ChessPieces::select_piece(bool destination){
 }
 
 
-void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board){
+// void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board){
 
-    ChessPieces::Selection selection_input = select_piece(false);
-    ChessPieces::Selection destination_input = select_piece(true);
+//     ChessPieces::Selection selection_input = select_piece(false);
+//     ChessPieces::Selection destination_input = select_piece(true);
 
-    // If playing as white - need to invert number, can keep letter same, if black then opposite
-    int invert_num = (8 - destination_input.number) + 1;
-    int number = invert_num - 1; // -1 for array
-    int letter = destination_input.letter - 1;
+//     // If playing as white - need to invert number, can keep letter same, if black then opposite
+//     int invert_num = (8 - destination_input.number) + 1;
+//     int number = invert_num - 1; // -1 for array
+//     int letter = destination_input.letter - 1;
 
-    // selected piece
+//     // selected piece
 
-    // set piece position
+//     // set piece position
 
-    board.create(window);
-    // window.getWindow().draw(selected piece); 
-    window.getWindow().display();
-    // render_pieces(window);
+//     board.create(window);
+//     // window.getWindow().draw(selected piece); 
+//     window.getWindow().display();
+//     // render_pieces(window);
 
-}
+// }
 
 /*
 
