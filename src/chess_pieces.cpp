@@ -160,27 +160,28 @@ void ChessPieces::setup_pieces(ChessboardWindow& window, Chessboard& board, std:
 }
 
 // Returns player piece selection or piece destination, use true for destination
-ChessPieces::Move ChessPieces::move_input(bool destination){
+ChessPieces::Move ChessPieces::move_input(){
 
     ChessPieces::Move move;
     std::string input_move;
 
     select_piece:
-    if(!destination){ std::cout << "Select a piece - Ex: Ba7, a6, Ne4\n";}
-    else{std::cout << "Select a destination\n";}
-    std::cin >> input_move; // should be some form of Ba7 or a6
-
-    if(input_move.length() == 2){ // for pawns
-        move.piece_type = Pieces::P;
-        move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
-        move.number = input_move[1] - '0';
-    }
-    else if(input_move.length() == 3){ // for pieces
-        move.piece_type = (piece_notation_map.at(input_move[0]));
-        move.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
-        move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
-    }
-    else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
+    std::cin >> input_move; // accepting multiple inputs separated by space unused remain in buffer
+    
+    try{
+        if(input_move.length() == 2){ // for pawns
+            move.piece_type = Pieces::P;
+            move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
+            move.number = input_move[1] - '0';
+        }
+        else if(input_move.length() == 3){ // for pieces
+            move.piece_type = (piece_notation_map.at(input_move[0]));
+            move.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
+            move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
+        }
+        else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
+        
+    } catch(const std::out_of_range& err){ std::cout << "Not a valid piece" << std::endl; goto select_piece; }
 
     return move;
 }
@@ -189,25 +190,27 @@ ChessPieces::Move ChessPieces::move_input(bool destination){
 void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
 
     Pieces type;
+    ChessPieces::Move move[2];
 
-    // Move start section Bc1 - Be4
+    // Move start section
 
-    ChessPieces::Move move_start = move_input(false);
+    std::cout << "Select a piece and destination - Ex: Bc1 f4, c2 c4, Ng1 Nf3\n";
 
-    int invert_start_num = (8 - move_start.number) + 1; // If playing as white - must invert number
+    for(int x = 0; x < 2; x++){
+        move[x] = move_input();
+    }
+    int invert_start_num = (8 - move[0].number) + 1; // If playing as white - must invert number
     int start_number = invert_start_num - 1; // -1 for arrays
-    int start_letter = move_start.letter - 1;
+    int start_letter = move[0].letter - 1;
 
     int piece_id= piece_map[start_number][start_letter];
     type = chess_pieces[piece_id-1].get_piece_type();
 
     // Move end section
 
-    ChessPieces::Move move_end = move_input(true);
-
-    int invert_dest_num = (8 - move_end.number) + 1;
+    int invert_dest_num = (8 -  move[1].number) + 1;
     int end_number = invert_dest_num - 1; // -1 for arrays
-    int end_letter = move_end.letter - 1;
+    int end_letter =  move[1].letter - 1;
 
     std::cout << start_number << " " << start_letter << "\n";
     std::cout << end_number << " " << end_letter << "\n";
@@ -221,6 +224,9 @@ void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::v
 
 }
 
+bool Pawn::valid_move(){
+    return true;
+}
 
 /*
 

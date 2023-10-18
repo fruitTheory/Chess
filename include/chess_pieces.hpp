@@ -40,12 +40,20 @@ public:
     void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
     void setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
-    Move move_input(bool destination);
+    Move move_input();
     void move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);
     int Get_ID();
     Pieces get_piece_type();
+};
+
+class Pawn: public ChessPieces{
+
+    private:
+
+    public:
+        bool valid_move();
 };
 
 /*
