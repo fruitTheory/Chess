@@ -10,6 +10,8 @@ extern const std::map<char, Pieces> piece_notation_map;
 enum class Letters { a = 1, b, c, d, e, f, g, h };
 extern const std::map<char, Letters> letter_notation_map;
 
+extern int piece_map[8][8];
+
 // Class for all chess pieces - uses shapes can use texture later
 class ChessPieces{
     
@@ -23,15 +25,17 @@ private:
     sf::CircleShape queen;
     sf::CircleShape piece_type;
     int object_id;
+    int color_id;
 
 public:
 
     ChessPieces();
-
+    
     struct Move {
         Pieces piece_type;
         int letter;
         int number;
+        int color;
     };
 
     void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
@@ -41,18 +45,23 @@ public:
     void setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     Move move_input();
-    void move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
+    bool move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);
     int Get_ID();
+    void Set_Color_ID(int ID);
+    int Get_Color_ID();
     Pieces get_piece_type();
+
+
 };
 
-class Pawn: public ChessPieces{
+class Pawn{
 
     private:
 
     public:
+        ChessPieces pawn;
         bool valid_move();
 };
 

@@ -40,11 +40,11 @@ const std::map<char, Letters> letter_notation_map = {
     {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
 };
 
-// Sets objects int object_id
 void ChessPieces::Set_ID(int ID){ object_id = ID; }
-
-// Returns objects int object_id
 int ChessPieces::Get_ID(){ return object_id; }
+
+void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
+int ChessPieces::Get_Color_ID() { return color_id; }
 
 // Returns a piece type, also determines the amount of pieces for each type, based on the object id
 Pieces ChessPieces::get_piece_type() {
@@ -60,10 +60,12 @@ Pieces ChessPieces::get_piece_type() {
 }
 
 // Uses a vector of type ChessPieces and creates 32 objects which are pushed into that vector
+// - Object id below 17 are white pieces
 void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
         piece.Set_ID(i);
+        i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
         chess_pieces.push_back(piece);
     } // create 32 objects with ID's
 }
@@ -88,7 +90,7 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
     // white_king     : 16          // black_king     : 32    
     */
 
-// Set  colors based on object id
+// Set  colors based on object id chess_piece_vector
 void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
 
     sf::Color piece_color = {0,0,255,255};
@@ -187,15 +189,16 @@ ChessPieces::Move ChessPieces::move_input(){
 }
 
 
-void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
-
+bool ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+    
     Pieces type;
     ChessPieces::Move move[2];
+    int color_id;
 
-    // Move start section
-
+    move_input:
     std::cout << "Select a piece and destination - Ex: Bc1 f4, c2 c4, Ng1 Nf3\n";
 
+    // Move input section
     for(int x = 0; x < 2; x++){
         move[x] = move_input();
     }
@@ -203,24 +206,43 @@ void ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::v
     int start_number = invert_start_num - 1; // -1 for arrays
     int start_letter = move[0].letter - 1;
 
-    int piece_id= piece_map[start_number][start_letter];
+    // check if the square was empty
+    int piece_id = piece_map[start_number][start_letter];
+    if(piece_id == 0){ std::cout << "Not a valid piece" << std::endl; goto move_input; }
+
+
+    // Getting information about the piece moved, type, color id determining color
     type = chess_pieces[piece_id-1].get_piece_type();
+    color_id = chess_pieces[piece_id-1].Get_Color_ID();
+    color_id == 1 ? move[0].color = 1 : move[0].color = 0;
+    
 
     // Move end section
-
     int invert_dest_num = (8 -  move[1].number) + 1;
     int end_number = invert_dest_num - 1; // -1 for arrays
     int end_letter =  move[1].letter - 1;
-
     std::cout << start_number << " " << start_letter << "\n";
     std::cout << end_number << " " << end_letter << "\n";
 
+
+    // dont allow turn to pass if piece put on same square
+    if(start_number == end_number && start_letter == end_letter)
+    { std::cout << "Not a valid destination" << std::endl; goto move_input; }
+
+    // dont allow piece to go to square if occupied unless opposite color(implement later)
+    if(!(piece_map[end_number][end_letter]) == 0)
+    { std::cout << "Warning: Space occupied" << std::endl; goto move_input; }
+
+
+    // set new moved piece positions
     piece_map[start_number][start_letter] = 0;
     piece_map[end_number][end_letter] = piece_id;
 
     // setup everything
 
     setup_pieces(window, board, chess_pieces);
+
+    return true;
 
 }
 

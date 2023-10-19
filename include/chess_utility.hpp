@@ -5,4 +5,4 @@
 
 extern std::pair<Letters, int> notation_map[8][8];
 sf::Vector2i mouse_click_position(ChessboardWindow& window);
-void reset_board();
+void reset_board(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);

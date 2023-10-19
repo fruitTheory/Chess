@@ -1,4 +1,5 @@
 #include "chess_utility.hpp"
+#include "chess_pieces.hpp"
 
 // General Notation mapping
 // std::pair<Letters, int> notation_map[8][8] = {
@@ -51,6 +52,20 @@ sf::Sprite setup_sprite(ChessboardWindow& window){
         return sprite;
 }
 
-void reset_board(){
-
+void reset_board(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+        ChessPieces pieces;
+        extern int piece_map[8][8];
+        int reset_map[8][8] = 
+        {
+        {29, 27, 25, 31, 32, 26, 28, 30},
+        {17, 18, 19, 20, 21, 22, 23, 24},
+        {0,  0,  0,  0,  0,  0,  0,  0},
+        {0,  0,  0,  0,  0,  0,  0,  0},
+        {0,  0,  0,  0,  0,  0,  0,  0},
+        {0,  0,  0,  0,  0,  0,  0,  0},
+        {1,  2,  3,  4,  5,  6,  7,  8},
+        {13, 11, 9, 15, 16, 10, 12, 14}
+        };
+        memcpy(piece_map, reset_map, sizeof(reset_map));
+       pieces.setup_pieces(window, board, chess_pieces);
 }
