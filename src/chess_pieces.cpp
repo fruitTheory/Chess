@@ -162,9 +162,9 @@ void ChessPieces::setup_pieces(ChessboardWindow& window, Chessboard& board, std:
 }
 
 // Returns player piece selection or piece destination, use true for destination
-ChessPieces::Move ChessPieces::move_input(){
+ChessPieces::Move_data ChessPieces::move_input(){
 
-    ChessPieces::Move move;
+    ChessPieces::Move_data move;
     std::string input_move;
 
     select_piece:
@@ -192,7 +192,7 @@ ChessPieces::Move ChessPieces::move_input(){
 bool ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
     
     Pieces type;
-    ChessPieces::Move move[2];
+    ChessPieces::Move_data move[2];
     int color_id;
 
     move_input:

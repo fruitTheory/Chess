@@ -5,6 +5,7 @@
 #include "chess_utility.hpp"
 #include "config.hpp"
 #include <iostream>
+#include <thread>
 
 
 int main(){
@@ -16,9 +17,10 @@ int main(){
 
     chess_pieces.create_chess_pieces(pieces);
     chess_pieces.setup_pieces(window, board, pieces);
+    
+    std::thread timer_thread(game_clock, std::ref(window)); // passing function pointer to timer thread
 
     bool piece_moved;
-
     bool pressed = false;
     sf::Event event;
 
@@ -49,10 +51,9 @@ int main(){
                 // chess_pieces.init_piece_position(window);
             }
         // piece_moved = false;
-        window.getWindow().display();
-            
+        timer_thread.join();
         }
     }
-
+    window.getWindow().display();
     return EXIT_SUCCESS;
 }

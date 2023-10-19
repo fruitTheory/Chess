@@ -31,11 +31,16 @@ public:
 
     ChessPieces();
     
-    struct Move {
+    struct Move_data {
         Pieces piece_type;
         int letter;
         int number;
         int color;
+    };
+
+    struct Move {
+        Move_data start;
+        Move_data end;
     };
 
     void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
@@ -44,7 +49,7 @@ public:
     void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
     void setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
-    Move move_input();
+    Move_data move_input();
     bool move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);

@@ -86,5 +86,5 @@ void Chessboard::create_notation_helper(ChessboardWindow& window){
         text.setPosition(768 + 3, 672 - (x * 96) + 2);
         window.getWindow().draw(text);
     }
-
+    
 }

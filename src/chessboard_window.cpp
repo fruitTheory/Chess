@@ -1,6 +1,6 @@
 #include "chessboard_window.hpp"
 
-int window_width = 800;
+int window_width = 900;
 int window_height = 800;
 
 ChessboardWindow::ChessboardWindow():
