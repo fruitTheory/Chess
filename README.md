@@ -15,6 +15,7 @@ Initial idea is to create a simple chess 'ai' that can play at a very basic leve
 ![board test](./img/chessboard2.png)
 ## Roadmap
 - Highlight squares on click
+- Add sprites
 - Place pieces in a forward thinking manner 
 - Make pieces movable
 

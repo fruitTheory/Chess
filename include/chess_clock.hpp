@@ -3,4 +3,4 @@
 #include "chessboard_window.hpp"
 
 void countdown();
-void updateCountdownText(ChessboardWindow& window);
+void update_timer(sf::RenderWindow& window);

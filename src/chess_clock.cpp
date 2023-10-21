@@ -14,7 +14,7 @@ void countdown(){
     }
 }
 
-void updateCountdownText(ChessboardWindow& window){
+void update_timer(sf::RenderWindow& window){
     sf::Font font;
     font.loadFromFile("./font/DejaVuSans.ttf");
     sf::Text countdownText;
@@ -23,13 +23,13 @@ void updateCountdownText(ChessboardWindow& window){
     countdownText.setCharacterSize(24);
     countdownText.setFillColor(sf::Color{185,195,205,255});
 
-    //countdownText.setString("Time: " + std::to_string(timeLeft.load()));
-    countdownText.setString("5:00");
+    countdownText.setString("Time: " + std::to_string(timeLeft.load()));
+    //countdownText.setString("5:00");
 
     countdownText.setPosition(800 , 325);
-    window.getWindow().draw(countdownText);
+    window.draw(countdownText);
 
 
     countdownText.setPosition(800 , 425);
-    window.getWindow().draw(countdownText);
+    window.draw(countdownText);
 }

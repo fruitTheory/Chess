@@ -4,11 +4,11 @@
 
 
 // Returns mouse position within bounds of window, else returns -1
-sf::Vector2i mouse_click_position(ChessboardWindow& window){
+sf::Vector2i mouse_click_position(sf::RenderWindow& window){
 
     extern int window_width; extern int window_height;
 
-    sf::Vector2i localPosition = sf::Mouse::getPosition(window.getWindow());
+    sf::Vector2i localPosition = sf::Mouse::getPosition(window);
     if(localPosition.x >= 0 && localPosition.x <= window_width && 
         localPosition.y >= 0 && localPosition.y <= window_height){
             return localPosition;
@@ -17,7 +17,7 @@ sf::Vector2i mouse_click_position(ChessboardWindow& window){
     return fail; // out of bounds
 }
 
-void reset_board(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
     ChessPieces pieces;
     extern int piece_map[8][8];
     int reset_map[8][8] = 
@@ -35,15 +35,15 @@ void reset_board(ChessboardWindow& window, Chessboard& board, std::vector<ChessP
     pieces.setup_pieces(window, board, chess_pieces);
 }
 
-void initialize_display(ChessboardWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
+void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
     chess_pieces.setup_pieces(window, board, pieces);
-    updateCountdownText(window);
-    window.getWindow().display(); // initial display
+    update_timer(window);
+    window.display(); // initial display
 }
 
 
 // temp sprite setup, simple processing 
-sf::Sprite setup_sprite(ChessboardWindow& window){
+sf::Sprite setup_sprite(sf::RenderWindow& window){
         
     sf::Vector2f halve(0.5f, 0.5f);
     sf::Color bg(185,195,205,255);
@@ -60,9 +60,9 @@ sf::Sprite setup_sprite(ChessboardWindow& window){
     float scaleY = 48.0f / originalSize.y;
     sprite.setScale(scaleX, scaleY);
 
-    window.getWindow().clear(bg);
-    window.getWindow().draw(sprite);
-    window.getWindow().display();
+    window.clear(bg);
+    window.draw(sprite);
+    window.display();
 
     return sprite;
 }

@@ -134,25 +134,25 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
 }
 
 // Draws all pieces
-void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& chess_pieces){
 
     for(int i = 0; i < 32; i++){
 
     //Pieces type = get_piece_type(chess_pieces[i].object_id);
     Pieces type = chess_pieces[i].get_piece_type();
 
-    if(type == Pieces::P) { window.getWindow().draw(chess_pieces[i].pawn);}
-    if(type == Pieces::B) { window.getWindow().draw(chess_pieces[i].bishop);}
-    if(type == Pieces::N) { window.getWindow().draw(chess_pieces[i].knight);}
-    if(type == Pieces::R) { window.getWindow().draw(chess_pieces[i].rook);}
-    if(type == Pieces::Q) { window.getWindow().draw(chess_pieces[i].queen);}
-    if(type == Pieces::K) { window.getWindow().draw(chess_pieces[i].king);}
+    if(type == Pieces::P) { window.draw(chess_pieces[i].pawn);}
+    if(type == Pieces::B) { window.draw(chess_pieces[i].bishop);}
+    if(type == Pieces::N) { window.draw(chess_pieces[i].knight);}
+    if(type == Pieces::R) { window.draw(chess_pieces[i].rook);}
+    if(type == Pieces::Q) { window.draw(chess_pieces[i].queen);}
+    if(type == Pieces::K) { window.draw(chess_pieces[i].king);}
 
     }
 }
 
 // Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
-void ChessPieces::setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::setup_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
 
     board.create(window);
     set_piece_colors(chess_pieces);
@@ -189,7 +189,7 @@ ChessPieces::Move_data ChessPieces::move_input(){
 }
 
 
-bool ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
 
     Pieces type;
     ChessPieces::Move_data move[2];

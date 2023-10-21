@@ -14,6 +14,6 @@ private:
 
 public:
     Chessboard();
-    void create(ChessboardWindow& window);
-    void create_notation_helper(ChessboardWindow& window);
+    void create(sf::RenderWindow& window);
+    void create_notation_helper(sf::RenderWindow& window);
 };

@@ -25,7 +25,7 @@ board_square_size(96.f, 96.f)
 }
 
 // Setup board squares and notation helper
-void Chessboard::create(ChessboardWindow& window){
+void Chessboard::create(sf::RenderWindow& window){
 
     sf::RectangleShape dark_square(board_square_size);
     dark_square.setFillColor(dark_square_color);
@@ -44,11 +44,11 @@ void Chessboard::create(ChessboardWindow& window){
         for(int x = 0; x < 8; x++){
             if(x % 2 == 0){
                 light_square.setPosition(square_map[y][x+offset].first, square_map[y][x+offset].second);
-                window.getWindow().draw(light_square);
+                window.draw(light_square);
             } 
             else{
                 dark_square.setPosition(square_map[y][x-offset].first, square_map[y][x-offset].second);
-                window.getWindow().draw(dark_square);
+                window.draw(dark_square);
             }
         }
         flop ^= 1;
@@ -58,7 +58,7 @@ void Chessboard::create(ChessboardWindow& window){
     
 }
 
-void Chessboard::create_notation_helper(ChessboardWindow& window){
+void Chessboard::create_notation_helper(sf::RenderWindow& window){
     
     sf::Text text;
     sf::Font font;
@@ -76,14 +76,14 @@ void Chessboard::create_notation_helper(ChessboardWindow& window){
     for(int x = 0; x < 8; x++){
         text.setString(temp_letters[x]);
         text.setPosition((x * 96) + 2, 768);
-        window.getWindow().draw(text);
+        window.draw(text);
     }
 
     // Create number notation
     for(int x = 0; x < 8; x++){
         text.setString(temp_numbers[x]);
         text.setPosition(768 + 3, 672 - (x * 96) + 2);
-        window.getWindow().draw(text);
+        window.draw(text);
     }
     
 }

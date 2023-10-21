@@ -46,11 +46,11 @@ public:
     void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
     void set_piece_colors(std::vector<ChessPieces>& chess_pieces);
     void place_pieces(std::vector<ChessPieces>& chess_pieces);
-    void render_pieces(ChessboardWindow& window, std::vector<ChessPieces>& chess_pieces);
-    void setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
+    void render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& chess_pieces);
+    void setup_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     Move_data move_input();
-    bool move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
+    bool move_piece(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
 
     void Set_ID(int ID);
     int Get_ID();

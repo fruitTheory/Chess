@@ -10,31 +10,31 @@
 
 int main(){
 
-    ChessboardWindow window; // window object
+    sf::RenderWindow window;
     Chessboard board; // board object
     ChessPieces chess_pieces; // chess pieces object
     std::vector<ChessPieces> pieces; // array for piece objects
 
     chess_pieces.create_chess_pieces(pieces);
-    chess_pieces.setup_pieces(window, board, pieces);
-    initialize_display(window, board, chess_pieces, pieces);
+    initialize_window(window);
+    initialize_render(window, board, chess_pieces, pieces);
 
     bool piece_moved;
     bool pressed = false;
     sf::Event event;
 
-    //std::thread countdownThread(countdown, std::ref(window));
+    std::thread countdown_thread(countdown);
 
-    while (window.getWindow().isOpen()){
-        while (window.getWindow().pollEvent(event)){
-            if (event.type == sf::Event::Closed){ window.getWindow().close(); } 
+    while (window.isOpen()){
+        while (window.pollEvent(event)){
+            if (event.type == sf::Event::Closed){ window.close(); } 
         }
 
-        window.getWindow().clear();
+        window.clear();
 
         // if(!piece_moved){piece_moved = chess_pieces.move_piece(window, board, pieces);}
         piece_moved = chess_pieces.move_piece(window, board, pieces);
-        updateCountdownText(window);
+        update_timer(window);
 
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
         if (pressed){
@@ -48,9 +48,10 @@ int main(){
         // piece_moved = false;
         }
 
-        window.getWindow().display();
+        window.display();
     }
-    //countdownThread.join();
+
+    countdown_thread.join();
 
     return EXIT_SUCCESS;
 }
@@ -66,6 +67,6 @@ int main(){
     // board.create(window);
     // // set position of object to cursor position offset by size of object to center
     // A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
-    // window.getWindow().draw(A2_pawn);
+    // window.draw(A2_pawn);
     // chess_pieces.init_piece_position(window);
 */
