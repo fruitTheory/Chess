@@ -1,6 +1,6 @@
 #include "chess_board.hpp"
 #include <iostream>
-#include "chess_pieces.hpp"
+
 
 
 // A map of X and Y pairs that uses top left value of 96 unit(size) squares

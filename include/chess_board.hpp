@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "chessboard_window.hpp"
+#include <utility>
 
 extern const std::pair<int, int> square_map[8][8];
 

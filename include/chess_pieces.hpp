@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "chessboard_window.hpp"
 #include "chess_board.hpp"
 
 enum class Pieces { None = 0, P, B, N, R, Q, K };
