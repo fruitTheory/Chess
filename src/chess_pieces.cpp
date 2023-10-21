@@ -90,7 +90,7 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
     // white_king     : 16          // black_king     : 32    
     */
 
-// Set  colors based on object id chess_piece_vector
+// Set  colors based on object id
 void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
 
     sf::Color piece_color = {0,0,255,255};
@@ -113,7 +113,7 @@ void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
     }
 }
 
-// Set initial piece positions
+// Set initial and current piece positions
 void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
 
     for(int y = 0; y < 8; y++){
@@ -153,12 +153,12 @@ void ChessPieces::render_pieces(ChessboardWindow& window, std::vector<ChessPiece
 
 // Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
 void ChessPieces::setup_pieces(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
-    window.getWindow().clear();
+
     board.create(window);
     set_piece_colors(chess_pieces);
     place_pieces(chess_pieces);
     render_pieces(window, chess_pieces);
-    window.getWindow().display();
+    
 }
 
 // Returns player piece selection or piece destination, use true for destination
@@ -190,7 +190,7 @@ ChessPieces::Move_data ChessPieces::move_input(){
 
 
 bool ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
-    
+
     Pieces type;
     ChessPieces::Move_data move[2];
     int color_id;
@@ -239,7 +239,6 @@ bool ChessPieces::move_piece(ChessboardWindow& window, Chessboard& board, std::v
     piece_map[end_number][end_letter] = piece_id;
 
     // setup everything
-
     setup_pieces(window, board, chess_pieces);
 
     return true;

@@ -12,14 +12,14 @@ Initial idea is to create a simple chess 'ai' that can play at a very basic leve
 
 ```mingw32-make``` ```make```
 
-![board test](./img/chessboard3.png)
+![board test](./img/chessboard2.png)
 ## Roadmap
 - Highlight squares on click
 - Place pieces in a forward thinking manner 
 - Make pieces movable
 
 ## Design Choices
-- When thinking about chess, I tend to think of each piece as being unique in its own right. Not just something that is instanced onto a surface
+- When thinking about chess, I think of each piece as being unique in its own right. Not just something that is instanced onto a surface
 
 - To solve this, Im currently trying a type based solution in combination with object id's to wrangle the objects
 

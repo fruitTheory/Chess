@@ -24,7 +24,7 @@ board_square_size(96.f, 96.f)
 
 }
 
-// Clear window and create board
+// Setup board squares and notation helper
 void Chessboard::create(ChessboardWindow& window){
 
     sf::RectangleShape dark_square(board_square_size);
@@ -55,7 +55,6 @@ void Chessboard::create(ChessboardWindow& window){
     }
 
     create_notation_helper(window);
-    window.getWindow().display();
     
 }
 
@@ -70,7 +69,7 @@ void Chessboard::create_notation_helper(ChessboardWindow& window){
 
     // Use -x to flip board
     text.setFont(font);
-    text.setCharacterSize(16);
+    text.setCharacterSize(14);
     text.setFillColor(light_square_color);
 
     // Create letter notation

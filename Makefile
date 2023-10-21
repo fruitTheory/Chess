@@ -9,7 +9,8 @@ CC = g++
 OBJECTS =	${BUILD}chess_board.o \
 ${BUILD}chessboard_window.o \
 ${BUILD}chess_pieces.o \
-${BUILD}chess_utility.o
+${BUILD}chess_utility.o \
+${BUILD}chess_clock.o
 
 LIBRARY_DIR ?=	-L C:/Programs/SMFL/SFML-2.6.0-gcc/lib \
 				 
