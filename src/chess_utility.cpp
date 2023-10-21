@@ -1,6 +1,4 @@
 #include "chess_utility.hpp"
-#include "chess_pieces.hpp"
-#include "chess_clock.hpp"
 
 
 // Returns mouse position within bounds of window, else returns -1
@@ -34,13 +32,6 @@ void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessP
     memcpy(piece_map, reset_map, sizeof(reset_map));
     pieces.setup_pieces(window, board, chess_pieces);
 }
-
-void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
-    chess_pieces.setup_pieces(window, board, pieces);
-    update_timer(window);
-    window.display(); // initial display
-}
-
 
 // temp sprite setup, simple processing 
 sf::Sprite setup_sprite(sf::RenderWindow& window){

@@ -1,5 +1,4 @@
 #include "chess_pieces.hpp"
-#include "chess_utility.hpp"
 #include <iostream>
 #include <utility>
 

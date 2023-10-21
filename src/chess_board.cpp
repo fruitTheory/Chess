@@ -1,5 +1,4 @@
 #include "chess_board.hpp"
-#include "chessboard_window.hpp"
 #include <iostream>
 #include "chess_pieces.hpp"
 
