@@ -4,32 +4,31 @@
 #include <thread>
 #include <iostream>
 
-std::atomic<int> timeLeft(10);
+std::atomic<int> time_left(60);
 
-void countdown(){
-    while(timeLeft > 0){
+void start_internal_clock(){
+    while(time_left > 0){
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        --timeLeft;
-        std::cout << "Time left: " << timeLeft << std::endl;
+        --time_left;
+        //std::cout << "Time left: " << time_left << std::endl;
     }
 }
 
-void update_timer(sf::RenderWindow& window){
+void update_clock_display(sf::RenderWindow& window){
     sf::Font font;
     font.loadFromFile("./font/DejaVuSans.ttf");
-    sf::Text countdownText;
-    countdownText.setFont(font);
-    countdownText.setStyle(sf::Text::Bold);
-    countdownText.setCharacterSize(24);
-    countdownText.setFillColor(sf::Color{185,195,205,255});
+    sf::Text clock_text;
+    clock_text.setFont(font);
+    clock_text.setStyle(sf::Text::Bold);
+    clock_text.setCharacterSize(20);
+    clock_text.setFillColor(sf::Color{185,195,205,255});
 
-    countdownText.setString("Time: " + std::to_string(timeLeft.load()));
-    //countdownText.setString("5:00");
+    clock_text.setString("Time: " + std::to_string(time_left.load()));
 
-    countdownText.setPosition(800 , 325);
-    window.draw(countdownText);
+    clock_text.setPosition(800 , 325);
+    window.draw(clock_text);
 
+    clock_text.setPosition(800 , 425);
+    window.draw(clock_text);
 
-    countdownText.setPosition(800 , 425);
-    window.draw(countdownText);
 }

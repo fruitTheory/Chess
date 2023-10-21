@@ -16,8 +16,10 @@ void initialize_window(sf::RenderWindow& window){
 
 }
 
+// Updates render for board, pieces, and clock 
 void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
-    chess_pieces.setup_pieces(window, board, pieces);
-    update_timer(window);
+    window.clear();
+    chess_pieces.update_pieces(window, board, pieces);
+    update_clock_display(window);
     window.display(); // initial display
 }

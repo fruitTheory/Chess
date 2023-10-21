@@ -15,8 +15,8 @@ sf::Vector2i mouse_click_position(sf::RenderWindow& window){
     return fail; // out of bounds
 }
 
-void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
-    ChessPieces pieces;
+void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces){
+    ChessPieces chess_pieces;
     extern int piece_map[8][8];
     int reset_map[8][8] = 
     {
@@ -30,7 +30,7 @@ void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessP
     {13, 11, 9, 15, 16, 10, 12, 14}
     };
     memcpy(piece_map, reset_map, sizeof(reset_map));
-    pieces.setup_pieces(window, board, chess_pieces);
+    chess_pieces.update_pieces(window, board, pieces);
 }
 
 // temp sprite setup, simple processing 
@@ -51,9 +51,9 @@ sf::Sprite setup_sprite(sf::RenderWindow& window){
     float scaleY = 48.0f / originalSize.y;
     sprite.setScale(scaleX, scaleY);
 
-    window.clear(bg);
+    //window.clear(bg);
     window.draw(sprite);
-    window.display();
+    //window.display();
 
     return sprite;
 }

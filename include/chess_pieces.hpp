@@ -42,14 +42,14 @@ public:
         Move_data end;
     };
 
-    void create_chess_pieces(std::vector<ChessPieces>& chess_pieces);
-    void set_piece_colors(std::vector<ChessPieces>& chess_pieces);
-    void place_pieces(std::vector<ChessPieces>& chess_pieces);
-    void render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& chess_pieces);
-    void setup_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
+    void create_chess_pieces(std::vector<ChessPieces>& pieces);
+    void set_piece_colors(std::vector<ChessPieces>& pieces);
+    void place_pieces(std::vector<ChessPieces>& pieces);
+    void render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces);
+    void update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
 
-    Move_data move_input();
-    bool move_piece(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces);
+    Move_data move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces);
+    bool move_piece(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces);
 
     void Set_ID(int ID);
     int Get_ID();
@@ -68,6 +68,8 @@ class Pawn{
         ChessPieces pawn;
         bool valid_move();
 };
+
+std::string get_user_input();
 
 /*
 Piece value:

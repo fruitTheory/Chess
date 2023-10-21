@@ -1,6 +1,8 @@
 #include "chess_pieces.hpp"
+#include "chess_clock.hpp"
 #include <iostream>
 #include <utility>
+#include <future>
 
 // Constructor
 ChessPieces::ChessPieces():
@@ -60,12 +62,12 @@ Pieces ChessPieces::get_piece_type() {
 
 // Uses a vector of type ChessPieces and creates 32 objects which are pushed into that vector
 // - Object id below 17 are white pieces
-void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
         piece.Set_ID(i);
         i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
-        chess_pieces.push_back(piece);
+        pieces.push_back(piece);
     } // create 32 objects with ID's
 }
     /*
@@ -90,85 +92,107 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& chess_pieces){
     */
 
 // Set  colors based on object id
-void ChessPieces::set_piece_colors(std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::set_piece_colors(std::vector<ChessPieces>& pieces){
 
     sf::Color piece_color = {0,0,255,255};
 
     for(int i = 0; i < 32; i++){
         
-        //Pieces type = get_piece_type(chess_pieces[i].object_id);
-        Pieces type = chess_pieces[i].get_piece_type();
+        //Pieces type = get_piece_type(pieces[i].object_id);
+        Pieces type = pieces[i].get_piece_type();
 
-        if(chess_pieces[i].object_id <= 16){ piece_color = sf::Color::White; }
-        if(chess_pieces[i].object_id > 16 && chess_pieces[i].object_id <= 32){ piece_color = sf::Color::Black; }
+        if(pieces[i].object_id <= 16){ piece_color = sf::Color::White; }
+        if(pieces[i].object_id > 16 && pieces[i].object_id <= 32){ piece_color = sf::Color::Black; }
 
-        if(type == Pieces::P){ chess_pieces[i].pawn.setFillColor(piece_color);}
-        if(type == Pieces::B){ chess_pieces[i].bishop.setFillColor(piece_color);}
-        if(type == Pieces::N){ chess_pieces[i].knight.setFillColor(piece_color);}
-        if(type == Pieces::R){ chess_pieces[i].rook.setFillColor(piece_color);}
-        if(type == Pieces::Q){ chess_pieces[i].queen.setFillColor(piece_color);}
-        if(type == Pieces::K){ chess_pieces[i].king.setFillColor(piece_color);}
+        if(type == Pieces::P){ pieces[i].pawn.setFillColor(piece_color);}
+        if(type == Pieces::B){ pieces[i].bishop.setFillColor(piece_color);}
+        if(type == Pieces::N){ pieces[i].knight.setFillColor(piece_color);}
+        if(type == Pieces::R){ pieces[i].rook.setFillColor(piece_color);}
+        if(type == Pieces::Q){ pieces[i].queen.setFillColor(piece_color);}
+        if(type == Pieces::K){ pieces[i].king.setFillColor(piece_color);}
 
     }
 }
 
 // Set initial and current piece positions
-void ChessPieces::place_pieces(std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
 
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
             // note that the object id returned from map_value is an abstract version not the class version
             int map_value = piece_map[y][x]; // an objects id at a started position position ex:{0, 0}
-            Pieces type = chess_pieces[map_value-1].get_piece_type(); // type of piece that object id is
+            Pieces type = pieces[map_value-1].get_piece_type(); // type of piece that object id is
 
-            if(type == Pieces::P){chess_pieces[map_value-1].pawn.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::B) { chess_pieces[map_value-1].bishop.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::N) { chess_pieces[map_value-1].knight.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::R) { chess_pieces[map_value-1].rook.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::Q) { chess_pieces[map_value-1].queen.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::K) { chess_pieces[map_value-1].king.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::P){pieces[map_value-1].pawn.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::B) { pieces[map_value-1].bishop.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::N) { pieces[map_value-1].knight.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::R) { pieces[map_value-1].rook.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::Q) { pieces[map_value-1].queen.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::K) { pieces[map_value-1].king.setPosition(square_map[y][x].first, square_map[y][x].second);}
 
         }
     }
 }
 
 // Draws all pieces
-void ChessPieces::render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces){
 
     for(int i = 0; i < 32; i++){
 
-    //Pieces type = get_piece_type(chess_pieces[i].object_id);
-    Pieces type = chess_pieces[i].get_piece_type();
+    //Pieces type = get_piece_type(pieces[i].object_id);
+    Pieces type = pieces[i].get_piece_type();
 
-    if(type == Pieces::P) { window.draw(chess_pieces[i].pawn);}
-    if(type == Pieces::B) { window.draw(chess_pieces[i].bishop);}
-    if(type == Pieces::N) { window.draw(chess_pieces[i].knight);}
-    if(type == Pieces::R) { window.draw(chess_pieces[i].rook);}
-    if(type == Pieces::Q) { window.draw(chess_pieces[i].queen);}
-    if(type == Pieces::K) { window.draw(chess_pieces[i].king);}
+    if(type == Pieces::P) { window.draw(pieces[i].pawn);}
+    if(type == Pieces::B) { window.draw(pieces[i].bishop);}
+    if(type == Pieces::N) { window.draw(pieces[i].knight);}
+    if(type == Pieces::R) { window.draw(pieces[i].rook);}
+    if(type == Pieces::Q) { window.draw(pieces[i].queen);}
+    if(type == Pieces::K) { window.draw(pieces[i].king);}
 
     }
 }
 
 // Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
-void ChessPieces::setup_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces){
 
     board.create(window);
-    set_piece_colors(chess_pieces);
-    place_pieces(chess_pieces);
-    render_pieces(window, chess_pieces);
+    set_piece_colors(pieces);
+    place_pieces(pieces);
+    render_pieces(window, pieces);
     
 }
 
+// Call to get user input through cin
+std::string get_user_input() {
+    std::string user_input;
+    std::cin >> user_input;
+    return user_input;
+}
+
 // Returns player piece selection or piece destination, use true for destination
-ChessPieces::Move_data ChessPieces::move_input(){
+ChessPieces::Move_data ChessPieces::move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
 
     ChessPieces::Move_data move;
     std::string input_move;
+    std::future<std::string> user_input;
+
+    bool user_has_input = false;
+
+    user_input = std::async(std::launch::async, get_user_input);
 
     select_piece:
-    std::cin >> input_move; // accepting multiple inputs separated by space unused remain in buffer
-    
+    while(user_has_input == false){
+        auto status = user_input.wait_for(std::chrono::milliseconds(1000));
+        // if receive input, store it and break out of loop, else redraw board and wait
+        if(status == std::future_status::ready){
+            input_move = user_input.get();
+            std::cout << "User input received: " << input_move << std::endl;
+            break;
+        } 
+        else{ initialize_render(window, board, chess_pieces, pieces); }
+    }
+
+    // test valid move lengths and catch values that are out of range
     try{
         if(input_move.length() == 2){ // for pawns
             move.piece_type = Pieces::P;
@@ -188,7 +212,7 @@ ChessPieces::Move_data ChessPieces::move_input(){
 }
 
 
-bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& chess_pieces){
+bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
 
     Pieces type;
     ChessPieces::Move_data move[2];
@@ -199,7 +223,7 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, std::v
 
     // Move input section
     for(int x = 0; x < 2; x++){
-        move[x] = move_input();
+        move[x] = move_input(window, board, chess_pieces, pieces);
     }
     int invert_start_num = (8 - move[0].number) + 1; // If playing as white - must invert number
     int start_number = invert_start_num - 1; // -1 for arrays
@@ -211,8 +235,8 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, std::v
 
 
     // Getting information about the piece moved, type, color id determining color
-    type = chess_pieces[piece_id-1].get_piece_type();
-    color_id = chess_pieces[piece_id-1].Get_Color_ID();
+    type = pieces[piece_id-1].get_piece_type();
+    color_id = pieces[piece_id-1].Get_Color_ID();
     color_id == 1 ? move[0].color = 1 : move[0].color = 0;
     
 
@@ -238,7 +262,8 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, std::v
     piece_map[end_number][end_letter] = piece_id;
 
     // setup everything
-    setup_pieces(window, board, chess_pieces);
+    update_pieces(window, board, pieces);
+    update_clock_display(window);
 
     return true;
 

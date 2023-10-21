@@ -23,7 +23,7 @@ int main(){
     bool pressed = false;
     sf::Event event;
 
-    std::thread countdown_thread(countdown);
+    std::thread clock_thread(start_internal_clock); // create thread for timer function
 
     while (window.isOpen()){
         while (window.pollEvent(event)){
@@ -33,8 +33,7 @@ int main(){
         window.clear();
 
         // if(!piece_moved){piece_moved = chess_pieces.move_piece(window, board, pieces);}
-        piece_moved = chess_pieces.move_piece(window, board, pieces);
-        update_timer(window);
+        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces);
 
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
         if (pressed){
@@ -47,11 +46,11 @@ int main(){
             }
         // piece_moved = false;
         }
-
+        
         window.display();
     }
 
-    countdown_thread.join();
+    clock_thread.join();
 
     return EXIT_SUCCESS;
 }

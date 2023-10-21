@@ -2,5 +2,5 @@
 
 #include "chessboard_window.hpp"
 
-void countdown();
-void update_timer(sf::RenderWindow& window);
+void start_internal_clock();
+void update_clock_display(sf::RenderWindow& window);
