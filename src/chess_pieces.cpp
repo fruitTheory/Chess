@@ -6,13 +6,13 @@
 
 // Constructor
 ChessPieces::ChessPieces():
-null(0.f, 0),
-pawn(48.f, 3),
-bishop(48.f, 4),
-knight(48.f, 5),
-rook(48.f, 6),
-king(48.f, 8),
-queen(48.f, 100)
+null_shape(0.f, 0),
+pawn_shape(48.f, 3),
+bishop_shape(48.f, 4),
+knight_shape(48.f, 5),
+rook_shape(48.f, 6),
+king_shape(48.f, 8),
+queen_shape(48.f, 100)
 {
 
 }
@@ -47,6 +47,9 @@ int ChessPieces::Get_Piece_ID(){ return object_id; }
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
 int ChessPieces::Get_Color_ID() { return color_id; }
 
+void ChessPieces::Set_Has_Moved(int ID){ has_moved = ID; }
+int ChessPieces::Get_Has_Moved() { return has_moved; }
+
 // Returns piece type, also determines amount of pieces for each type, based on object id
 Pieces ChessPieces::get_piece_type() {
     
@@ -66,6 +69,7 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
         piece.Set_Piece_ID(i);
+        piece.Set_Has_Moved(0);
         i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
         pieces.push_back(piece);
     } // create 32 objects with ID's
@@ -104,12 +108,12 @@ void ChessPieces::set_piece_colors(std::vector<ChessPieces>& pieces){
         if(pieces[i].object_id <= 16){ piece_color = sf::Color::White; }
         if(pieces[i].object_id > 16 && pieces[i].object_id <= 32){ piece_color = sf::Color::Black; }
 
-        if(type == Pieces::P){ pieces[i].pawn.setFillColor(piece_color);}
-        if(type == Pieces::B){ pieces[i].bishop.setFillColor(piece_color);}
-        if(type == Pieces::N){ pieces[i].knight.setFillColor(piece_color);}
-        if(type == Pieces::R){ pieces[i].rook.setFillColor(piece_color);}
-        if(type == Pieces::Q){ pieces[i].queen.setFillColor(piece_color);}
-        if(type == Pieces::K){ pieces[i].king.setFillColor(piece_color);}
+        if(type == Pieces::P){ pieces[i].pawn_shape.setFillColor(piece_color);}
+        if(type == Pieces::B){ pieces[i].bishop_shape.setFillColor(piece_color);}
+        if(type == Pieces::N){ pieces[i].knight_shape.setFillColor(piece_color);}
+        if(type == Pieces::R){ pieces[i].rook_shape.setFillColor(piece_color);}
+        if(type == Pieces::Q){ pieces[i].queen_shape.setFillColor(piece_color);}
+        if(type == Pieces::K){ pieces[i].king_shape.setFillColor(piece_color);}
 
     }
 }
@@ -123,12 +127,12 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
             int map_value = piece_map[y][x]; // an objects id at a started position position ex:{0, 0}
             Pieces type = pieces[map_value-1].get_piece_type(); // type of piece that object id is
 
-            if(type == Pieces::P){pieces[map_value-1].pawn.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::B) { pieces[map_value-1].bishop.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::N) { pieces[map_value-1].knight.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::R) { pieces[map_value-1].rook.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::Q) { pieces[map_value-1].queen.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::K) { pieces[map_value-1].king.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::P){pieces[map_value-1].pawn_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::B) { pieces[map_value-1].bishop_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::N) { pieces[map_value-1].knight_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::R) { pieces[map_value-1].rook_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::Q) { pieces[map_value-1].queen_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            if(type == Pieces::K) { pieces[map_value-1].king_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
 
         }
     }
@@ -142,12 +146,12 @@ void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>
     //Pieces type = get_piece_type(pieces[i].object_id);
     Pieces type = pieces[i].get_piece_type();
 
-    if(type == Pieces::P) { window.draw(pieces[i].pawn);}
-    if(type == Pieces::B) { window.draw(pieces[i].bishop);}
-    if(type == Pieces::N) { window.draw(pieces[i].knight);}
-    if(type == Pieces::R) { window.draw(pieces[i].rook);}
-    if(type == Pieces::Q) { window.draw(pieces[i].queen);}
-    if(type == Pieces::K) { window.draw(pieces[i].king);}
+    if(type == Pieces::P) { window.draw(pieces[i].pawn_shape);}
+    if(type == Pieces::B) { window.draw(pieces[i].bishop_shape);}
+    if(type == Pieces::N) { window.draw(pieces[i].knight_shape);}
+    if(type == Pieces::R) { window.draw(pieces[i].rook_shape);}
+    if(type == Pieces::Q) { window.draw(pieces[i].queen_shape);}
+    if(type == Pieces::K) { window.draw(pieces[i].king_shape);}
 
     }
 }
@@ -170,7 +174,8 @@ std::string get_user_input() {
 }
 
 // Returns player piece selection or piece destination
-ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
+ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Chessboard& board,
+                                                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces){
 
     ChessPieces::Move_data move;
     std::string input_move;
@@ -213,7 +218,7 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
 
 
 bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
-                            ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
+                            ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces){
 
     Pieces type;
     ChessPieces::Move move;
@@ -231,14 +236,17 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
     move.start = convert_move(move.start, pieces);
     move.end = convert_move(move.end, pieces);
 
+    
 
-    bool move_valid = check_move_validity(move.start, move.end);
-    if(!move_valid){ goto move_input; }
+    bool move_valid = check_move_validity(move.start, move.end, pieces);
+    if(!move_valid){ puts("Not a valid move");goto move_input; }
+    pieces[move.start.piece_id].Set_Has_Moved(1); // set for certain rules
 
 
     // clear start piece space    // move start piece to end pos
     piece_map[move.start.number][move.start.letter] = 0;
     piece_map[move.end.number][move.end.letter] = move.start.piece_id;
+
 
     // re-setup everything
     update_pieces(window, board, pieces);
@@ -249,7 +257,7 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
 }
 
 // General convert move into usable data for array based on black or white player
-ChessPieces::Move_data ChessPieces::convert_move(Move_data move_input, std::vector<ChessPieces> pieces){
+ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, std::vector<ChessPieces>& pieces){
 
     Move_data move_output;
 
@@ -265,13 +273,16 @@ ChessPieces::Move_data ChessPieces::convert_move(Move_data move_input, std::vect
     move_output.piece_type = pieces[move_output.piece_id-1].get_piece_type();
     move_output.color = pieces[move_output.piece_id-1].Get_Color_ID();
 
-    
+    std:: cout << pieces[move_output.piece_id].Get_Has_Moved() << " convert " << std::endl;
+
     return move_output;
 
 }
 
 // General move validity check
-bool ChessPieces::check_move_validity(Move_data move_start, Move_data move_end){
+bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    Pawn pawn;
 
     // check if selected piece(id) is null
     if(move_start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; return false; }
@@ -284,11 +295,26 @@ bool ChessPieces::check_move_validity(Move_data move_start, Move_data move_end){
     if(!(piece_map[move_end.number][move_end.letter]) == 0)
     { std::cout << "Warning: Space occupied" << std::endl; return false; }
 
+    if(move_start.piece_type == Pieces::P) { if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::B) { }
+    if(move_start.piece_type == Pieces::N) { }
+    if(move_start.piece_type == Pieces::R) { }
+    if(move_start.piece_type == Pieces::Q) { }
+    if(move_start.piece_type == Pieces::K) { }
+
     return true;
 
 }
 
-bool Pawn::valid_move(){
+bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    // !quirk needs to be reverse due to inverse of number for array reasons
+    int move_sqaures = move_start.number - move_end.number; 
+
+    // Pawn can only move two spots on first move
+    if(move_sqaures > 2 || move_sqaures <= 0){return false;}
+    if(pieces[move_start.piece_id].Get_Has_Moved() == 1 && move_sqaures > 1){return false;};
+
     return true;
 }
 

@@ -17,16 +17,16 @@ std::string get_user_input();
 class ChessPieces{
     
 private:
-    sf::CircleShape null;
-    sf::CircleShape pawn;
-    sf::CircleShape bishop;
-    sf::CircleShape knight;
-    sf::CircleShape rook; 
-    sf::CircleShape king; 
-    sf::CircleShape queen;
-    sf::CircleShape piece_type;
+    sf::CircleShape null_shape;
+    sf::CircleShape pawn_shape;
+    sf::CircleShape bishop_shape;
+    sf::CircleShape knight_shape;
+    sf::CircleShape rook_shape; 
+    sf::CircleShape king_shape; 
+    sf::CircleShape queen_shape;
     int object_id; // interchangeable with piece_id
-    int color_id; // 0 black 1 white 
+    int color_id; // 0 black 1 white
+    int has_moved;
 
 public:
 
@@ -54,27 +54,29 @@ public:
     void draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces);
     void update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
 
-    Move_data get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces);
-    bool move_piece(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces);
+    Move_data get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces);
+    bool move_piece(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces);
 
     void Set_Piece_ID(int ID);
     int Get_Piece_ID();
     void Set_Color_ID(int ID);
     int Get_Color_ID();
+    void Set_Has_Moved(int ID);
+    int Get_Has_Moved();
+
     Pieces get_piece_type();
 
-    Move_data convert_move(Move_data move, std::vector<ChessPieces> pieces);
-    bool check_move_validity(Move_data move_start, Move_data move_end);
+    Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
+    bool check_move_validity(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
 
 };
 
-class Pawn{
+class Pawn : public ChessPieces{
 
     private:
 
     public:
-        ChessPieces pawn;
-        bool valid_move();
+        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
 };
 
 /*
