@@ -10,7 +10,6 @@ void start_internal_clock(){
     while(time_left > 0){
         std::this_thread::sleep_for(std::chrono::seconds(1));
         --time_left;
-        //std::cout << "Time left: " << time_left << std::endl;
     }
 }
 

@@ -52,7 +52,7 @@ sf::Sprite setup_sprite(sf::RenderWindow& window){
     sprite.setScale(scaleX, scaleY);
 
     //window.clear(bg);
-    window.draw(sprite);
+    //window.draw(sprite);
     //window.display();
 
     return sprite;

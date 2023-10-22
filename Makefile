@@ -6,7 +6,7 @@ BINARIES = ./bin/
 FLAGS = -g -Wall -Wextra -fdiagnostics-color=always #-fsanitize=address -O3
 CC = g++
 
-OBJECTS =	${BUILD}chess_board.o \
+OBJECTS = ${BUILD}chess_board.o \
 ${BUILD}chessboard_window.o \
 ${BUILD}chess_pieces.o \
 ${BUILD}chess_utility.o \

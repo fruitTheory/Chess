@@ -46,7 +46,7 @@ int main(){
             }
         // piece_moved = false;
         }
-        
+        // std::cout << "Out of loop\n";
         window.display();
     }
 
@@ -57,7 +57,7 @@ int main(){
 
 
 /*
-    -Previous mouse click stuff, from inside the if clicked
+    -Previous mouse click stuff, from inside if clicked
 
     // reset_board(window, board, pieces);
     

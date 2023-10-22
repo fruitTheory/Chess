@@ -41,13 +41,13 @@ const std::map<char, Letters> letter_notation_map = {
     {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
 };
 
-void ChessPieces::Set_ID(int ID){ object_id = ID; }
-int ChessPieces::Get_ID(){ return object_id; }
+void ChessPieces::Set_Piece_ID(int ID){ object_id = ID; }
+int ChessPieces::Get_Piece_ID(){ return object_id; }
 
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
 int ChessPieces::Get_Color_ID() { return color_id; }
 
-// Returns a piece type, also determines the amount of pieces for each type, based on the object id
+// Returns piece type, also determines amount of pieces for each type, based on object id
 Pieces ChessPieces::get_piece_type() {
     
     if((object_id > 0 && object_id <= 8) || (object_id > 16 && object_id <= 24)) { return Pieces::P; }
@@ -60,12 +60,12 @@ Pieces ChessPieces::get_piece_type() {
     return Pieces::None;
 }
 
-// Uses a vector of type ChessPieces and creates 32 objects which are pushed into that vector
-// - Object id below 17 are white pieces
+// Uses a vector of type ChessPieces to create 32 objects which are pushed to that vector
+// Object id below 17 are white pieces
 void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
-        piece.Set_ID(i);
+        piece.Set_Piece_ID(i);
         i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
         pieces.push_back(piece);
     } // create 32 objects with ID's
@@ -135,7 +135,7 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
 }
 
 // Draws all pieces
-void ChessPieces::render_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces){
+void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces){
 
     for(int i = 0; i < 32; i++){
 
@@ -158,7 +158,7 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
     board.create(window);
     set_piece_colors(pieces);
     place_pieces(pieces);
-    render_pieces(window, pieces);
+    draw_pieces(window, pieces);
     
 }
 
@@ -169,24 +169,22 @@ std::string get_user_input() {
     return user_input;
 }
 
-// Returns player piece selection or piece destination, use true for destination
-ChessPieces::Move_data ChessPieces::move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
+// Returns player piece selection or piece destination
+ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
 
     ChessPieces::Move_data move;
     std::string input_move;
     std::future<std::string> user_input;
 
     bool user_has_input = false;
-
     user_input = std::async(std::launch::async, get_user_input);
 
     select_piece:
     while(user_has_input == false){
         auto status = user_input.wait_for(std::chrono::milliseconds(1000));
-        // if receive input, store it and break out of loop, else redraw board and wait
+        // if receive input, store it and break loop, else redraw board and wait
         if(status == std::future_status::ready){
             input_move = user_input.get();
-            std::cout << "User input received: " << input_move << std::endl;
             break;
         } 
         else{ initialize_render(window, board, chess_pieces, pieces); }
@@ -194,12 +192,12 @@ ChessPieces::Move_data ChessPieces::move_input(sf::RenderWindow& window, Chessbo
 
     // test valid move lengths and catch values that are out of range
     try{
-        if(input_move.length() == 2){ // for pawns
+        if(input_move.length() == 2){
             move.piece_type = Pieces::P;
             move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
             move.number = input_move[1] - '0';
         }
-        else if(input_move.length() == 3){ // for pieces
+        else if(input_move.length() == 3){
             move.piece_type = (piece_notation_map.at(input_move[0]));
             move.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
             move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
@@ -212,60 +210,70 @@ ChessPieces::Move_data ChessPieces::move_input(sf::RenderWindow& window, Chessbo
 }
 
 
-bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
+bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
+                            ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
 
     Pieces type;
-    ChessPieces::Move_data move[2];
+    ChessPieces::Move move;
+    ChessPieces::Move_data move_data;
     int color_id;
 
     move_input:
     std::cout << "Select a piece and destination - Ex: Bc1 f4, c2 c4, Ng1 Nf3\n";
 
-    // Move input section
-    for(int x = 0; x < 2; x++){
-        move[x] = move_input(window, board, chess_pieces, pieces);
-    }
-    int invert_start_num = (8 - move[0].number) + 1; // If playing as white - must invert number
-    int start_number = invert_start_num - 1; // -1 for arrays
-    int start_letter = move[0].letter - 1;
+    // returns raw user move data
+    move.start = get_move_input(window, board, chess_pieces, pieces);
+    move.end = get_move_input(window, board, chess_pieces, pieces);
 
-    // check if the square was empty
-    int piece_id = piece_map[start_number][start_letter];
-    if(piece_id == 0){ std::cout << "Not a valid piece" << std::endl; goto move_input; }
+    // convert data
+    move.start = convert_move(move.start, pieces);
+    move.end = convert_move(move.end, pieces);
 
 
-    // Getting information about the piece moved, type, color id determining color
-    type = pieces[piece_id-1].get_piece_type();
-    color_id = pieces[piece_id-1].Get_Color_ID();
-    color_id == 1 ? move[0].color = 1 : move[0].color = 0;
-    
+    // check if selected piece(id) is null
+    if(move.start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; goto move_input; }
 
-    // Move end section
-    int invert_dest_num = (8 -  move[1].number) + 1;
-    int end_number = invert_dest_num - 1; // -1 for arrays
-    int end_letter =  move[1].letter - 1;
-    std::cout << start_number << " " << start_letter << "\n";
-    std::cout << end_number << " " << end_letter << "\n";
-
-
-    // dont allow turn to pass if piece put on same square
-    if(start_number == end_number && start_letter == end_letter)
+    // stop from moving to same square 
+    if(move.start.number == move.end.number && move.start.letter == move.end.letter)
     { std::cout << "Not a valid destination" << std::endl; goto move_input; }
 
-    // dont allow piece to go to square if occupied unless opposite color(implement later)
-    if(!(piece_map[end_number][end_letter]) == 0)
+    // stop from moving to occupied square
+    if(!(piece_map[move.end.number][move.end.letter]) == 0)
     { std::cout << "Warning: Space occupied" << std::endl; goto move_input; }
 
 
-    // set new moved piece positions
-    piece_map[start_number][start_letter] = 0;
-    piece_map[end_number][end_letter] = piece_id;
 
-    // setup everything
+    // clear start piece space    // move start piece to end pos
+    piece_map[move.start.number][move.start.letter] = 0;
+    piece_map[move.end.number][move.end.letter] = move.start.piece_id;
+
+    // re-setup everything
     update_pieces(window, board, pieces);
     update_clock_display(window);
 
     return true;
+
+}
+
+// General convert move into usable data for array based on black or white player
+ChessPieces::Move_data ChessPieces::convert_move(Move_data move_input, std::vector<ChessPieces> pieces){
+
+    Move_data move_output;
+
+    // if(player black, invert letter instead of number)
+
+    // convert for white
+    int invert_number_white = (8 - move_input.number) + 1;
+    move_output.number = invert_number_white - 1;
+    move_output.letter = move_input.letter - 1;
+
+    // get the actual piece id - use it to check the object type and color through array
+    move_output.piece_id = piece_map[move_output.number][move_output.letter];
+    move_output.piece_type = pieces[move_output.piece_id-1].get_piece_type();
+    move_output.color = pieces[move_output.piece_id-1].Get_Color_ID();
+
+    
+    return move_output;
 
 }
 
@@ -274,33 +282,20 @@ bool Pawn::valid_move(){
 }
 
 /*
+TODO
 
-  A B C D E F G H
-8 0 0 0 0 0 0 0 0 8
-7 1 1 1 1 1 1 1 1 7
-6 1 1 1 1 1 1 1 1 6
-5 1 1 1 1 1 1 1 1 5
-4 1 1 1 1 1 1 1 1 4
-3 1 1 1 1 1 1 1 1 3
-2 1 1 1 1 1 1 1 1 2
-1 0 0 0 0 0 0 0 0 1
-  A B C D E F G H
-
-Move storage - reverse moves 
+Move storage - reverse moves - arrow keys
 King state - checks / checkmate / stalemate
--8 +8 check in front behind
--1 +1 check left right
--8-1 -8+1, +8+1 +8-1, diagonals
-bounds check?
+Piece promotion
 
 */
 
 /*
 Takes input: a6->a7, Bb7, Ne4, Ke8->Kd7
 Stores input: Go back left arrow 
+- If obstruction found check if white or black
+- If opposite color and piece can attack then take piece and stop there
 
-Chess Rules Basic:
-- take input: Ra6->Ra8  -- Rook at [6][a] to [8][a]
 - Checks if piece is obstructing path (how?)
     one possibility, we have a basic representation of board as a linear array
     check if any point along the path is not a 0 (how?)
@@ -314,23 +309,5 @@ Chess Rules Basic:
         Note that this is 2D thinking, can we do it in 1D with just the linear array
             sure with math - 8x8 = 64, well 0 is A8, but 63 is A1 currently
 
-- If obstruction found check if white or black
-- If opposite color and piece can attack then take piece and stop there
-
-Piece rules:
--Limit spaces able to move and direction of movement(how?)
-
-
-Set piece: set piece to new spot clear spot if necessary
-
-
-// Returns a chess piece of type CircleShape
-// sf::CircleShape& ChessPieces::get_piece_basic(int piece_type){
-//     switch (piece_type){
-//     case 1: return pawn; break;   case 2: return bishop; break;
-//     case 3: return knight; break; case 4: return rook; break;
-//     case 5: return queen; break;  case 6: return king; break;
-//     default: return null; break; }
-// }
 
 */
