@@ -61,9 +61,10 @@ public:
     int Get_Piece_ID();
     void Set_Color_ID(int ID);
     int Get_Color_ID();
-
     Pieces get_piece_type();
+
     Move_data convert_move(Move_data move, std::vector<ChessPieces> pieces);
+    bool check_move_validity(Move_data move_start, Move_data move_end);
 
 };
 

@@ -177,9 +177,11 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
     std::future<std::string> user_input;
 
     bool user_has_input = false;
-    user_input = std::async(std::launch::async, get_user_input);
 
     select_piece:
+
+    user_input = std::async(std::launch::async, get_user_input);
+
     while(user_has_input == false){
         auto status = user_input.wait_for(std::chrono::milliseconds(1000));
         // if receive input, store it and break loop, else redraw board and wait
@@ -230,17 +232,8 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
     move.end = convert_move(move.end, pieces);
 
 
-    // check if selected piece(id) is null
-    if(move.start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; goto move_input; }
-
-    // stop from moving to same square 
-    if(move.start.number == move.end.number && move.start.letter == move.end.letter)
-    { std::cout << "Not a valid destination" << std::endl; goto move_input; }
-
-    // stop from moving to occupied square
-    if(!(piece_map[move.end.number][move.end.letter]) == 0)
-    { std::cout << "Warning: Space occupied" << std::endl; goto move_input; }
-
+    bool move_valid = check_move_validity(move.start, move.end);
+    if(!move_valid){ goto move_input; }
 
 
     // clear start piece space    // move start piece to end pos
@@ -262,7 +255,7 @@ ChessPieces::Move_data ChessPieces::convert_move(Move_data move_input, std::vect
 
     // if(player black, invert letter instead of number)
 
-    // convert for white
+    // conversion for white
     int invert_number_white = (8 - move_input.number) + 1;
     move_output.number = invert_number_white - 1;
     move_output.letter = move_input.letter - 1;
@@ -274,6 +267,24 @@ ChessPieces::Move_data ChessPieces::convert_move(Move_data move_input, std::vect
 
     
     return move_output;
+
+}
+
+// General move validity check
+bool ChessPieces::check_move_validity(Move_data move_start, Move_data move_end){
+
+    // check if selected piece(id) is null
+    if(move_start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; return false; }
+
+    // stop from moving to same square 
+    if(move_start.number == move_end.number && move_start.letter == move_end.letter)
+    { std::cout << "Not a valid destination" << std::endl; return false; }
+
+    // stop from moving to occupied square
+    if(!(piece_map[move_end.number][move_end.letter]) == 0)
+    { std::cout << "Warning: Space occupied" << std::endl; return false; }
+
+    return true;
 
 }
 
