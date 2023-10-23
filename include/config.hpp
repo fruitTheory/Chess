@@ -1,4 +1,4 @@
 #pragma once
 
-// #define EXIT_SUCCESS 0
-// #define EXIT_FAILURE -1
+#define PIECE_END_ID piece_map[move.end.number][move.end.letter]
+#define PIECE_END_ID_REF piece_map[move_end.number][move_end.letter]

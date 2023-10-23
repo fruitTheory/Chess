@@ -13,7 +13,7 @@ void start_internal_clock(){
     }
 }
 
-void update_clock_display(sf::RenderWindow& window){
+void draw_clock_display(sf::RenderWindow& window){
     sf::Font font;
     font.loadFromFile("./font/DejaVuSans.ttf");
     sf::Text clock_text;

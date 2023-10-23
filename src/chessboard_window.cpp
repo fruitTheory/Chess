@@ -20,6 +20,6 @@ void initialize_window(sf::RenderWindow& window){
 void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces> pieces){
     window.clear();
     chess_pieces.update_pieces(window, board, pieces);
-    update_clock_display(window);
+    draw_clock_display(window);
     window.display(); // initial display
 }

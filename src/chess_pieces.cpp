@@ -1,5 +1,6 @@
 #include "chess_pieces.hpp"
 #include "chess_clock.hpp"
+#include "config.hpp"
 #include <iostream>
 #include <utility>
 #include <future>
@@ -17,6 +18,9 @@ queen_shape(48.f, 100)
 
 }
 
+int total_pieces = 32;
+std::vector<int> dead_pieces;
+
 int piece_map[8][8] = 
 {
     {29, 27, 25, 31, 32, 26, 28, 30},
@@ -29,6 +33,14 @@ int piece_map[8][8] =
     {13, 11, 9, 15, 16, 10, 12, 14}
 };
 
+void print_piece_map(){
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            std::cout << piece_map[y][x] << " ";
+        }
+        puts("");
+    }
+}
 
 // Piece notations mapping
 const std::map<char, Pieces> piece_notation_map = {
@@ -118,14 +130,16 @@ void ChessPieces::set_piece_colors(std::vector<ChessPieces>& pieces){
     }
 }
 
-// Set initial and current piece positions
+// Set initial and current piece positions, id based
 void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
 
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            // note that the object id returned from map_value is an abstract version not the class version
-            int map_value = piece_map[y][x]; // an objects id at a started position position ex:{0, 0}
-            Pieces type = pieces[map_value-1].get_piece_type(); // type of piece that object id is
+            // Gets object id of current array position, and uses that as a 'filler' value for later arrays
+            // Then only If a matching type is found, place that piece type at current array position
+            // Square map places the type because it has actual pixel values and same array position
+            int map_value = piece_map[y][x]; 
+            Pieces type = pieces[map_value-1].get_piece_type(); 
 
             if(type == Pieces::P){pieces[map_value-1].pawn_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
             if(type == Pieces::B) { pieces[map_value-1].bishop_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
@@ -141,17 +155,36 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
 // Draws all pieces
 void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces){
 
-    for(int i = 0; i < 32; i++){
+    std::vector<int> map_values;
+    Pieces type;
+    
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){ 
+            // store piece map object id's
+            map_values.push_back( piece_map[y][x]); }
+    }
 
-    //Pieces type = get_piece_type(pieces[i].object_id);
-    Pieces type = pieces[i].get_piece_type();
+    // for(int x = 0; x < 64; x++){
+    //     std::cout << map_values[x] << " ";
+    // }
+    int num = 0;
+    
+    //print_piece_map();
+    // find the missing id example 20
 
-    if(type == Pieces::P) { window.draw(pieces[i].pawn_shape);}
-    if(type == Pieces::B) { window.draw(pieces[i].bishop_shape);}
-    if(type == Pieces::N) { window.draw(pieces[i].knight_shape);}
-    if(type == Pieces::R) { window.draw(pieces[i].rook_shape);}
-    if(type == Pieces::Q) { window.draw(pieces[i].queen_shape);}
-    if(type == Pieces::K) { window.draw(pieces[i].king_shape);}
+    for(int i = 0; i < 64; i++){
+
+        if(map_values[i] != 0){
+            type = pieces[map_values[i]-1].get_piece_type();
+
+            if(type == Pieces::P) { window.draw(pieces[map_values[i]-1].pawn_shape);}
+            if(type == Pieces::B) { window.draw(pieces[map_values[i]-1].bishop_shape);}
+            if(type == Pieces::N) { window.draw(pieces[map_values[i]-1].knight_shape);}
+            if(type == Pieces::R) { window.draw(pieces[map_values[i]-1].rook_shape);}
+            if(type == Pieces::Q) { window.draw(pieces[map_values[i]-1].queen_shape);}
+            if(type == Pieces::K) { window.draw(pieces[map_values[i]-1].king_shape);}
+            num++;
+        }
 
     }
 }
@@ -180,7 +213,6 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
     ChessPieces::Move_data move;
     std::string input_move;
     std::future<std::string> user_input;
-
     bool user_has_input = false;
 
     select_piece:
@@ -220,10 +252,8 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
 bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
                             ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces){
 
-    Pieces type;
+    //Pieces type;
     ChessPieces::Move move;
-    ChessPieces::Move_data move_data;
-    int color_id;
 
     move_input:
     std::cout << "Select a piece and destination - Ex: Bc1 f4, c2 c4, Ng1 Nf3\n";
@@ -236,34 +266,37 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
     move.start = convert_move(move.start, pieces);
     move.end = convert_move(move.end, pieces);
 
-    
-
+    bool is_attack;
     bool move_valid = check_move_validity(move.start, move.end, pieces);
     if(!move_valid){ puts("Not a valid move");goto move_input; }
+    if(move_valid){ is_attack = check_attack(move.start, move.end);}
     pieces[move.start.piece_id].Set_Has_Moved(1); // set for certain rules
 
 
     // clear start piece space    // move start piece to end pos
     piece_map[move.start.number][move.start.letter] = 0;
-    piece_map[move.end.number][move.end.letter] = move.start.piece_id;
+    if(is_attack){ dead_pieces.push_back(PIECE_END_ID); PIECE_END_ID = 0; }
+    std::cout << move.end.piece_id << " end " << move.start.piece_id << " start " << std::endl;
+    PIECE_END_ID = move.start.piece_id;
+    print_piece_map();
 
 
     // re-setup everything
     update_pieces(window, board, pieces);
-    update_clock_display(window);
+    draw_clock_display(window);
 
     return true;
 
 }
 
-// General convert move into usable data for array based on black or white player
+// General convert move to usable data for array and embed additional data
 ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, std::vector<ChessPieces>& pieces){
 
     Move_data move_output;
 
     // if(player black, invert letter instead of number)
 
-    // conversion for white
+    // inverse conversion for white
     int invert_number_white = (8 - move_input.number) + 1;
     move_output.number = invert_number_white - 1;
     move_output.letter = move_input.letter - 1;
@@ -272,8 +305,6 @@ ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, st
     move_output.piece_id = piece_map[move_output.number][move_output.letter];
     move_output.piece_type = pieces[move_output.piece_id-1].get_piece_type();
     move_output.color = pieces[move_output.piece_id-1].Get_Color_ID();
-
-    std:: cout << pieces[move_output.piece_id].Get_Has_Moved() << " convert " << std::endl;
 
     return move_output;
 
@@ -284,7 +315,7 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
 
     Pawn pawn;
 
-    // check if selected piece(id) is null
+    // stop from selecting an empty sqaure to move
     if(move_start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; return false; }
 
     // stop from moving to same square 
@@ -292,8 +323,8 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     { std::cout << "Not a valid destination" << std::endl; return false; }
 
     // stop from moving to occupied square
-    if(!(piece_map[move_end.number][move_end.letter]) == 0)
-    { std::cout << "Warning: Space occupied" << std::endl; return false; }
+    // if(PIECE_END_ID_REF != 0)
+    // { std::cout << "Warning: Space occupied" << std::endl; return false; }
 
     if(move_start.piece_type == Pieces::P) { if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
     if(move_start.piece_type == Pieces::B) { }
@@ -306,21 +337,60 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
 
 }
 
+// Checks if move is valid and if it is an attack
 bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
 
-    // !quirk needs to be reverse due to inverse of number for array reasons
-    int move_sqaures = move_start.number - move_end.number; 
+    int move_number_squares;
 
-    // Pawn can only move two spots on first move
-    if(move_sqaures > 2 || move_sqaures <= 0){return false;}
-    if(pieces[move_start.piece_id].Get_Has_Moved() == 1 && move_sqaures > 1){return false;};
+    if(move_start.color == 1){ // refactor with color enum later
+        // !quirk needs to be reverse due to inverse of number for array reasons
+        move_number_squares = move_start.number - move_end.number; 
+    }else{ move_number_squares = abs(move_start.number - move_end.number); }
+    // need check for black negative // pawns can attack same color
+
+    int move_letter_squares = abs(move_end.letter - move_start.letter);
+
+    // Pawn can only move two spots on first move, also note <= 0 also stops sideways moves
+    if(move_number_squares > 2 || move_number_squares <= 0){return false;}
+    if(pieces[move_start.piece_id].Get_Has_Moved() == 1 && move_number_squares > 1){return false;};
+
+    // stop move diagonal 2 spaces on first move
+    if(move_number_squares == 2 && move_letter_squares > 0){return false;}
+
+    // stop from moving to occupied square if cannot attack
+    if(move_letter_squares == 0 && PIECE_END_ID_REF != 0){return false;}
+
+    // if move is diagonal up one, check if occupied or not - not allowed if not occupide
+    if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF == 0)){return false;}
+
 
     return true;
 }
 
-/*
-TODO
+bool ChessPieces::check_attack(const Move_data& move_start, const Move_data& move_end){
 
+    int move_number_squares = move_start.number - move_end.number; 
+    int move_letter_squares = abs(move_end.letter - move_start.letter);
+
+    // if move is diagonal up one, consider it an attack
+    if((move_number_squares == 1 && move_letter_squares == 1) 
+    && (PIECE_END_ID_REF != 0)){puts("attack!"); return true;}
+
+    return false;
+
+}
+
+// Board vision 
+void ChessPieces::check_valid_squares(const Move_data& move_start, const Move_data& move_end){
+
+}
+
+
+/*
+TODO Special Cases
+
+En passant
+Castling - queenside, kingside
 Move storage - reverse moves - arrow keys
 King state - checks / checkmate / stalemate
 Piece promotion
@@ -331,7 +401,7 @@ Piece promotion
 Takes input: a6->a7, Bb7, Ne4, Ke8->Kd7
 Stores input: Go back left arrow 
 - If obstruction found check if white or black
-- If opposite color and piece can attack then take piece and stop there
+- If opposite color and piece can attack then take piece
 
 - Checks if piece is obstructing path (how?)
     one possibility, we have a basic representation of board as a linear array

@@ -11,6 +11,7 @@ extern const std::map<char, Letters> letter_notation_map;
 
 extern int piece_map[8][8];
 
+void print_piece_map();
 std::string get_user_input();
 
 // Class for all chess pieces - uses shapes can use texture later
@@ -24,7 +25,7 @@ private:
     sf::CircleShape rook_shape; 
     sf::CircleShape king_shape; 
     sf::CircleShape queen_shape;
-    int object_id; // interchangeable with piece_id
+    int object_id; // generally linked with piece_id
     int color_id; // 0 black 1 white
     int has_moved;
 
@@ -46,7 +47,7 @@ public:
     };
 
     // enum class POS { START = 0, END = 1};
-    // enum class PLAYER { BLACK = 0, WHITE = 1};
+    enum class PLAYER { BLACK = 0, WHITE = 1};
 
     void create_chess_pieces(std::vector<ChessPieces>& pieces);
     void set_piece_colors(std::vector<ChessPieces>& pieces);
@@ -63,11 +64,12 @@ public:
     int Get_Color_ID();
     void Set_Has_Moved(int ID);
     int Get_Has_Moved();
-
     Pieces get_piece_type();
 
     Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool check_move_validity(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+    void check_valid_squares(const Move_data& move_start, const Move_data& move_end);
+    bool check_attack(const Move_data& move_start, const Move_data& move_end);
 
 };
 
