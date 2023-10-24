@@ -47,6 +47,21 @@ const std::map<char, Pieces> piece_notation_map = {
     {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
 };
 
+// Overload << operator with Pieces type
+std::ostream& operator<<(std::ostream& os, const Pieces& value) {
+    switch(value) 
+    {
+        case Pieces::None: os << 0; break;
+        case Pieces::P: os << 1; break;
+        case Pieces::B: os << 2; break;
+        case Pieces::N: os << 3; break;
+        case Pieces::R: os << 4; break;
+        case Pieces::Q: os << 5; break;
+        case Pieces::K: os << 6; break;
+    }
+    return os;
+}
+
 // Letter notations mapping
 const std::map<char, Letters> letter_notation_map = {
     {'a', Letters::a},{'b', Letters::b},{'c', Letters::c},{'d', Letters::d},
@@ -136,8 +151,8 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
             // Gets object id of current array position, and uses that as a 'filler' value for later arrays
-            // Then only If a matching type is found, place that piece type at current array position
-            // Square map places the type because it has actual pixel values and same array position
+            // Then only If a matching type is found, place that piece at current array position
+            // Square map places because it has actual pixel values and same array position
             int map_value = piece_map[y][x]; 
             Pieces type = pieces[map_value-1].get_piece_type(); 
 
@@ -158,38 +173,30 @@ void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>
     std::vector<int> map_values;
     Pieces type;
     
+    // Get the current piece values
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){ 
-            // store piece map object id's
             map_values.push_back( piece_map[y][x]); }
     }
 
-    // for(int x = 0; x < 64; x++){
-    //     std::cout << map_values[x] << " ";
-    // }
-    int num = 0;
-    
-    //print_piece_map();
-    // find the missing id example 20
-
     for(int i = 0; i < 64; i++){
-
         if(map_values[i] != 0){
             type = pieces[map_values[i]-1].get_piece_type();
-
+            // I believe the trick for this is to have same map value as place_pieces()
+            // So that it knows which exact piece is missing (after attack)
+            // This method may not be specific enough, will see in future
             if(type == Pieces::P) { window.draw(pieces[map_values[i]-1].pawn_shape);}
             if(type == Pieces::B) { window.draw(pieces[map_values[i]-1].bishop_shape);}
             if(type == Pieces::N) { window.draw(pieces[map_values[i]-1].knight_shape);}
             if(type == Pieces::R) { window.draw(pieces[map_values[i]-1].rook_shape);}
             if(type == Pieces::Q) { window.draw(pieces[map_values[i]-1].queen_shape);}
             if(type == Pieces::K) { window.draw(pieces[map_values[i]-1].king_shape);}
-            num++;
         }
 
     }
 }
 
-// Use to setup initial chess board with pieces, sets colors, places pieces, render and display them
+// Setup chess board with pieces and colors
 void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces){
 
     board.create(window);
@@ -342,28 +349,58 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
     int move_number_squares;
 
-    if(move_start.color == 1){ // refactor with color enum later
+    if(move_start.color == 1){
         // !quirk needs to be reverse due to inverse of number for array reasons
         move_number_squares = move_start.number - move_end.number; 
     }else{ move_number_squares = abs(move_start.number - move_end.number); }
-    // need check for black negative // pawns can attack same color
 
+    // amount of squares piece will move horizontal
     int move_letter_squares = abs(move_end.letter - move_start.letter);
 
-    // Pawn can only move two spots on first move, also note <= 0 also stops sideways moves
+    // stop if piece is black and moving backwards, confused why this need be inverse
+    if(move_start.color == 0 && move_start.number > move_end.number){ return false; }
+
+    // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
     if(move_number_squares > 2 || move_number_squares <= 0){return false;}
     if(pieces[move_start.piece_id].Get_Has_Moved() == 1 && move_number_squares > 1){return false;};
 
-    // stop move diagonal 2 spaces on first move
-    if(move_number_squares == 2 && move_letter_squares > 0){return false;}
+
+    // ------------------------------------------------------ //
+    // SPECIAL CASE: En Passant - needs to be at least before diagonal logic
+
+    // stores piece id to left and right of start piece
+    int id_right =  piece_map[move_start.number][move_start.letter+1];
+    int id_left = piece_map[move_start.number][move_start.letter-1];
+
+    // get piece type to left and right of start piece
+    Pieces type_right = pieces[id_right-1].get_piece_type();
+    Pieces type_left = pieces[id_left-1].get_piece_type();
+
+    // if type to left or right is a pawn then check if has moved
+    if(type_left == Pieces::P || type_right == Pieces::P ){
+        // then if end move is diagonal return true
+        if(move_number_squares == 1 && move_letter_squares == 1){ puts("En Passant!"); return true; }
+    }
+    // user note: it's working but need to kill passed pawn andempty square
+    // ------------------------------------------------------ //
+
+
+    // stop move diagonal 2 spaces on first move or any move
+    if((move_number_squares == 2 && move_letter_squares > 0) || move_letter_squares > 1){return false;}
 
     // stop from moving to occupied square if cannot attack
     if(move_letter_squares == 0 && PIECE_END_ID_REF != 0){return false;}
 
-    // if move is diagonal up one, check if occupied or not - not allowed if not occupide
+    // if move is diagonal, check if occupied - dont allow if not occupied
     if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF == 0)){return false;}
 
+    // if move is diagonal, and if occupied, cant attack if same color piece
+    if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF != 0
+    && pieces[move_start.piece_id].Get_Color_ID() == pieces[move_end.piece_id].Get_Color_ID())){ return false;}
 
+
+
+    
     return true;
 }
 
@@ -372,9 +409,8 @@ bool ChessPieces::check_attack(const Move_data& move_start, const Move_data& mov
     int move_number_squares = move_start.number - move_end.number; 
     int move_letter_squares = abs(move_end.letter - move_start.letter);
 
-    // if move is diagonal up one, consider it an attack
-    if((move_number_squares == 1 && move_letter_squares == 1) 
-    && (PIECE_END_ID_REF != 0)){puts("attack!"); return true;}
+    // if move is diagonal, consider it an attack - pawns
+    if(move_number_squares == 1 && move_letter_squares == 1){puts("attack!"); return true;}
 
     return false;
 

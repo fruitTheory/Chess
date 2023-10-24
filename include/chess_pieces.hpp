@@ -5,6 +5,7 @@
 
 enum class Pieces { None = 0, P, B, N, R, Q, K };
 extern const std::map<char, Pieces> piece_notation_map;
+std::ostream& operator<<(std::ostream& os, const Pieces& value);
 
 enum class Letters { a = 1, b, c, d, e, f, g, h };
 extern const std::map<char, Letters> letter_notation_map;
