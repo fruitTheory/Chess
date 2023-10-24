@@ -47,7 +47,7 @@ const std::map<char, Pieces> piece_notation_map = {
     {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
 };
 
-// Overload << operator with Pieces type
+// Overload << operator for Pieces type
 std::ostream& operator<<(std::ostream& os, const Pieces& value) {
     switch(value) 
     {
@@ -257,7 +257,7 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
 
 
 bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
-                            ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces){
+                            ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, int player){
 
     //Pieces type;
     ChessPieces::Move move;
@@ -274,7 +274,7 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
     move.end = convert_move(move.end, pieces);
 
     bool is_attack;
-    bool move_valid = check_move_validity(move.start, move.end, pieces);
+    bool move_valid = check_move_validity(move.start, move.end, pieces, player);
     if(!move_valid){ puts("Not a valid move");goto move_input; }
     if(move_valid){ is_attack = check_attack(move.start, move.end);}
     pieces[move.start.piece_id].Set_Has_Moved(1); // set for certain rules
@@ -318,9 +318,12 @@ ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, st
 }
 
 // General move validity check
-bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_data& move_end, 
+                                      std::vector<ChessPieces>& pieces, int player){
 
     Pawn pawn;
+    Bishop bishop;
+    int piece_id;
 
     // stop from selecting an empty sqaure to move
     if(move_start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; return false; }
@@ -329,13 +332,17 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     if(move_start.number == move_end.number && move_start.letter == move_end.letter)
     { std::cout << "Not a valid destination" << std::endl; return false; }
 
+    // If not the current player stop from moving
+    piece_id = piece_map[move_start.number][move_start.letter];
+    if(pieces[piece_id-1].Get_Color_ID() != player){ std::cout << "Not this players turn" << std::endl; return false; };
+
     // stop from moving to occupied square
     // if(PIECE_END_ID_REF != 0)
     // { std::cout << "Warning: Space occupied" << std::endl; return false; }
 
-    if(move_start.piece_type == Pieces::P) { if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::B) { }
-    if(move_start.piece_type == Pieces::N) { }
+    if(move_start.piece_type == Pieces::P) {if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::B) {if(!bishop.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::N) { return true; }
     if(move_start.piece_type == Pieces::R) { }
     if(move_start.piece_type == Pieces::Q) { }
     if(move_start.piece_type == Pieces::K) { }
@@ -349,7 +356,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
     int move_number_squares;
 
-    if(move_start.color == 1){
+    if(move_start.color == WHITE){
         // !quirk needs to be reverse due to inverse of number for array reasons
         move_number_squares = move_start.number - move_end.number; 
     }else{ move_number_squares = abs(move_start.number - move_end.number); }
@@ -358,7 +365,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int move_letter_squares = abs(move_end.letter - move_start.letter);
 
     // stop if piece is black and moving backwards, confused why this need be inverse
-    if(move_start.color == 0 && move_start.number > move_end.number){ return false; }
+    if(move_start.color == BLACK && move_start.number > move_end.number){ return false; }
 
     // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
     if(move_number_squares > 2 || move_number_squares <= 0){return false;}
@@ -371,14 +378,20 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     // stores piece id to left and right of start piece
     int id_right =  piece_map[move_start.number][move_start.letter+1];
     int id_left = piece_map[move_start.number][move_start.letter-1];
+    int id_player = piece_map[move_start.number][move_start.letter];
 
     // get piece type to left and right of start piece
     Pieces type_right = pieces[id_right-1].get_piece_type();
     Pieces type_left = pieces[id_left-1].get_piece_type();
 
-    // if type to left or right is a pawn then check if has moved
-    if(type_left == Pieces::P || type_right == Pieces::P ){
-        // then if end move is diagonal return true
+    int color_right = pieces[id_right-1].Get_Color_ID();
+    int color_left = pieces[id_left-1].Get_Color_ID();
+    int color_player = pieces[id_player-1].Get_Color_ID();
+    std::cout << color_right << " " << color_left << " " << color_player << std::endl;
+
+    // if type to left or right is a pawn and not the color
+    if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
+        // then if end move is diagonal return attack is true
         if(move_number_squares == 1 && move_letter_squares == 1){ puts("En Passant!"); return true; }
     }
     // user note: it's working but need to kill passed pawn andempty square
@@ -397,10 +410,11 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     // if move is diagonal, and if occupied, cant attack if same color piece
     if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF != 0
     && pieces[move_start.piece_id].Get_Color_ID() == pieces[move_end.piece_id].Get_Color_ID())){ return false;}
-
-
-
     
+    return true;
+}
+
+bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
     return true;
 }
 

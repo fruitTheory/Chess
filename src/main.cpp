@@ -21,6 +21,8 @@ int main(){
 
     bool piece_moved;
     bool pressed = false;
+    int flop = 1;
+    int player = chess_pieces.WHITE;
     sf::Event event;
 
     std::thread clock_thread(start_internal_clock); // create thread for timer function
@@ -32,8 +34,10 @@ int main(){
 
         window.clear();
 
+        flop == 1 ? player = chess_pieces.WHITE : player = chess_pieces.BLACK;
+
         // if(!piece_moved){piece_moved = chess_pieces.move_piece(window, board, pieces);}
-        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces);
+        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, player);
 
         pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
         if (pressed){
@@ -46,6 +50,7 @@ int main(){
             }
         // piece_moved = false;
         }
+        flop ^= 1;
         // std::cout << "Out of loop\n";
         window.display();
     }
