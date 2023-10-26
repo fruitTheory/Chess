@@ -1,8 +1,8 @@
 #include "chess_pieces.hpp"
 #include "chess_clock.hpp"
+#include "chess_utility.hpp"
 #include "config.hpp"
 #include <iostream>
-#include <utility>
 #include <future>
 
 // Constructor
@@ -33,33 +33,24 @@ int piece_map[8][8] =
     {13, 11, 9, 15, 16, 10, 12, 14}
 };
 
-void print_piece_map(){
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 8; x++){
-            std::cout << piece_map[y][x] << " ";
-        }
-        puts("");
-    }
-}
-
 // Piece notations mapping
 const std::map<char, Pieces> piece_notation_map = {
     {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
 };
 
 // Overload << operator for Pieces type
-std::ostream& operator<<(std::ostream& os, const Pieces& value) {
+std::ostream& operator<<(std::ostream& outstream, const Pieces& value) {
     switch(value) 
     {
-        case Pieces::None: os << 0; break;
-        case Pieces::P: os << 1; break;
-        case Pieces::B: os << 2; break;
-        case Pieces::N: os << 3; break;
-        case Pieces::R: os << 4; break;
-        case Pieces::Q: os << 5; break;
-        case Pieces::K: os << 6; break;
+        case Pieces::None: outstream << 0; break;
+        case Pieces::P: outstream << 1; break;
+        case Pieces::B: outstream << 2; break;
+        case Pieces::N: outstream << 3; break;
+        case Pieces::R: outstream << 4; break;
+        case Pieces::Q: outstream << 5; break;
+        case Pieces::K: outstream << 6; break;
     }
-    return os;
+    return outstream;
 }
 
 // Letter notations mapping
@@ -221,6 +212,7 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
     std::string input_move;
     std::future<std::string> user_input;
     bool user_has_input = false;
+    bool input_failed = false;
 
     select_piece:
 
@@ -238,15 +230,14 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
 
     // test valid move lengths and catch values that are out of range
     try{
-        if(input_move.length() == 2){
-            move.piece_type = Pieces::P;
+        // Goes first to catch any out of range - Note not working if one is valid other is not
+        if(input_move.length() > 2 || input_move.length() < 2){
+            input_failed = true;
+            std::cout << "Out of range input" << std::endl; goto select_piece;
+        }
+        else if(input_move.length() == 2){
             move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
             move.number = input_move[1] - '0';
-        }
-        else if(input_move.length() == 3){
-            move.piece_type = (piece_notation_map.at(input_move[0]));
-            move.letter = static_cast<int>(letter_notation_map.at(input_move[1]));
-            move.number = input_move[2] - '0'; // -'0' converts 0-9 char to numeral
         }
         else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
         
@@ -255,23 +246,29 @@ ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Che
     return move;
 }
 
-
+// Primary move function
 bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
                             ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, int player){
 
-    //Pieces type;
     ChessPieces::Move move;
+    
+    // Storage //
+    store_board_state();
+
+    int moved = pieces[3].Get_Has_Moved(); // checker if piece move
 
     move_input:
-    std::cout << "Select a piece and destination - Ex: Bc1 f4, c2 c4, Ng1 Nf3\n";
+    std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
 
     // returns raw user move data
     move.start = get_move_input(window, board, chess_pieces, pieces);
     move.end = get_move_input(window, board, chess_pieces, pieces);
 
-    // convert data
+    // convert data for array and board side
     move.start = convert_move(move.start, pieces);
     move.end = convert_move(move.end, pieces);
+    stored_moves.push_back(move); // store move
+    std::cout << move.start.piece_type << " type " <<std::endl;
 
     bool is_attack;
     bool move_valid = check_move_validity(move.start, move.end, pieces, player);
@@ -283,12 +280,10 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
     // clear start piece space    // move start piece to end pos
     piece_map[move.start.number][move.start.letter] = 0;
     if(is_attack){ dead_pieces.push_back(PIECE_END_ID); PIECE_END_ID = 0; }
-    std::cout << move.end.piece_id << " end " << move.start.piece_id << " start " << std::endl;
     PIECE_END_ID = move.start.piece_id;
     print_piece_map();
 
-
-    // re-setup everything
+    // re-draw everything
     update_pieces(window, board, pieces);
     draw_clock_display(window);
 
@@ -373,7 +368,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
 
     // ------------------------------------------------------ //
-    // SPECIAL CASE: En Passant - needs to be at least before diagonal logic
+    // SPECIAL CASE: En Passant - needs to be at least before other diagonal logic
 
     // stores piece id to left and right of start piece
     int id_right =  piece_map[move_start.number][move_start.letter+1];
@@ -387,14 +382,13 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int color_right = pieces[id_right-1].Get_Color_ID();
     int color_left = pieces[id_left-1].Get_Color_ID();
     int color_player = pieces[id_player-1].Get_Color_ID();
-    std::cout << color_right << " " << color_left << " " << color_player << std::endl;
+    // std::cout << color_right << " " << color_left << " " << color_player << std::endl;
 
-    // if type to left or right is a pawn and not the color
+    // if type to left or right is a pawn and not the same color
     if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
         // then if end move is diagonal return attack is true
         if(move_number_squares == 1 && move_letter_squares == 1){ puts("En Passant!"); return true; }
-    }
-    // user note: it's working but need to kill passed pawn andempty square
+    } // reminder to kill piece and check if relevant left or right 'has moved' previous move
     // ------------------------------------------------------ //
 
 
