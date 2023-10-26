@@ -279,7 +279,7 @@ bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board,
 
     // clear start piece space    // move start piece to end pos
     piece_map[move.start.number][move.start.letter] = 0;
-    if(is_attack){ dead_pieces.push_back(PIECE_END_ID); PIECE_END_ID = 0; }
+    // if(is_attack){ dead_pieces.push_back(PIECE_END_ID); PIECE_END_ID = 0; }
     PIECE_END_ID = move.start.piece_id;
     print_piece_map();
 
@@ -379,16 +379,21 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     Pieces type_right = pieces[id_right-1].get_piece_type();
     Pieces type_left = pieces[id_left-1].get_piece_type();
 
+    // get left and right color to see if enemy
     int color_right = pieces[id_right-1].Get_Color_ID();
     int color_left = pieces[id_left-1].Get_Color_ID();
     int color_player = pieces[id_player-1].Get_Color_ID();
-    // std::cout << color_right << " " << color_left << " " << color_player << std::endl;
 
-    // if type to left or right is a pawn and not the same color
+    // if type is a pawn and not of the same color and if move is diagonal consider move valid
     if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
-        // then if end move is diagonal return attack is true
-        if(move_number_squares == 1 && move_letter_squares == 1){ puts("En Passant!"); return true; }
-    } // reminder to kill piece and check if relevant left or right 'has moved' previous move
+        if(move_number_squares == 1 && move_letter_squares == 1){ 
+            // return true in any case
+            if(move_start.color == WHITE){
+                // please refactor this - cheap clear for special case black and white
+                puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
+                puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
+        }
+    } // just need to lastly check if it was previously the pawns first move && it was 2 spots
     // ------------------------------------------------------ //
 
 
