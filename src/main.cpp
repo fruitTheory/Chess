@@ -4,6 +4,7 @@
 #include "chess_board.hpp"
 #include "chess_utility.hpp"
 #include "chess_clock.hpp"
+#include "chess_mouse.hpp"
 #include <iostream>
 #include <thread>
 
@@ -64,7 +65,7 @@ int main(){
 /*
     -Previous mouse click stuff, from inside if clicked
 
-    // reset_board(window, board, pieces);
+    // board.reset_board(window, board, pieces);
     
     // get piece from chess pieces
     // sf::CircleShape& A2_pawn = chess_pieces.get_piece_basic(1);

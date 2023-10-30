@@ -1,5 +1,6 @@
 #include "chessboard_window.hpp"
 #include "chess_clock.hpp"
+#include "chess_text.hpp"
 
 int window_width = 900;
 int window_height = 800;
@@ -21,5 +22,6 @@ void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces&
     window.clear();
     chess_pieces.update_pieces(window, board, pieces);
     draw_clock_display(window);
+    create_textbox(window);
     window.display(); // initial display
 }

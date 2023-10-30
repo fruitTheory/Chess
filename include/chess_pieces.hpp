@@ -15,6 +15,8 @@ extern int piece_map[8][8];
 void print_piece_map();
 std::string get_user_input();
 
+class Chessboard;
+
 // Class for all chess pieces - uses shapes can use texture later
 class ChessPieces{
     
@@ -32,7 +34,14 @@ private:
 
 public:
 
-    ChessPieces();
+    ChessPieces():
+    null_shape(0.f, 0),
+    pawn_shape(48.f, 3),
+    bishop_shape(48.f, 4),
+    knight_shape(48.f, 5),
+    rook_shape(48.f, 6),
+    king_shape(48.f, 8),
+    queen_shape(48.f, 100){}
     
     struct Move_data {
         Pieces piece_type;

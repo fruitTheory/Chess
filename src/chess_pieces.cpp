@@ -1,22 +1,11 @@
 #include "chess_pieces.hpp"
 #include "chess_clock.hpp"
 #include "chess_utility.hpp"
+#include "chess_history.hpp"
 #include "config.hpp"
 #include <iostream>
 #include <future>
 
-// Constructor
-ChessPieces::ChessPieces():
-null_shape(0.f, 0),
-pawn_shape(48.f, 3),
-bishop_shape(48.f, 4),
-knight_shape(48.f, 5),
-rook_shape(48.f, 6),
-king_shape(48.f, 8),
-queen_shape(48.f, 100)
-{
-
-}
 
 int total_pieces = 32;
 std::vector<int> dead_pieces;
