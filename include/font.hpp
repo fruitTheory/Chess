@@ -1,21 +1,23 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include <iostream>
 
-class chessFont{
+class ChessFont{
 
     public:
+
+        // Create singular instance due to static
         static sf::Font& default_font(){
-
-            static chessFont instance;
+            static ChessFont instance;
             return instance.font;
-
         }
 
     private:
 
-        chessFont(){
-            if (!font.loadFromFile("./font/DejaVuSans.ttf")){puts("Didnt load .ttf");}
+        ChessFont(){
+            bool fReturn = font.loadFromFile("./font/DejaVuSans.ttf");
+            if( !fReturn ){ std::cerr << "Didn't load .ttf" << std::endl; }
         }
 
         sf::Font font;

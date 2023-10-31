@@ -15,11 +15,11 @@ Initial idea is to create a simple chess 'ai' that can play at a very basic leve
 ![board test](./img/chessboard2.png)
 ## Roadmap
 - Highlight squares on click
-- Add sprites
+- Replace shapes with sprites
 - Place pieces in a forward thinking manner 
 - Make pieces mouse movable
 
 ## Design Choices
-- When thinking about chess, I think of each piece as being unique in its own right. Im currently trying a type based solution in combination with object id's to wrangle the objects
+- When thinking about chess, I think of each piece as being unique in its own right. Im currently trying a type based solution in combination with object id's
 
 

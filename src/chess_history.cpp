@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-// vector of 2D array
+// vector for 2D arrays
 std::vector<std::array<std::array<int, 8>, 8>> game_history;
 std::vector<ChessPieces::Move> stored_moves;
 

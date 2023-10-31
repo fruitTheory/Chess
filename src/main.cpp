@@ -5,6 +5,7 @@
 #include "chess_utility.hpp"
 #include "chess_clock.hpp"
 #include "chess_mouse.hpp"
+#include "chess_text.hpp"
 #include <iostream>
 #include <thread>
 
@@ -25,37 +26,71 @@ int main(){
     int flop = 1;
     int player = chess_pieces.WHITE;
     sf::Event event;
-
+    std::string user_input; // users move input
     std::thread clock_thread(start_internal_clock); // create thread for timer function
 
-    while (window.isOpen()){
-        while (window.pollEvent(event)){
-            if (event.type == sf::Event::Closed){ window.close(); } 
-        }
+    while ( window.isOpen() ){
+        while ( window.pollEvent(event) ){
+            switch( event.type ){
 
-        window.clear();
+                // Window closed
+                case sf::Event::Closed :{
+                    window.close();
+                    goto exit;
+                    break;
+                }
 
-        flop == 1 ? player = chess_pieces.WHITE : player = chess_pieces.BLACK;
+                // Mouse pressed
+                case sf::Event::MouseButtonPressed :{
+                    pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                    if (pressed){
+                        sf::Vector2i mouse_position = mouse_click_position(window);
+                        if(mouse_position.x > 0 && mouse_position.y > 0){
+                            std::cout << "Clicked\n";
+                            std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
+                        }
+                    }
+                    break;
+                }
 
-        // if(!piece_moved){piece_moved = chess_pieces.move_piece(window, board, pieces);}
-        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, player);
+                // Text entered
+                case sf::Event::TextEntered :{
 
-        pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-        if (pressed){
-            sf::Vector2i mouse_position = mouse_click_position(window);
-            if(mouse_position.x > 0 && mouse_position.y > 0){
-
-                std::cout << "Clicked\n";
-                std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
+                    // Unicode 13 represents Enter
+                    if (event.text.unicode == 13){
+                        flop == 1 ? player = chess_pieces.WHITE : player = chess_pieces.BLACK;
+                        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, player, user_input);
+                        user_input = "";
+                        flop ^= 1;
+                    }
+                    // Unicode 8 represents Backspace
+                    else if (event.text.unicode == 8 && user_input.size() > 0){
+                        user_input.pop_back();
+                    }
+                    // Unicode < 128 is Latin alphabet and ASCII symbols
+                    else if (event.text.unicode < 128 && event.text.unicode != 8){
+                        user_input += static_cast<char>(event.text.unicode);
+                    }
+                    std::cout << user_input << std::endl;
+                    break;
+                }
+                // Default
+                default :{
+                    break;
+                }
 
             }
-        // piece_moved = false;
         }
-        flop ^= 1;
-        // std::cout << "Out of loop\n";
+
+        // Default clear and update window
+        window.clear();
+        chess_pieces.update_pieces(window, board, pieces);
+        draw_clock_display(window);
+        draw_textbox(window, user_input);
         window.display();
     }
 
+    exit:
     clock_thread.join();
 
     return EXIT_SUCCESS;

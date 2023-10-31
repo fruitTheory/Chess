@@ -176,7 +176,7 @@ void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>
     }
 }
 
-// Setup chess board with pieces and colors
+// Setup chess board with drawn pieces and colors
 void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces){
 
     board.create(window);
@@ -186,72 +186,67 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
     
 }
 
-// Call to get user input through cin
-std::string get_user_input() {
-    std::string user_input;
-    std::cin >> user_input;
-    return user_input;
-}
-
 // Returns player piece selection or piece destination
-ChessPieces::Move_data ChessPieces::get_move_input(sf::RenderWindow& window, Chessboard& board,
-                                                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces){
+ChessPieces::Move_data ChessPieces::get_move_input( sf::RenderWindow& window, Chessboard& board,
+                                                    ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
+                                                    std::string user_move ) {
 
     ChessPieces::Move_data move;
     std::string input_move;
-    std::future<std::string> user_input;
     bool user_has_input = false;
     bool input_failed = false;
 
-    select_piece:
+    //select_piece:
 
-    user_input = std::async(std::launch::async, get_user_input);
-
-    while(user_has_input == false){
-        auto status = user_input.wait_for(std::chrono::milliseconds(1000));
-        // if receive input, store it and break loop, else redraw board and wait
-        if(status == std::future_status::ready){
-            input_move = user_input.get();
-            break;
-        } 
-        else{ initialize_render(window, board, chess_pieces, pieces); }
-    }
+    input_move = user_move;
 
     // test valid move lengths and catch values that are out of range
     try{
         // Goes first to catch any out of range - Note not working if one is valid other is not
         if(input_move.length() > 2 || input_move.length() < 2){
             input_failed = true;
-            std::cout << "Out of range input" << std::endl; goto select_piece;
+            std::cout << "Out of range input" << std::endl; //goto select_piece;
         }
         else if(input_move.length() == 2){
             move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
             move.number = input_move[1] - '0';
         }
-        else{ std::cout << "Not a valid piece" << std::endl; goto select_piece;}
+        else{ std::cout << "Not a valid piece" << std::endl;} //goto select_piece;}
         
-    } catch(const std::out_of_range& err){ std::cout << "Not a valid piece" << std::endl; goto select_piece; }
+    } catch(const std::out_of_range& err){ std::cout << "Not a valid piece" << std::endl;} //goto select_piece; }
 
     return move;
 }
 
 // Primary move function
-bool ChessPieces::move_piece(sf::RenderWindow& window, Chessboard& board, 
-                            ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, int player){
+bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board, 
+                              ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
+                              int player, std::string user_move ) {
 
     ChessPieces::Move move;
+    ChessPieces::Move_data move_data;
     
     // Storage //
     store_board_state();
 
-    int moved = pieces[3].Get_Has_Moved(); // checker if piece move
+    int moved = pieces[3].Get_Has_Moved(); // check if piece move
 
     move_input:
     std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
 
     // returns raw user move data
-    move.start = get_move_input(window, board, chess_pieces, pieces);
-    move.end = get_move_input(window, board, chess_pieces, pieces);
+    // move.start = get_move_input(window, board, chess_pieces, pieces, user_move);
+    move.end = get_move_input(window, board, chess_pieces, pieces, user_move);
+
+    // testing bs
+    move_data.letter = static_cast<int>(letter_notation_map.at(user_move[0]));
+    move_data.number = user_move[1] - '0';
+    move.start = move_data;
+
+    move_data.letter = static_cast<int>(letter_notation_map.at(user_move[3]));
+    move_data.number = user_move[4] - '0';
+    move.end = move_data;
+    // ----
 
     // convert data for array and board side
     move.start = convert_move(move.start, pieces);
@@ -453,6 +448,5 @@ Stores input: Go back left arrow
 
         Note that this is 2D thinking, can we do it in 1D with just the linear array
             sure with math - 8x8 = 64, well 0 is A8, but 63 is A1 currently
-
-
+            
 */

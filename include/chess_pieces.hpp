@@ -65,9 +65,12 @@ public:
     void draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces);
     void update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
 
-    Move_data get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces);
+    Move_data get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces,
+                             std::vector<ChessPieces>& pieces, std::string user_move);
+
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
-                    ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, int player);
+                    ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, 
+                    int player, std::string user_move);
 
     void Set_Piece_ID(int ID);
     int Get_Piece_ID();

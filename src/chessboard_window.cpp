@@ -22,6 +22,6 @@ void initialize_render(sf::RenderWindow& window, Chessboard& board, ChessPieces&
     window.clear();
     chess_pieces.update_pieces(window, board, pieces);
     draw_clock_display(window);
-    create_textbox(window);
+    draw_textbox(window, "");
     window.display(); // initial display
 }

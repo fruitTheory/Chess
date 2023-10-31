@@ -2,4 +2,4 @@
 
 #include "SFML/Graphics.hpp"
 
-void create_textbox(sf::RenderWindow &window);
+void draw_textbox(sf::RenderWindow &window, std::string user_input);
