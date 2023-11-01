@@ -187,36 +187,36 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
 }
 
 // Returns player piece selection or piece destination
-ChessPieces::Move_data ChessPieces::get_move_input( sf::RenderWindow& window, Chessboard& board,
-                                                    ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
-                                                    std::string user_move ) {
+// ChessPieces::Move_data ChessPieces::get_move_input( sf::RenderWindow& window, Chessboard& board,
+//                                                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
+//                                                     std::string user_move ) {
 
-    ChessPieces::Move_data move;
-    std::string input_move;
-    bool user_has_input = false;
-    bool input_failed = false;
+//     ChessPieces::Move_data move;
+//     std::string input_move;
+//     bool user_has_input = false;
+//     bool input_failed = false;
 
-    //select_piece:
+//     //select_piece:
 
-    input_move = user_move;
+//     input_move = user_move;
 
-    // test valid move lengths and catch values that are out of range
-    try{
-        // Goes first to catch any out of range - Note not working if one is valid other is not
-        if(input_move.length() > 2 || input_move.length() < 2){
-            input_failed = true;
-            std::cout << "Out of range input" << std::endl; //goto select_piece;
-        }
-        else if(input_move.length() == 2){
-            move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
-            move.number = input_move[1] - '0';
-        }
-        else{ std::cout << "Not a valid piece" << std::endl;} //goto select_piece;}
+//     // test valid move lengths and catch values that are out of range
+//     try{
+//         // Goes first to catch any out of range - Note not working if one is valid other is not
+//         if(input_move.length() > 2 || input_move.length() < 2){
+//             input_failed = true;
+//             std::cout << "Out of range input" << std::endl; //goto select_piece;
+//         }
+//         else if(input_move.length() == 2){
+//             move.letter = static_cast<int>(letter_notation_map.at(input_move[0]));
+//             move.number = input_move[1] - '0';
+//         }
+//         else{ std::cout << "Not a valid piece" << std::endl;} //goto select_piece;}
         
-    } catch(const std::out_of_range& err){ std::cout << "Not a valid piece" << std::endl;} //goto select_piece; }
+//     } catch(const std::out_of_range& err){ std::cout << "Not a valid piece" << std::endl;} //goto select_piece; }
 
-    return move;
-}
+//     return move;
+// }
 
 // Primary move function
 bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board, 
@@ -225,18 +225,19 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     ChessPieces::Move move;
     ChessPieces::Move_data move_data;
-    
-    // Storage //
-    store_board_state();
 
-    int moved = pieces[3].Get_Has_Moved(); // check if piece move
-
-    move_input:
-    std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
-
-    // returns raw user move data
-    // move.start = get_move_input(window, board, chess_pieces, pieces, user_move);
-    move.end = get_move_input(window, board, chess_pieces, pieces, user_move);
+    try {
+        // Goes first to catch any out of range - Note not working if one is valid other is not
+        if(user_move.length() > 5 || user_move.length() < 5){
+            std::cout << "Out of range input!!" << std::endl;
+            return false;
+        }
+        else if(user_move.length() == 5){
+            std::cout << "Equal to 5!" << std::endl;
+        }
+        else{ std::cout << "Not a valid piece" << std::endl;}
+        
+    } catch(const std::out_of_range& err){ return false; std::cout << "Not a valid piece" << std::endl; }
 
     // testing bs
     move_data.letter = static_cast<int>(letter_notation_map.at(user_move[0]));
@@ -246,6 +247,7 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
     move_data.letter = static_cast<int>(letter_notation_map.at(user_move[3]));
     move_data.number = user_move[4] - '0';
     move.end = move_data;
+
     // ----
 
     // convert data for array and board side
@@ -256,16 +258,20 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     bool is_attack;
     bool move_valid = check_move_validity(move.start, move.end, pieces, player);
-    if(!move_valid){ puts("Not a valid move");goto move_input; }
+    if(!move_valid){ puts("Not a valid move"); return false; }
     if(move_valid){ is_attack = check_attack(move.start, move.end);}
     pieces[move.start.piece_id].Set_Has_Moved(1); // set for certain rules
-
 
     // clear start piece space    // move start piece to end pos
     piece_map[move.start.number][move.start.letter] = 0;
     // if(is_attack){ dead_pieces.push_back(PIECE_END_ID); PIECE_END_ID = 0; }
     PIECE_END_ID = move.start.piece_id;
-    print_piece_map();
+
+    // Print info
+    //print_piece_map();
+    print_game_history();
+    store_board_state(); // Now this shit is broken
+    print_game_history();
 
     // re-draw everything
     update_pieces(window, board, pieces);

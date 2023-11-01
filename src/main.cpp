@@ -6,6 +6,7 @@
 #include "chess_clock.hpp"
 #include "chess_mouse.hpp"
 #include "chess_text.hpp"
+#include "chess_history.hpp"
 #include <iostream>
 #include <thread>
 
@@ -20,6 +21,7 @@ int main(){
     chess_pieces.create_chess_pieces(pieces);
     initialize_window(window);
     initialize_render(window, board, chess_pieces, pieces);
+    store_board_state(); // store initial state
 
     bool piece_moved;
     bool pressed = false;
@@ -28,6 +30,8 @@ int main(){
     sf::Event event;
     std::string user_input; // users move input
     std::thread clock_thread(start_internal_clock); // create thread for timer function
+
+    std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
 
     while ( window.isOpen() ){
         while ( window.pollEvent(event) ){
@@ -82,7 +86,7 @@ int main(){
             }
         }
 
-        // Default clear and update window
+        // Default update and display drawings
         window.clear();
         chess_pieces.update_pieces(window, board, pieces);
         draw_clock_display(window);
@@ -90,9 +94,10 @@ int main(){
         window.display();
     }
 
-    exit:
     clock_thread.join();
 
+    exit:
+    clock_thread.detach();
     return EXIT_SUCCESS;
 }
 

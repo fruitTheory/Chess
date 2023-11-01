@@ -4,12 +4,26 @@
 #include <thread>
 #include <iostream>
 
-std::atomic<int> time_left(60);
+int minutes = 5;
+int seconds = 59;
+// not necessity to be atomic but good practice
+std::atomic<int> time_left(60*minutes);
 
+// start after first player makes move
 void start_internal_clock(){
+
     while(time_left > 0){
+
+        if(time_left.load()  % 60 == 0){ minutes -= 1; }
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
+
         --time_left;
+
+        if(time_left == 0){ break; }
+
+        seconds -= 1;
+        if(seconds < 0){ seconds = 59; }
     }
 }
 
@@ -22,12 +36,13 @@ void draw_clock_display(sf::RenderWindow& window){
     clock_text.setCharacterSize(20);
     clock_text.setFillColor(sf::Color{185,195,205,255});
 
-    clock_text.setString("Time: " + std::to_string(time_left.load()));
+    if(seconds < 10){ clock_text.setString("Time: " + std::to_string(minutes) + ":" + "0" + std::to_string(seconds)); }
+    else { clock_text.setString("Time: " + std::to_string(minutes) + ":" + std::to_string(seconds)); }
 
-    clock_text.setPosition(800 , 325);
+    clock_text.setPosition(780 , 325);
     window.draw(clock_text);
 
-    clock_text.setPosition(800 , 425);
+    clock_text.setPosition(780 , 425);
     window.draw(clock_text);
 
 }
