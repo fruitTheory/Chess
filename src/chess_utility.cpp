@@ -28,3 +28,9 @@ void print_stored_moves(){
         std::cout << stored_moves[x].start.letter << " " << stored_moves[x].start.number << " ";
     puts("");
 }
+
+void print_last_move(){ 
+    for(int x = 0; x < 2; x++)
+        std::cout << stored_moves[x].start.letter << stored_moves[x].start.number << " ";
+    puts("");
+}

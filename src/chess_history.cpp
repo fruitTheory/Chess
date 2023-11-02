@@ -4,6 +4,7 @@
 
 // vector of 2D arrays
 std::vector<std::array<std::array<int, 8>, 8>> game_history;
+// stored moves that were converted to relevant array position
 std::vector<ChessPieces::Move> stored_moves;
 
 

@@ -81,6 +81,7 @@ public:
     void Set_Has_Moved(int ID);
     int Get_Has_Moved();
     Pieces get_piece_type();
+    std::string get_piece_type_str(Pieces type);
 
     Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 

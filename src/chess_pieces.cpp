@@ -66,6 +66,17 @@ Pieces ChessPieces::get_piece_type() {
     return Pieces::None;
 }
 
+// Return piece type in string format
+std::string ChessPieces::get_piece_type_str(Pieces type){
+        if(type == Pieces::P){ return "pawn";}
+        if(type == Pieces::B){ return "bishop";}
+        if(type == Pieces::N){ return "knight";}
+        if(type == Pieces::R){ return "rook";}
+        if(type == Pieces::Q){ return "queen";}
+        if(type == Pieces::K){ return "king";}
+    return "Null";
+}
+
 // Uses a vector of type ChessPieces to create 32 objects which are pushed to that vector
 // Object id below 17 are white pieces
 void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
@@ -185,13 +196,33 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
 // Check if user input is valid
 bool ChessPieces::user_input_valid( std::string user_input ) {
 
-    // Test valid move lengths
-    if(user_input.length() > 5 || user_input.length() < 5){
-        std::cout << "Not a valid move input - Select a piece and destination - Ex: c1 f4, c2 c4" << std::endl;
+    // Special cases - castling
+    if(user_input.length() == 3 && user_input == "0-0"){ puts("castle short"); return true; }
+    else if(user_input.length() == 5 && user_input == "0-0-0"){ puts("castle long"); return true; }
+
+    // legal move range
+    else if(user_input.length() == 5){ 
+        // invalid if move number is out of range
+        if(user_input[1] - '0' > 8 || user_input[1] - '0' < 1){ 
+            puts("Not a valid move input");
+            return false;
+        }
+        // invalid if move number is out of range
+        else if(user_input[4] - '0' > 8 || user_input[4] - '0' < 1) {
+            puts("Not a valid move input");
+            return false;
+        }
+        else{
+            return true; 
+        }
+    }
+    // invalid move lengths
+    else if(user_input.length() > 5 || user_input.length() < 5){
+        puts("Not a valid move input - Select a piece and destination - Ex: c1 f4, c2 c4");
         return false;
     }
-    else if(user_input.length() == 5){ /*do something*/ }
-    else{ std::cout << "Not a valid piece" << std::endl; return false;}
+    // any other situations
+    else{ puts("Not a valid piece"); return false;}
 
     return true;
 }
@@ -241,8 +272,9 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
     move.end = convert_move(move.end, pieces);
 
     move_valid = check_move_validity(move.start, move.end, pieces, player);
+    std::string piece_type_str = get_piece_type_str(move.start.piece_type);
     if(!move_valid){ 
-        puts("Not a valid move"); return false; 
+        std::cout << "Not a valid " << piece_type_str << " move"; return false; 
     } else {
         stored_moves.push_back(move); // store move
         store_board_state(); // store previous
@@ -296,11 +328,11 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     int piece_id;
 
     // stop from selecting an empty sqaure to move
-    if(move_start.piece_id == 0){ std::cout << "Not a valid piece" << std::endl; return false; }
+    if(move_start.piece_id == 0){ puts("Not a valid piece"); return false; }
 
     // stop from moving to same square 
     if(move_start.number == move_end.number && move_start.letter == move_end.letter)
-    { std::cout << "Not a valid destination" << std::endl; return false; }
+    { puts("Not a valid destination"); return false; }
 
     // If not the current player stop from moving
     piece_id = piece_map[move_start.number][move_start.letter];

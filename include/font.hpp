@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include <iostream>
 
 class ChessFont{
 
@@ -17,7 +16,7 @@ class ChessFont{
 
         ChessFont(){
             bool fReturn = font.loadFromFile("./font/DejaVuSans.ttf");
-            if( !fReturn ){ std::cerr << "Didn't load .ttf" << std::endl; }
+            if( !fReturn ){ puts("Didn't load .ttf"); }
         }
 
         sf::Font font;

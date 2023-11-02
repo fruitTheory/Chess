@@ -7,6 +7,7 @@
 #include "chess_mouse.hpp"
 #include "chess_text.hpp"
 #include "chess_history.hpp"
+#include "chess_sprites.hpp"
 #include <iostream>
 #include <thread>
 
@@ -30,7 +31,7 @@ int main(){
     sf::Event event;
     std::string user_input; // users move input
     std::thread clock_thread(start_internal_clock); // create thread for timer function
-    std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
+    puts("Select a piece and destination - Ex: c1 f4, c2 c4");
 
     while ( window.isOpen() ){
         while ( window.pollEvent(event) ){
@@ -49,7 +50,7 @@ int main(){
                     if (pressed){
                         sf::Vector2i mouse_position = mouse_click_position(window);
                         if(mouse_position.x > 0 && mouse_position.y > 0){
-                            std::cout << "Clicked\n";
+                            puts("Clicked");
                             std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
                         }
                     }
