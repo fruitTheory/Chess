@@ -21,23 +21,22 @@ int main(){
     chess_pieces.create_chess_pieces(pieces);
     initialize_window(window);
     initialize_render(window, board, chess_pieces, pieces);
-    store_board_state(); // store initial state
 
     bool piece_moved;
     bool pressed = false;
     int flop = 1;
     int player = chess_pieces.WHITE;
+
     sf::Event event;
     std::string user_input; // users move input
     std::thread clock_thread(start_internal_clock); // create thread for timer function
-
     std::cout << "Select a piece and destination - Ex: c1 f4, c2 c4 \n";
 
     while ( window.isOpen() ){
         while ( window.pollEvent(event) ){
             switch( event.type ){
 
-                // Window closed
+                // Window close
                 case sf::Event::Closed :{
                     window.close();
                     goto exit;
@@ -64,8 +63,8 @@ int main(){
                     if (event.text.unicode == 13){
                         flop == 1 ? player = chess_pieces.WHITE : player = chess_pieces.BLACK;
                         piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, player, user_input);
+                        if(piece_moved){ flop ^= 1; }
                         user_input = "";
-                        flop ^= 1;
                     }
                     // Unicode 8 represents Backspace
                     else if (event.text.unicode == 8 && user_input.size() > 0){
@@ -75,9 +74,10 @@ int main(){
                     else if (event.text.unicode < 128 && event.text.unicode != 8){
                         user_input += static_cast<char>(event.text.unicode);
                     }
-                    std::cout << user_input << std::endl;
+                    // std::cout << user_input << std::endl;
                     break;
                 }
+
                 // Default
                 default :{
                     break;
@@ -86,7 +86,7 @@ int main(){
             }
         }
 
-        // Default update and display drawings
+        // Default update and draw display
         window.clear();
         chess_pieces.update_pieces(window, board, pieces);
         draw_clock_display(window);
@@ -95,7 +95,6 @@ int main(){
     }
 
     clock_thread.join();
-
     exit:
     clock_thread.detach();
     return EXIT_SUCCESS;

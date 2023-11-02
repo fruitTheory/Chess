@@ -2,6 +2,7 @@
 #include "font.hpp"
 
 
+// Draw box where user text is entered
 void draw_textbox(sf::RenderWindow &window, std::string user_input){
 
     sf::Vector2f box_size(88.f, 40.f);

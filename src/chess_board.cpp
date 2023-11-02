@@ -1,4 +1,5 @@
 #include "chess_board.hpp"
+#include "font.hpp"
 #include <iostream>
 
 
@@ -50,8 +51,7 @@ void Chessboard::create(sf::RenderWindow& window){
 void Chessboard::create_notation_helper(sf::RenderWindow& window){
     
     sf::Text text;
-    sf::Font font;
-    if (!font.loadFromFile("./font/DejaVuSans.ttf")){puts("Didnt load .ttf");}
+    sf::Font &font = ChessFont::default_font();
     
     const char temp_letters[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     const char temp_numbers[8] = {'1', '2', '3', '4', '5', '6', '7', '8'};

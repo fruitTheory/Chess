@@ -1,4 +1,5 @@
 #include "chess_clock.hpp"
+#include "font.hpp"
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -6,7 +7,7 @@
 
 int minutes = 5;
 int seconds = 59;
-// not necessity to be atomic but good practice
+// not necessary to be atomic but good practice
 std::atomic<int> time_left(60*minutes);
 
 // start after first player makes move
@@ -28,9 +29,10 @@ void start_internal_clock(){
 }
 
 void draw_clock_display(sf::RenderWindow& window){
-    sf::Font font;
-    font.loadFromFile("./font/DejaVuSans.ttf");
+
+    sf::Font& font = ChessFont::default_font();
     sf::Text clock_text;
+    
     clock_text.setFont(font);
     clock_text.setStyle(sf::Text::Bold);
     clock_text.setCharacterSize(20);

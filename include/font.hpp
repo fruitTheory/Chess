@@ -7,7 +7,7 @@ class ChessFont{
 
     public:
 
-        // Create singular instance due to static
+        // Returns single instance of font thanks to static
         static sf::Font& default_font(){
             static ChessFont instance;
             return instance.font;

@@ -17,7 +17,7 @@ std::string get_user_input();
 
 class Chessboard;
 
-// Class for all chess pieces - uses shapes can use texture later
+// Class for all chess pieces - uses shapes for now
 class ChessPieces{
     
 private:
@@ -43,6 +43,7 @@ public:
     king_shape(48.f, 8),
     queen_shape(48.f, 100){}
     
+    // General data for moves
     struct Move_data {
         Pieces piece_type;
         int letter;
@@ -51,6 +52,7 @@ public:
         int piece_id;
     };
 
+    // Completed move containing move data
     struct Move {
         Move_data start;
         Move_data end;
@@ -65,12 +67,12 @@ public:
     void draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces);
     void update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
 
-    Move_data get_move_input(sf::RenderWindow& window, Chessboard& board, ChessPieces& chess_pieces,
-                             std::vector<ChessPieces>& pieces, std::string user_move);
+    bool user_input_valid(std::string user_input);
+    Move convert_user_input(std::string user_input);
 
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, 
-                    int player, std::string user_move);
+                    int player, std::string user_input);
 
     void Set_Piece_ID(int ID);
     int Get_Piece_ID();
