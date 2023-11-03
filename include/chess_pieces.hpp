@@ -21,6 +21,9 @@ class Chessboard;
 class ChessPieces{
     
 private:
+
+    // Piece shapes
+
     sf::CircleShape null_shape;
     sf::CircleShape pawn_shape;
     sf::CircleShape bishop_shape;
@@ -28,12 +31,17 @@ private:
     sf::CircleShape rook_shape; 
     sf::CircleShape king_shape; 
     sf::CircleShape queen_shape;
+
+    // Piece data 
+
     int object_id; // generally linked with piece_id
-    int color_id; // 0 black 1 white
-    int has_moved;
+    int object_value; // value of piece
+    int color_id; // 0:black 1:white
+    bool has_moved; // if piece has moved
 
 public:
 
+    // Construction
     ChessPieces():
     null_shape(0.f, 0),
     pawn_shape(48.f, 3),
@@ -43,7 +51,7 @@ public:
     king_shape(48.f, 8),
     queen_shape(48.f, 100){}
     
-    // General data for moves
+    // General data for active moving pieces
     struct Move_data {
         Pieces piece_type;
         int letter;
@@ -58,8 +66,7 @@ public:
         Move_data end;
     };
 
-    // enum class POS { START = 0, END = 1};
-    enum PLAYER { BLACK = 0, WHITE = 1};
+    // Piece creation
 
     void create_chess_pieces(std::vector<ChessPieces>& pieces);
     void set_piece_colors(std::vector<ChessPieces>& pieces);
@@ -67,28 +74,40 @@ public:
     void draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>& pieces);
     void update_pieces(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
 
-    bool user_input_valid(std::string user_input);
-    Move convert_user_input(std::string user_input);
+ 
+    // Piece moving
 
+    Move convert_user_input(std::string user_input);
+    Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, 
                     int player, std::string user_input);
+
+
+    // Getters and setters
 
     void Set_Piece_ID(int ID);
     int Get_Piece_ID();
     void Set_Color_ID(int ID);
     int Get_Color_ID();
     void Set_Has_Moved(int ID);
-    int Get_Has_Moved();
+    bool Get_Has_Moved();
     Pieces get_piece_type();
     std::string get_piece_type_str(Pieces type);
 
-    Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
-    bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 
-                             std::vector<ChessPieces>& pieces, int player);
+
+    // Checkers 
+
+    bool user_input_valid(std::string user_input);
     void check_valid_squares(const Move_data& move_start, const Move_data& move_end);
     bool check_attack(const Move_data& move_start, const Move_data& move_end);
+    bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 
+                             std::vector<ChessPieces>& pieces, int player);
 
+    // Utility
+
+    enum PLAYER { BLACK = 0, WHITE = 1};
+                             
 };
 
 class Pawn : public ChessPieces{

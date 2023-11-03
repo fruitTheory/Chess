@@ -48,10 +48,10 @@ void ChessPieces::Set_Piece_ID(int ID){ object_id = ID; }
 int ChessPieces::Get_Piece_ID(){ return object_id; }
 
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
-int ChessPieces::Get_Color_ID() { return color_id; }
+int ChessPieces::Get_Color_ID() { /* case of no piece */if(object_id == 0){return -1;} return color_id; }
 
 void ChessPieces::Set_Has_Moved(int ID){ has_moved = ID; }
-int ChessPieces::Get_Has_Moved() { return has_moved; }
+bool ChessPieces::Get_Has_Moved() { return has_moved; }
 
 // Returns piece type, also determines amount of pieces for each type, based on object id
 Pieces ChessPieces::get_piece_type() {
@@ -83,7 +83,7 @@ void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
         piece.Set_Piece_ID(i);
-        piece.Set_Has_Moved(0);
+        piece.Set_Has_Moved(false);
         i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
         pieces.push_back(piece);
     } // create 32 objects with ID's
@@ -262,37 +262,37 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
     bool is_attack;
     bool move_valid;
 
-    // check user input
+    // Check if user input is valid
     if(user_input_valid(user_input)){
         move = convert_user_input(user_input);
     } else { return false; }
 
-    // convert data for array and board side
+    // Stored converted move data for start and end move
     move.start = convert_move(move.start, pieces);
     move.end = convert_move(move.end, pieces);
 
+    // Move validity
     move_valid = check_move_validity(move.start, move.end, pieces, player);
     std::string piece_type_str = get_piece_type_str(move.start.piece_type);
     if(!move_valid){ 
-        std::cout << "Not a valid " << piece_type_str << " move"; return false; 
+        std::cout << "Not a valid " << piece_type_str << " move\n"; return false; 
     } else {
         stored_moves.push_back(move); // store move
         store_board_state(); // store previous
-        print_game_history(); // print previous
+        //print_game_history(); // print previous
         is_attack = check_attack(move.start, move.end);
     }
+    // Needed for certain rules
+    pieces[move.start.piece_id].Set_Has_Moved(true); 
 
-    pieces[move.start.piece_id].Set_Has_Moved(1); // needed for certain rules
-
-    // clear start piece space, and move start to end pos
+    // Clear start piece space, and move start to end pos
     piece_map[move.start.number][move.start.letter] = 0;
     PIECE_END_ID = move.start.piece_id;
 
-    // Print info
     store_board_state(); // store new
-    print_game_history(); // print new
+    //print_game_history(); // print new
 
-    // re-draw everything
+    // Re-draw everything
     update_pieces(window, board, pieces);
     draw_clock_display(window);
 
@@ -325,7 +325,6 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
 
     Pawn pawn;
     Bishop bishop;
-    int piece_id;
 
     // stop from selecting an empty sqaure to move
     if(move_start.piece_id == 0){ puts("Not a valid piece"); return false; }
@@ -335,8 +334,7 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     { puts("Not a valid destination"); return false; }
 
     // If not the current player stop from moving
-    piece_id = piece_map[move_start.number][move_start.letter];
-    if(pieces[piece_id-1].Get_Color_ID() != player){ std::cout << "Not this players turn" << std::endl; return false; };
+    if(move_start.color != player){ std::cout << "Not this players turn" << std::endl; return false; };
 
     // stop from moving to occupied square
     // if(PIECE_END_ID_REF != 0)
@@ -372,7 +370,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
     // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
     if(move_number_squares > 2 || move_number_squares <= 0){return false;}
-    if(pieces[move_start.piece_id].Get_Has_Moved() == 1 && move_number_squares > 1){return false;};
+    if(pieces[move_start.piece_id].Get_Has_Moved() == true && move_number_squares > 1){return false;};
 
 
     // ------------------------------------------------------ //
@@ -392,12 +390,17 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int color_left = pieces[id_left-1].Get_Color_ID();
     int color_player = pieces[id_player-1].Get_Color_ID();
 
+    // std::cout << id_left << " " << id_player << " " << id_right << std::endl;
+    // std::cout << type_left << " " << type_right << std::endl;
+    // std::cout << color_left << " " << color_player << " " << color_right << std::endl;
+
+    // note for later more logical order for this
+    int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
+    pieces[attacked_piece_id-1].Get_Has_Moved();
     // if type is a pawn and not of the same color and if move is diagonal consider move valid
     if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
         if(move_number_squares == 1 && move_letter_squares == 1){ 
-            // return true in any case
             if(move_start.color == WHITE){
-                // please refactor this - cheap clear for special case black and white
                 puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
                 puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
         }
@@ -416,7 +419,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
     // if move is diagonal, and if occupied, cant attack if same color piece
     if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF != 0
-    && pieces[move_start.piece_id].Get_Color_ID() == pieces[move_end.piece_id].Get_Color_ID())){ return false;}
+    && move_start.color == move_end.color)){ return false;}
     
     return true;
 }
@@ -425,13 +428,11 @@ bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end, 
     return true;
 }
 
+// Check if move is an attack
 bool ChessPieces::check_attack(const Move_data& move_start, const Move_data& move_end){
 
-    int move_number_squares = move_start.number - move_end.number; 
-    int move_letter_squares = abs(move_end.letter - move_start.letter);
-
-    // if move is diagonal, consider it an attack - pawns
-    if(move_number_squares == 1 && move_letter_squares == 1){puts("attack!"); return true;}
+    // if opposite color an not empty square consider attack
+    if(move_start.color != move_end.color && move_end.piece_id != 0){ puts("attack!"); return true;}
 
     return false;
 
