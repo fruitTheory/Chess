@@ -23,6 +23,12 @@ const std::map<char, Pieces> piece_notation_map = {
     {'N', Pieces::N},{'B', Pieces::B},{'R', Pieces::R},{'Q', Pieces::Q},{'K', Pieces::K}
 };
 
+// Letter notations mapping
+const std::map<char, Letters> letter_notation_map = {
+    {'a', Letters::a},{'b', Letters::b},{'c', Letters::c},{'d', Letters::d},
+    {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
+};
+
 // Overload << operator for Pieces type
 std::ostream& operator<<(std::ostream& outstream, const Pieces& value) {
     switch(value) 
@@ -37,12 +43,6 @@ std::ostream& operator<<(std::ostream& outstream, const Pieces& value) {
     }
     return outstream;
 }
-
-// Letter notations mapping
-const std::map<char, Letters> letter_notation_map = {
-    {'a', Letters::a},{'b', Letters::b},{'c', Letters::c},{'d', Letters::d},
-    {'e', Letters::e},{'f', Letters::f},{'g', Letters::g},{'h', Letters::h}
-};
 
 void ChessPieces::Set_Piece_ID(int ID){ object_id = ID; }
 int ChessPieces::Get_Piece_ID(){ return object_id; }
@@ -193,93 +193,28 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
     
 }
 
-// Check if user input is valid
-bool ChessPieces::user_input_valid( std::string user_input ) {
-
-    // Special cases - castling
-    if(user_input.length() == 3 && user_input == "0-0"){ puts("castle short"); return true; }
-    else if(user_input.length() == 5 && user_input == "0-0-0"){ puts("castle long"); return true; }
-
-    // legal move range
-    else if(user_input.length() == 5){ 
-        // invalid if move number is out of range
-        if(user_input[1] - '0' > 8 || user_input[1] - '0' < 1){ 
-            puts("Not a valid move input");
-            return false;
-        }
-        // invalid if move number is out of range
-        else if(user_input[4] - '0' > 8 || user_input[4] - '0' < 1) {
-            puts("Not a valid move input");
-            return false;
-        }
-        else{
-            return true; 
-        }
-    }
-    // invalid move lengths
-    else if(user_input.length() > 5 || user_input.length() < 5){
-        puts("Not a valid move input - Select a piece and destination - Ex: c1 f4, c2 c4");
-        return false;
-    }
-    // any other situations
-    else{ puts("Not a valid piece"); return false;}
-
-    return true;
-}
-
-// Convert user input to move type
-ChessPieces::Move ChessPieces::convert_user_input( std::string user_input ) {
-
-    // temp user note for function, need to check letter input for actual letter
-    ChessPieces::Move move;
-    ChessPieces::Move_data move_data;
-
-    // Convert data for move start
-    try{
-    move_data.letter = static_cast<int>(letter_notation_map.at(user_input[0]));
-    } catch(const std::out_of_range& err){ puts("Out of Range caught: start letter");}
-    move_data.number = user_input[1] - '0';
-    move.start = move_data;
-
-    // Convert data for move end
-    try{
-    move_data.letter = static_cast<int>(letter_notation_map.at(user_input[3]));
-    }catch(const std::out_of_range& err){ puts("Out of Range caught: end letter");}
-    move_data.number = user_input[4] - '0';
-    move.end = move_data;
-
-    return move;
-
-}
-
 // Entry move function
 bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board, 
                               ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
-                              int player, std::string user_input ) {
-
-    ChessPieces::Move move;
-    ChessPieces::Move_data move_data;
+                              ChessPieces::Move& move ) {
+    
+    ChessUtility utils;
     bool is_attack;
     bool move_valid;
-
-    // Check if user input is valid
-    if(user_input_valid(user_input)){
-        move = convert_user_input(user_input);
-    } else { return false; }
 
     // Stored converted move data for start and end move
     move.start = convert_move(move.start, pieces);
     move.end = convert_move(move.end, pieces);
 
     // Move validity
-    move_valid = check_move_validity(move.start, move.end, pieces, player);
+    move_valid = check_move_validity(move.start, move.end, pieces);
     std::string piece_type_str = get_piece_type_str(move.start.piece_type);
     if(!move_valid){ 
         std::cout << "Not a valid " << piece_type_str << " move\n"; return false; 
     } else {
         stored_moves.push_back(move); // store move
         store_board_state(); // store previous
-        //print_game_history(); // print previous
+        //utils.print_game_history(); // print previous
         is_attack = check_attack(move.start, move.end);
     }
     // Needed for certain rules
@@ -290,7 +225,7 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
     PIECE_END_ID = move.start.piece_id;
 
     store_board_state(); // store new
-    //print_game_history(); // print new
+    //utils.print_game_history(); // print new
 
     // Re-draw everything
     update_pieces(window, board, pieces);
@@ -303,25 +238,25 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 // Convert move type to usable data for array and embed additional data
 ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, std::vector<ChessPieces>& pieces){
 
-    Move_data move_output;
+    Move_data m_data;
 
     // inverse conversion for white - black would invert letter instead of number
     int invert_number_white = (8 - move_input.number) + 1;
-    move_output.number = invert_number_white - 1;
-    move_output.letter = move_input.letter - 1;
+    m_data.number = invert_number_white - 1;
+    m_data.letter = move_input.letter - 1;
 
     // get the actual piece id - use it to check the object type and color through array
-    move_output.piece_id = piece_map[move_output.number][move_output.letter];
-    move_output.piece_type = pieces[move_output.piece_id-1].get_piece_type();
-    move_output.color = pieces[move_output.piece_id-1].Get_Color_ID();
+    m_data.piece_id = piece_map[m_data.number][m_data.letter];
+    m_data.piece_type = pieces[m_data.piece_id-1].get_piece_type();
+    m_data.color = pieces[m_data.piece_id-1].Get_Color_ID();
 
-    return move_output;
+    return m_data;
 
 }
 
 // General move validity check
 bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_data& move_end, 
-                                      std::vector<ChessPieces>& pieces, int player){
+                                      std::vector<ChessPieces>& pieces){
 
     Pawn pawn;
     Bishop bishop;
@@ -333,8 +268,8 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     if(move_start.number == move_end.number && move_start.letter == move_end.letter)
     { puts("Not a valid destination"); return false; }
 
-    // If not the current player stop from moving
-    if(move_start.color != player){ std::cout << "Not this players turn" << std::endl; return false; };
+    // If not the current players turn stop from moving
+    if(move_start.color != players_turn){ std::cout << "Not this players turn" << std::endl; return false; };
 
     // stop from moving to occupied square
     // if(PIECE_END_ID_REF != 0)
@@ -357,7 +292,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     // user note fix white pawns capturing and diagonal moving
     int move_number_squares;
 
-    if(move_start.color == WHITE){
+    if(move_start.color == PLAYER::WHITE){
         // !quirk needs to be reverse due to inverse of number for array reasons
         move_number_squares = move_start.number - move_end.number; 
     }else{ move_number_squares = abs(move_start.number - move_end.number); }
@@ -366,7 +301,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int move_letter_squares = abs(move_end.letter - move_start.letter);
 
     // stop if piece is black and moving backwards, confused why this need be inverse
-    if(move_start.color == BLACK && move_start.number > move_end.number){ return false; }
+    if(move_start.color == PLAYER::BLACK && move_start.number > move_end.number){ return false; }
 
     // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
     if(move_number_squares > 2 || move_number_squares <= 0){return false;}
@@ -400,7 +335,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     // if type is a pawn and not of the same color and if move is diagonal consider move valid
     if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
         if(move_number_squares == 1 && move_letter_squares == 1){ 
-            if(move_start.color == WHITE){
+            if(move_start.color == PLAYER::WHITE){
                 puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
                 puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
         }
@@ -443,8 +378,8 @@ void ChessPieces::check_valid_squares(const Move_data& move_start, const Move_da
 
 }
 
-
 /*
+
 TODO Special Cases
 
 En passant
@@ -453,25 +388,4 @@ Move storage - reverse moves - arrow keys
 King state - checks / checkmate / stalemate
 Piece promotion
 
-*/
-
-/*
-Takes input: a6->a7, Bb7, Ne4, Ke8->Kd7
-Stores input: Go back left arrow 
-- If obstruction found check if white or black
-- If opposite color and piece can attack then take piece
-
-- Checks if piece is obstructing path (how?)
-    one possibility, we have a basic representation of board as a linear array
-    check if any point along the path is not a 0 (how?)
-        we need to take into consideration the piece path ability(left right up down, diagonal, abstracted(N))
-        diagonal will need a check if result is to the right or left, and higher or lower(behind)
-            ex: upper right, +1 up board +1 right [6+1][e+1] = [7][f] and again until final is reached
-            to check compare - [6][e] ? [8][h], if [input] < [target] + 1 : if [input] > [target] -1
-        left right - Ra4 -> Rf4 , if input < target + 1 - covers all cases
-        knight - +2 up/down/ +1 left/right -- +2 left/right +1 up/down
-
-        Note that this is 2D thinking, can we do it in 1D with just the linear array
-            sure with math - 8x8 = 64, well 0 is A8, but 63 is A1 currently
-            
 */

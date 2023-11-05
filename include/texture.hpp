@@ -4,14 +4,6 @@
 
 class ChessTexture{
 
-    public:
-
-        // Returns single instance of texture thanks to static
-        static sf::Texture& default_texture(){
-            static ChessTexture instance;
-            return instance.texture;
-        }
-
     private:
 
         ChessTexture(){
@@ -20,5 +12,13 @@ class ChessTexture{
         }
 
         sf::Texture texture;
+
+    public:
+
+        // Returns single instance of texture thanks to static
+        static sf::Texture& default_texture(){
+            static ChessTexture instance;
+            return instance.texture;
+        }
         
 };

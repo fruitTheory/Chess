@@ -2,11 +2,9 @@
 #include <iostream>
 
 
-// vector of 2D arrays
-std::vector<std::array<std::array<int, 8>, 8>> game_history;
-// stored moves that were converted to relevant array position
-std::vector<ChessPieces::Move> stored_moves;
-
+std::vector<std::array<std::array<int, 8>, 8>> game_history; // vector of 2D arrays
+std::vector<ChessPieces::Move> stored_moves; // stored moves converted to relevant array position
+int game_page = 0; // global var for pages of games
 
 void store_board_state(){
     extern int piece_map[8][8];

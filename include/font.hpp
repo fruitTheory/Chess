@@ -4,14 +4,6 @@
 
 class ChessFont{
 
-    public:
-
-        // Returns single instance of font thanks to static
-        static sf::Font& default_font(){
-            static ChessFont instance;
-            return instance.font;
-        }
-
     private:
 
         ChessFont(){
@@ -20,5 +12,13 @@ class ChessFont{
         }
 
         sf::Font font;
+
+    public:
+
+        // Returns single instance of font thanks to static
+        static sf::Font& default_font(){
+            static ChessFont instance;
+            return instance.font;
+        }
         
 };

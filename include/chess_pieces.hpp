@@ -12,9 +12,6 @@ extern const std::map<char, Letters> letter_notation_map;
 
 extern int piece_map[8][8];
 
-void print_piece_map();
-std::string get_user_input();
-
 class Chessboard;
 
 // Class for all chess pieces - uses shapes for now
@@ -77,11 +74,10 @@ public:
  
     // Piece moving
 
-    Move convert_user_input(std::string user_input);
     Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
                     ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, 
-                    int player, std::string user_input);
+                    ChessPieces::Move& move);
 
 
     // Getters and setters
@@ -98,21 +94,17 @@ public:
 
     // Checkers 
 
-    bool user_input_valid(std::string user_input);
     void check_valid_squares(const Move_data& move_start, const Move_data& move_end);
     bool check_attack(const Move_data& move_start, const Move_data& move_end);
     bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 
-                             std::vector<ChessPieces>& pieces, int player);
-
-    // Utility
-
-    enum PLAYER { BLACK = 0, WHITE = 1};
+                             std::vector<ChessPieces>& pieces);
                              
 };
 
 class Pawn : public ChessPieces{
 
     private:
+        bool double_step;
 
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);

@@ -24,4 +24,6 @@ public:
     void create(sf::RenderWindow& window);
     void create_notation_helper(sf::RenderWindow& window);
     void reset_board(sf::RenderWindow& window, Chessboard& board, std::vector<ChessPieces>& pieces);
+    float get_square_size(){ return board_square_size.x; }
+    
 };

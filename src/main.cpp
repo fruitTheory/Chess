@@ -18,6 +18,8 @@ int main(){
     Chessboard board; // board object
     ChessPieces chess_pieces; // chess pieces object
     std::vector<ChessPieces> pieces; // array for piece objects
+    ChessPieces::Move move;
+    ChessUtility utils;
 
     chess_pieces.create_chess_pieces(pieces);
     initialize_window(window);
@@ -25,8 +27,8 @@ int main(){
 
     bool piece_moved;
     bool pressed = false;
-    int flop = 1;
-    int player = chess_pieces.WHITE;
+    bool pressed_twice = false;
+    int press_count = 0;
 
     sf::Event event;
     std::string user_input; // users move input
@@ -47,13 +49,32 @@ int main(){
                 // Mouse pressed
                 case sf::Event::MouseButtonPressed :{
                     pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-                    if (pressed){
-                        sf::Vector2i mouse_position = mouse_click_position(window);
+                    press_count += 1;
+
+                    if (pressed && press_count == 1){
+                        
+                        sf::Vector2i mouse_position = get_mouse_position(window);
                         if(mouse_position.x > 0 && mouse_position.y > 0){
-                            puts("Clicked");
-                            std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
+                            move = move_from_click(board, mouse_position);
+                            std::cout << move.start.letter << " " << move.start.number << std::endl;
+                            std::cout << move.end.letter << " " << move.end.number << std::endl;
+
+                            utils.check_turn();
+                            //piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
+                            piece_moved = false; // temp
+                            if(piece_moved){ players_turn ^= 1; }
+                            std::cout << press_count << std::endl;
+
+                            //std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
                         }
                     }
+                    if(pressed && press_count == 2){
+
+                            std::cout << press_count << std::endl;
+                            press_count = 0;
+                    }
+                        
+
                     break;
                 }
 
@@ -62,9 +83,16 @@ int main(){
 
                     // Unicode 13 represents Enter
                     if (event.text.unicode == 13){
-                        flop == 1 ? player = chess_pieces.WHITE : player = chess_pieces.BLACK;
-                        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, player, user_input);
-                        if(piece_moved){ flop ^= 1; }
+
+                        utils.check_turn();
+
+                        // Check if user input is valid, then allow move piece
+                        if(utils.user_input_valid(user_input)){
+                            move = utils.convert_user_input(user_input);
+                            piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
+                        } else { piece_moved = false; }
+
+                        if(piece_moved){ players_turn ^= 1; }
                         user_input = "";
                     }
                     // Unicode 8 represents Backspace
@@ -111,7 +139,9 @@ int main(){
     // sf::CircleShape& A2_pawn = chess_pieces.get_piece_basic(1);
     // board.create(window);
     // // set position of object to cursor position offset by size of object to center
+
     // A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
+
     // window.draw(A2_pawn);
     // chess_pieces.init_piece_position(window);
 */
