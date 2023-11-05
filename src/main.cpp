@@ -48,34 +48,35 @@ int main(){
 
                 // Mouse pressed
                 case sf::Event::MouseButtonPressed :{
+
                     pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
                     press_count += 1;
-
+                    sf::Vector2i mouse_position = get_mouse_position(window);
+                    
                     if (pressed && press_count == 1){
-                        
-                        sf::Vector2i mouse_position = get_mouse_position(window);
+                        // first click get move
                         if(mouse_position.x > 0 && mouse_position.y > 0){
-                            move = move_from_click(board, mouse_position);
-                            std::cout << move.start.letter << " " << move.start.number << std::endl;
-                            std::cout << move.end.letter << " " << move.end.number << std::endl;
-
+                            move.start = move_from_click(board, mouse_position);
+                            move.end = {Pieces::None, -1, -1, -1, -1};
                             utils.check_turn();
-                            //piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
-                            piece_moved = false; // temp
-                            if(piece_moved){ players_turn ^= 1; }
-                            std::cout << press_count << std::endl;
-
-                            //std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
                         }
                     }
+
+                    // second click get move
                     if(pressed && press_count == 2){
-
-                            std::cout << press_count << std::endl;
-                            press_count = 0;
+                        move.end = move_from_click(board, mouse_position);
+                        utils.check_turn();
+                        std::cout << press_count << std::endl;
+                        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
+                        if(piece_moved){ 
+                            players_turn ^= 1;
+                        }
+                        press_count = 0;
+                        std::cout << move.start.letter << " " << move.start.number << std::endl;
+                        std::cout << move.end.letter << " " << move.end.number << std::endl;
                     }
-                        
-
                     break;
+
                 }
 
                 // Text entered
@@ -91,8 +92,9 @@ int main(){
                             move = utils.convert_user_input(user_input);
                             piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
                         } else { piece_moved = false; }
+                        std::cout << piece_moved << std::endl;
 
-                        if(piece_moved){ players_turn ^= 1; }
+                        if(piece_moved){ players_turn ^= 1; }//else{ players_turn = 1;}
                         user_input = "";
                     }
                     // Unicode 8 represents Backspace
@@ -114,7 +116,7 @@ int main(){
 
             }
         }
-
+        //std::cout << players_turn << std::endl;
         // Default update and draw display
         window.clear();
         chess_pieces.update_pieces(window, board, pieces);
