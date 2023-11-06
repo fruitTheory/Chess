@@ -90,6 +90,7 @@ public:
     bool Get_Has_Moved();
     Pieces get_piece_type();
     std::string get_piece_type_str(Pieces type);
+    std::array<int, 2> get_move_distance(const Move_data& move_start, const Move_data& move_end);
 
 
     // Checkers 
@@ -111,6 +112,38 @@ class Pawn : public ChessPieces{
 };
 
 class Bishop : public ChessPieces{
+
+    private:
+
+    public:
+        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+};
+
+class Knight : public ChessPieces{
+
+    private:
+
+    public:
+        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+};
+
+class Rook : public ChessPieces{
+
+    private:
+
+    public:
+        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+};
+
+class Queen : public ChessPieces{
+
+    private:
+
+    public:
+        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+};
+
+class King : public ChessPieces{
 
     private:
 

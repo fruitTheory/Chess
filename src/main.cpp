@@ -26,8 +26,8 @@ int main(){
     initialize_render(window, board, chess_pieces, pieces);
 
     bool piece_moved;
-    bool pressed = false;
-    bool pressed_twice = false;
+    bool l_pressed = false;
+    bool r_pressed = false;
     int press_count = 0;
 
     sf::Event event;
@@ -48,33 +48,41 @@ int main(){
 
                 // Mouse pressed
                 case sf::Event::MouseButtonPressed :{
+                    if(event.mouseButton.button == sf::Mouse::Left || event.mouseButton.button == sf::Mouse::Right ){
 
-                    pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-                    press_count += 1;
-                    sf::Vector2i mouse_position = get_mouse_position(window);
-                    
-                    if (pressed && press_count == 1){
-                        // first click get move
-                        if(mouse_position.x > 0 && mouse_position.y > 0){
-                            move.start = move_from_click(board, mouse_position);
-                            move.end = {Pieces::None, -1, -1, -1, -1};
+                        sf::Vector2i mouse_position = get_mouse_position(window);
+                        press_count += 1;
+                        
+                        // first click move
+                        if (event.mouseButton.button == sf::Mouse::Left && press_count == 1){
+                            if(mouse_position.x > 0 && mouse_position.y > 0){
+                                utils.check_turn();
+                                move.start = move_from_click(board, mouse_position);
+                                move.end = {Pieces::None, -1, -1, -1, -1};
+                            }
+                        }
+
+                        // second click move
+                        if(event.mouseButton.button == sf::Mouse::Left && press_count == 2){
                             utils.check_turn();
-                        }
-                    }
+                            move.end = move_from_click(board, mouse_position);
+                            piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
 
-                    // second click get move
-                    if(pressed && press_count == 2){
-                        move.end = move_from_click(board, mouse_position);
-                        utils.check_turn();
-                        std::cout << press_count << std::endl;
-                        piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
-                        if(piece_moved){ 
-                            players_turn ^= 1;
+                            if(piece_moved){ players_turn ^= 1;} // change players
+                            press_count = 0;
                         }
-                        press_count = 0;
-                        std::cout << move.start.letter << " " << move.start.number << std::endl;
-                        std::cout << move.end.letter << " " << move.end.number << std::endl;
+
+                        // right click, may not be used, but make sure to reset count
+                        if( event.mouseButton.button == sf::Mouse::Right){ 
+                            press_count = 0;
+                            puts("r_clear");
+                        }
                     }
+                    else{
+                        // handle any other mouse button events 
+                        break;
+                    }
+                    // default break
                     break;
 
                 }
@@ -84,17 +92,14 @@ int main(){
 
                     // Unicode 13 represents Enter
                     if (event.text.unicode == 13){
-
                         utils.check_turn();
-
                         // Check if user input is valid, then allow move piece
                         if(utils.user_input_valid(user_input)){
                             move = utils.convert_user_input(user_input);
                             piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
                         } else { piece_moved = false; }
-                        std::cout << piece_moved << std::endl;
 
-                        if(piece_moved){ players_turn ^= 1; }//else{ players_turn = 1;}
+                        if(piece_moved){ players_turn ^= 1; }
                         user_input = "";
                     }
                     // Unicode 8 represents Backspace
@@ -105,7 +110,7 @@ int main(){
                     else if (event.text.unicode < 128 && event.text.unicode != 8){
                         user_input += static_cast<char>(event.text.unicode);
                     }
-                    // std::cout << user_input << std::endl;
+
                     break;
                 }
 
@@ -116,7 +121,7 @@ int main(){
 
             }
         }
-        //std::cout << players_turn << std::endl;
+
         // Default update and draw display
         window.clear();
         chess_pieces.update_pieces(window, board, pieces);

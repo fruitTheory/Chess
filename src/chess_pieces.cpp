@@ -254,12 +254,16 @@ ChessPieces::Move_data ChessPieces::convert_move(const Move_data& move_input, st
 
 }
 
-// General move validity check
+// General move validity checks
 bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_data& move_end, 
                                       std::vector<ChessPieces>& pieces){
 
     Pawn pawn;
     Bishop bishop;
+    Knight knight;
+    Rook rook;
+    Queen queen;
+    King king;
 
     // stop from selecting an empty sqaure to move
     if(move_start.piece_id == 0){ puts("Not a valid piece"); return false; }
@@ -271,34 +275,46 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     // If not the current players turn stop from moving
     if(move_start.color != players_turn){ std::cout << "Not this players turn" << std::endl; return false; };
 
-    // stop from moving to occupied square
-    // if(PIECE_END_ID_REF != 0)
-    // { std::cout << "Warning: Space occupied" << std::endl; return false; }
+    // stop from moving to occupied space of same color
+    if(PIECE_END_ID_REF != 0 && (move_start.color == move_end.color)){
+         std::cout << "Warning: Space occupied" << std::endl; return false; }
+
+    // if not a knight check path obstruction
+    // if(move_start.piece_type != Pieces::N){check_obstruction(move_start, move_end)}
 
     if(move_start.piece_type == Pieces::P) {if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
     if(move_start.piece_type == Pieces::B) {if(!bishop.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::N) { return true; }
-    if(move_start.piece_type == Pieces::R) { }
-    if(move_start.piece_type == Pieces::Q) { }
-    if(move_start.piece_type == Pieces::K) { }
+    if(move_start.piece_type == Pieces::N) {if(!knight.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::R) {if(!rook.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::Q) {if(!queen.valid_move(move_start, move_end, pieces)){return false;}}
+    if(move_start.piece_type == Pieces::K) {if(!king.valid_move(move_start, move_end, pieces)){return false;}}
 
     return true;
 
 }
 
+// Returns both letter and number distance in an array, 0 for letter 1 for number
+std::array<int, 2> ChessPieces::get_move_distance(const Move_data& move_start, const Move_data& move_end){
+
+    std::array<int, 2>move_distance;
+
+    // [0] will be amount of horizontal squares and [1] will be vertical
+    move_distance[0] = abs(move_end.letter - move_start.letter);
+
+    // !quirk needs to be reverse due to inverse number pos in array
+    if((move_start.color == PLAYER::WHITE) && (move_start.piece_type == Pieces::P)){ 
+        move_distance[1] = move_start.number - move_end.number; 
+    } 
+    else { move_distance[1] = abs(move_start.number - move_end.number); }
+
+    return move_distance;
+}
+
 // Checks if move is valid and if it is an attack
 bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
 
-    // user note fix white pawns capturing and diagonal moving
-    int move_number_squares;
-
-    if(move_start.color == PLAYER::WHITE){
-        // !quirk needs to be reverse due to inverse of number for array reasons
-        move_number_squares = move_start.number - move_end.number; 
-    }else{ move_number_squares = abs(move_start.number - move_end.number); }
-
-    // amount of squares piece will move horizontal
-    int move_letter_squares = abs(move_end.letter - move_start.letter);
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop if piece is black and moving backwards, confused why this need be inverse
     if(move_start.color == PLAYER::BLACK && move_start.number > move_end.number){ return false; }
@@ -325,11 +341,7 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int color_left = pieces[id_left-1].Get_Color_ID();
     int color_player = pieces[id_player-1].Get_Color_ID();
 
-    // std::cout << id_left << " " << id_player << " " << id_right << std::endl;
-    // std::cout << type_left << " " << type_right << std::endl;
-    // std::cout << color_left << " " << color_player << " " << color_right << std::endl;
-
-    // note for later more logical order for this
+    // later more logical for this, this broken atm was working before
     int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
     pieces[attacked_piece_id-1].Get_Has_Moved();
     // if type is a pawn and not of the same color and if move is diagonal consider move valid
@@ -360,6 +372,65 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 }
 
 bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // stop from moving horizontally
+    if(!( move_number_squares >= 1 && move_letter_squares >= 1 )){return false;}
+    // must be stair-stepped
+    if(( move_number_squares != move_letter_squares )){return false;}
+
+    return true;
+}
+
+bool Knight::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // stop move just one square
+    if( move_number_squares <= 1 && move_letter_squares <= 1 ){return false;}
+    // stop move more than 2 square
+    if( move_number_squares > 2 || move_letter_squares > 2 ){return false;}
+
+    // only allow +2 for number or letter, and + 1 on opposite 
+    if( move_number_squares == 2 && move_letter_squares != 1 ){return false;}
+    if( move_letter_squares == 2 && move_number_squares != 1 ){return false;}
+
+    return true;
+}
+
+bool Rook::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // stop from moving diagonally
+    if( move_number_squares >= 1 && move_letter_squares >= 1 ){return false;}
+
+    return true;
+}
+
+bool Queen::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // queen can move anywhere
+
+    return true;
+}
+
+bool King::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    int move_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // stop from moving more than one space
+    if( move_number_squares > 1 || move_letter_squares > 1 ){return false;}
+
     return true;
 }
 
