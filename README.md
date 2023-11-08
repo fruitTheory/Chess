@@ -6,7 +6,7 @@ Initial idea is to create a simple chess 'ai' that can play at a very basic leve
 
 - All chess pieces implemented
 - Both mouse and text input
-- Game timer that alternates
+- Game timer alternating
 - Takebacks and game history
 
 ## Prerequisites

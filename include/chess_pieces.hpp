@@ -3,12 +3,15 @@
 #include "SFML/Graphics.hpp"
 #include "chess_board.hpp"
 
+
 enum class Pieces { None = 0, P, B, N, R, Q, K };
 extern const std::map<char, Pieces> piece_notation_map;
 std::ostream& operator<<(std::ostream& os, const Pieces& value);
 
 enum class Letters { a = 1, b, c, d, e, f, g, h };
 extern const std::map<char, Letters> letter_notation_map;
+
+enum class Piece_Value { Pawn = 1, Knight = 3, Bishop = 3, Rook = 5, Queen = 9 };
 
 extern int piece_map[8][8];
 
@@ -29,10 +32,10 @@ private:
     sf::CircleShape king_shape; 
     sf::CircleShape queen_shape;
 
-    // Piece data 
+    // Piece data
 
+    Piece_Value object_value; // value of piece
     int object_id; // generally linked with piece_id
-    int object_value; // value of piece
     int color_id; // 0:black 1:white
     bool has_moved; // if piece has moved
 
@@ -76,18 +79,19 @@ public:
 
     Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
-                    ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces, 
-                    ChessPieces::Move& move);
+                    std::vector<ChessPieces>& pieces, ChessPieces::Move& move);
 
 
     // Getters and setters
 
-    void Set_Piece_ID(int ID);
-    int Get_Piece_ID();
+    void Set_Object_ID(int ID);
+    int Get_Object_ID();
     void Set_Color_ID(int ID);
     int Get_Color_ID();
     void Set_Has_Moved(int ID);
     bool Get_Has_Moved();
+    void Set_Object_Value(Pieces type);
+    Piece_Value Get_Object_Value();
     Pieces get_piece_type();
     std::string get_piece_type_str(Pieces type);
     std::array<int, 2> get_move_distance(const Move_data& move_start, const Move_data& move_end);
@@ -109,6 +113,7 @@ class Pawn : public ChessPieces{
 
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool En_passant(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
 };
 
 class Bishop : public ChessPieces{
@@ -116,7 +121,7 @@ class Bishop : public ChessPieces{
     private:
 
     public:
-        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool valid_move(const Move_data& move_start, const Move_data& move_end);
 };
 
 class Knight : public ChessPieces{
@@ -124,7 +129,7 @@ class Knight : public ChessPieces{
     private:
 
     public:
-        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool valid_move(const Move_data& move_start, const Move_data& move_end);
 };
 
 class Rook : public ChessPieces{
@@ -132,7 +137,7 @@ class Rook : public ChessPieces{
     private:
 
     public:
-        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool valid_move(const Move_data& move_start, const Move_data& move_end);
 };
 
 class Queen : public ChessPieces{
@@ -140,7 +145,7 @@ class Queen : public ChessPieces{
     private:
 
     public:
-        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool valid_move(const Move_data& move_start, const Move_data& move_end);
 };
 
 class King : public ChessPieces{
@@ -148,14 +153,5 @@ class King : public ChessPieces{
     private:
 
     public:
-        bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool valid_move(const Move_data& move_start, const Move_data& move_end);
 };
-
-/*
-Piece value:
-Pawn	1
-Knight	3
-Bishop	3
-Rook	5
-Queen	9
-*/

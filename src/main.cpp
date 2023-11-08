@@ -25,9 +25,7 @@ int main(){
     initialize_window(window);
     initialize_render(window, board, chess_pieces, pieces);
 
-    bool piece_moved;
-    bool l_pressed = false;
-    bool r_pressed = false;
+    bool piece_moved = false;
     int press_count = 0;
 
     sf::Event event;
@@ -66,7 +64,7 @@ int main(){
                         if(event.mouseButton.button == sf::Mouse::Left && press_count == 2){
                             utils.check_turn();
                             move.end = move_from_click(board, mouse_position);
-                            piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
+                            piece_moved = chess_pieces.move_piece(window, board, pieces, move);
 
                             if(piece_moved){ players_turn ^= 1;} // change players
                             press_count = 0;
@@ -79,7 +77,7 @@ int main(){
                         }
                     }
                     else{
-                        // handle any other mouse button events 
+                        // handles any other mouse button events 
                         break;
                     }
                     // default break
@@ -93,10 +91,10 @@ int main(){
                     // Unicode 13 represents Enter
                     if (event.text.unicode == 13){
                         utils.check_turn();
-                        // Check if user input is valid, then allow move piece
+                        // If user input is valid, then allow move piece
                         if(utils.user_input_valid(user_input)){
                             move = utils.convert_user_input(user_input);
-                            piece_moved = chess_pieces.move_piece(window, board, chess_pieces, pieces, move);
+                            piece_moved = chess_pieces.move_piece(window, board, pieces, move);
                         } else { piece_moved = false; }
 
                         if(piece_moved){ players_turn ^= 1; }

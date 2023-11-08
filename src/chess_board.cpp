@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-// A map of X and Y pairs that uses top left value of 96x96 unit squares
+// A map of X and Y pairs that value of 96x96 unit squares
 const std::pair<int, int> square_map[8][8] = {
     {{0, 0},   {96, 0},   {192, 0},   {288, 0},   {384, 0},   {480, 0},   {576, 0},   {672, 0}},
     {{0, 96},  {96, 96},  {192, 96},  {288, 96},  {384, 96},  {480, 96},  {576, 96},  {672, 96}},

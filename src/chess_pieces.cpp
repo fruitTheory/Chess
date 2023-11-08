@@ -31,8 +31,7 @@ const std::map<char, Letters> letter_notation_map = {
 
 // Overload << operator for Pieces type
 std::ostream& operator<<(std::ostream& outstream, const Pieces& value) {
-    switch(value) 
-    {
+    switch (value){
         case Pieces::None: outstream << 0; break;
         case Pieces::P: outstream << 1; break;
         case Pieces::B: outstream << 2; break;
@@ -44,14 +43,26 @@ std::ostream& operator<<(std::ostream& outstream, const Pieces& value) {
     return outstream;
 }
 
-void ChessPieces::Set_Piece_ID(int ID){ object_id = ID; }
-int ChessPieces::Get_Piece_ID(){ return object_id; }
+void ChessPieces::Set_Object_ID(int ID){ object_id = ID; }
+int ChessPieces::Get_Object_ID(){ return object_id; }
 
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
 int ChessPieces::Get_Color_ID() { /* case of no piece */if(object_id == 0){return -1;} return color_id; }
 
 void ChessPieces::Set_Has_Moved(int ID){ has_moved = ID; }
 bool ChessPieces::Get_Has_Moved() { return has_moved; }
+
+void ChessPieces::Set_Object_Value(Pieces type){ 
+    switch (type){
+        case Pieces::P: object_value = Piece_Value::Pawn; break;
+        case Pieces::B: object_value = Piece_Value::Bishop; break;
+        case Pieces::N: object_value = Piece_Value::Knight; break;
+        case Pieces::R: object_value = Piece_Value::Rook; break;
+        case Pieces::Q: object_value = Piece_Value::Queen; break;
+        case Pieces::K: object_value = Piece_Value::Pawn; break;
+    }
+}
+Piece_Value ChessPieces::Get_Object_Value(){ return object_value; }
 
 // Returns piece type, also determines amount of pieces for each type, based on object id
 Pieces ChessPieces::get_piece_type() {
@@ -68,25 +79,27 @@ Pieces ChessPieces::get_piece_type() {
 
 // Return piece type in string format
 std::string ChessPieces::get_piece_type_str(Pieces type){
-        if(type == Pieces::P){ return "pawn";}
-        if(type == Pieces::B){ return "bishop";}
-        if(type == Pieces::N){ return "knight";}
-        if(type == Pieces::R){ return "rook";}
-        if(type == Pieces::Q){ return "queen";}
-        if(type == Pieces::K){ return "king";}
-    return "Null";
+    switch (type){
+        case Pieces::P: return "pawn";
+        case Pieces::B: return "bishop";
+        case Pieces::N: return "knight";
+        case Pieces::R: return "rook";
+        case Pieces::Q: return "queen";
+        case Pieces::K: return "king";
+        default: return "Null";
+    }
 }
 
-// Uses a vector of type ChessPieces to create 32 objects which are pushed to that vector
-// Object id below 17 are white pieces
+// Pushes 32 ChessPiece objects to a pieces vector
 void ChessPieces::create_chess_pieces(std::vector<ChessPieces>& pieces){
         for(int i = 1; i <= 32; i++){
         ChessPieces piece;
-        piece.Set_Piece_ID(i);
+        piece.Set_Object_ID(i);
+        piece.Set_Object_Value(piece.get_piece_type());
         piece.Set_Has_Moved(false);
         i < 17 ? piece.Set_Color_ID(1) : piece.Set_Color_ID(0);
         pieces.push_back(piece);
-    } // create 32 objects with ID's
+    }
 }
     /*
         ID Mapping for Chess Pieces:
@@ -122,13 +135,14 @@ void ChessPieces::set_piece_colors(std::vector<ChessPieces>& pieces){
         if(pieces[i].object_id <= 16){ piece_color = sf::Color::White; }
         if(pieces[i].object_id > 16 && pieces[i].object_id <= 32){ piece_color = sf::Color::Black; }
 
-        if(type == Pieces::P){ pieces[i].pawn_shape.setFillColor(piece_color);}
-        if(type == Pieces::B){ pieces[i].bishop_shape.setFillColor(piece_color);}
-        if(type == Pieces::N){ pieces[i].knight_shape.setFillColor(piece_color);}
-        if(type == Pieces::R){ pieces[i].rook_shape.setFillColor(piece_color);}
-        if(type == Pieces::Q){ pieces[i].queen_shape.setFillColor(piece_color);}
-        if(type == Pieces::K){ pieces[i].king_shape.setFillColor(piece_color);}
-
+        switch (type){
+            case Pieces::P: pieces[i].pawn_shape.setFillColor(piece_color); break;
+            case Pieces::B: pieces[i].bishop_shape.setFillColor(piece_color); break;
+            case Pieces::N: pieces[i].knight_shape.setFillColor(piece_color); break;
+            case Pieces::R: pieces[i].rook_shape.setFillColor(piece_color); break;
+            case Pieces::Q: pieces[i].queen_shape.setFillColor(piece_color); break;
+            case Pieces::K: pieces[i].king_shape.setFillColor(piece_color); break;
+        }
     }
 }
 
@@ -143,12 +157,15 @@ void ChessPieces::place_pieces(std::vector<ChessPieces>& pieces){
             int map_value = piece_map[y][x]; 
             Pieces type = pieces[map_value-1].get_piece_type(); 
 
-            if(type == Pieces::P){pieces[map_value-1].pawn_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::B) { pieces[map_value-1].bishop_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::N) { pieces[map_value-1].knight_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::R) { pieces[map_value-1].rook_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::Q) { pieces[map_value-1].queen_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
-            if(type == Pieces::K) { pieces[map_value-1].king_shape.setPosition(square_map[y][x].first, square_map[y][x].second);}
+            switch (type){
+                case Pieces::P: pieces[map_value-1].pawn_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+                case Pieces::B: pieces[map_value-1].bishop_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+                case Pieces::N: pieces[map_value-1].knight_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+                case Pieces::R: pieces[map_value-1].rook_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+                case Pieces::Q: pieces[map_value-1].queen_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+                case Pieces::K: pieces[map_value-1].king_shape.setPosition(square_map[y][x].first, square_map[y][x].second); break;
+            }
+
 
         }
     }
@@ -172,14 +189,15 @@ void ChessPieces::draw_pieces(sf::RenderWindow& window, std::vector<ChessPieces>
             // I believe the trick for this is to have same map value as place_pieces()
             // So that it knows which exact piece is missing (after attack)
             // This method may not be specific enough, will see in future
-            if(type == Pieces::P) { window.draw(pieces[map_values[i]-1].pawn_shape);}
-            if(type == Pieces::B) { window.draw(pieces[map_values[i]-1].bishop_shape);}
-            if(type == Pieces::N) { window.draw(pieces[map_values[i]-1].knight_shape);}
-            if(type == Pieces::R) { window.draw(pieces[map_values[i]-1].rook_shape);}
-            if(type == Pieces::Q) { window.draw(pieces[map_values[i]-1].queen_shape);}
-            if(type == Pieces::K) { window.draw(pieces[map_values[i]-1].king_shape);}
+            switch (type){
+                case Pieces::P: window.draw(pieces[map_values[i]-1].pawn_shape); break;
+                case Pieces::B: window.draw(pieces[map_values[i]-1].bishop_shape); break;
+                case Pieces::N: window.draw(pieces[map_values[i]-1].knight_shape); break;
+                case Pieces::R: window.draw(pieces[map_values[i]-1].rook_shape); break;
+                case Pieces::Q: window.draw(pieces[map_values[i]-1].queen_shape); break;
+                case Pieces::K: window.draw(pieces[map_values[i]-1].king_shape); break;
+            }
         }
-
     }
 }
 
@@ -195,8 +213,7 @@ void ChessPieces::update_pieces(sf::RenderWindow& window, Chessboard& board, std
 
 // Entry move function
 bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board, 
-                              ChessPieces& chess_pieces, std::vector<ChessPieces>& pieces,
-                              ChessPieces::Move& move ) {
+                              std::vector<ChessPieces>& pieces, ChessPieces::Move& move ) {
     
     ChessUtility utils;
     bool is_attack;
@@ -282,12 +299,15 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
     // if not a knight check path obstruction
     // if(move_start.piece_type != Pieces::N){check_obstruction(move_start, move_end)}
 
-    if(move_start.piece_type == Pieces::P) {if(!pawn.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::B) {if(!bishop.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::N) {if(!knight.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::R) {if(!rook.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::Q) {if(!queen.valid_move(move_start, move_end, pieces)){return false;}}
-    if(move_start.piece_type == Pieces::K) {if(!king.valid_move(move_start, move_end, pieces)){return false;}}
+    // check if valid move for specific piece
+    switch (move_start.piece_type){
+        case Pieces::P: if(!pawn.valid_move(move_start, move_end, pieces)) return false; break;
+        case Pieces::B: if(!bishop.valid_move(move_start, move_end)) return false; break;
+        case Pieces::N: if(!knight.valid_move(move_start, move_end)) return false; break;
+        case Pieces::R: if(!rook.valid_move(move_start, move_end)) return false; break;
+        case Pieces::Q: if(!queen.valid_move(move_start, move_end)) return false; break;
+        case Pieces::K: if(!king.valid_move(move_start, move_end)) return false; break;
+    }
 
     return true;
 
@@ -344,9 +364,12 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     // later more logical for this, this broken atm was working before
     int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
     pieces[attacked_piece_id-1].Get_Has_Moved();
+
+    std::cout << color_left << " " << color_player << " " << color_right << std::endl;
     // if type is a pawn and not of the same color and if move is diagonal consider move valid
     if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
         if(move_number_squares == 1 && move_letter_squares == 1){ 
+            // finally if color is white note the removal can only be +1, black -1 notation number
             if(move_start.color == PLAYER::WHITE){
                 puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
                 puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
@@ -371,7 +394,42 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     return true;
 }
 
-bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool Pawn::En_passant(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    // Dont use yet
+
+    // stores piece id to left and right of start piece
+    int id_right =  piece_map[move_start.number][move_start.letter+1];
+    int id_left = piece_map[move_start.number][move_start.letter-1];
+    int id_player = piece_map[move_start.number][move_start.letter];
+
+    // get piece type to left and right of start piece
+    Pieces type_right = pieces[id_right-1].get_piece_type();
+    Pieces type_left = pieces[id_left-1].get_piece_type();
+
+    // get left and right color to see if enemy
+    int color_right = pieces[id_right-1].Get_Color_ID();
+    int color_left = pieces[id_left-1].Get_Color_ID();
+    int color_player = pieces[id_player-1].Get_Color_ID();
+
+    // later more logical for this, this broken atm was working before
+    int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
+    pieces[attacked_piece_id-1].Get_Has_Moved();
+
+    std::cout << color_left << " " << color_player << " " << color_right << std::endl;
+    // if type is a pawn and not of the same color and if move is diagonal consider move valid
+    if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
+
+        // finally if color is white note the removal can only be +1, black -1 notation number
+        if(move_start.color == PLAYER::WHITE){
+            puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
+            puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
+
+    } 
+
+}
+
+bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end){
 
 
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
@@ -385,7 +443,7 @@ bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end, 
     return true;
 }
 
-bool Knight::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool Knight::valid_move(const Move_data& move_start, const Move_data& move_end){
 
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
     int move_number_squares = get_move_distance(move_start, move_end)[1];
@@ -402,7 +460,7 @@ bool Knight::valid_move(const Move_data& move_start, const Move_data& move_end, 
     return true;
 }
 
-bool Rook::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool Rook::valid_move(const Move_data& move_start, const Move_data& move_end){
 
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
     int move_number_squares = get_move_distance(move_start, move_end)[1];
@@ -413,17 +471,17 @@ bool Rook::valid_move(const Move_data& move_start, const Move_data& move_end, st
     return true;
 }
 
-bool Queen::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool Queen::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    // int move_letter_squares = get_move_distance(move_start, move_end)[0];
+    // int move_number_squares = get_move_distance(move_start, move_end)[1];
 
     // queen can move anywhere
 
     return true;
 }
 
-bool King::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+bool King::valid_move(const Move_data& move_start, const Move_data& move_end){
 
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
     int move_number_squares = get_move_distance(move_start, move_end)[1];

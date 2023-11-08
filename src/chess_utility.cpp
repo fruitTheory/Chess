@@ -46,15 +46,15 @@ ChessPieces::Move ChessUtility::convert_user_input( std::string user_input ) {
 
 }
 
-// Check if user input is valid
+// Check if user text input is valid
 bool ChessUtility::user_input_valid( std::string user_input ) {
 
     // Special cases - castling
     if(user_input.length() == 3 && user_input == "0-0"){ puts("castle short"); return true; }
-    else if(user_input.length() == 5 && user_input == "0-0-0"){ puts("castle long"); return true; }
+    if(user_input.length() == 5 && user_input == "0-0-0"){ puts("castle long"); return true; }
 
     // legal move range
-    else if(user_input.length() == 5){ 
+    if(user_input.length() == 5){ 
         // invalid if move number is out of range
         if(user_input[1] - '0' > 8 || user_input[1] - '0' < 1){ 
             puts("Not a valid move input");
@@ -70,14 +70,14 @@ bool ChessUtility::user_input_valid( std::string user_input ) {
         }
     }
     // invalid move lengths
-    else if(user_input.length() > 5 || user_input.length() < 5){
+    if(user_input.length() > 5 || user_input.length() < 5){
         puts("Not a valid move input - Select a piece and destination - Ex: c1 f4, c2 c4");
         return false;
     }
+    
     // any other situations
-    else{ puts("Not a valid piece"); return false;}
-
-    return true;
+    puts("Not a valid piece");
+    return false;
 }
 
 void ChessUtility::print_piece_map(){
