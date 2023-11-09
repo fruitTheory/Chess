@@ -47,10 +47,10 @@ void ChessPieces::Set_Object_ID(int ID){ object_id = ID; }
 int ChessPieces::Get_Object_ID(){ return object_id; }
 
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
-int ChessPieces::Get_Color_ID() { /* case of no piece */if(object_id == 0){return -1;} return color_id; }
+int ChessPieces::Get_Color_ID(){ /* case of no piece */if(object_id == 0){return -1;} return color_id; }
 
 void ChessPieces::Set_Has_Moved(int ID){ has_moved = ID; }
-bool ChessPieces::Get_Has_Moved() { return has_moved; }
+bool ChessPieces::Get_Has_Moved(){ return has_moved; }
 
 void ChessPieces::Set_Object_Value(Pieces type){ 
     switch (type){
@@ -216,8 +216,8 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
                               std::vector<ChessPieces>& pieces, ChessPieces::Move& move ) {
     
     ChessUtility utils;
-    bool is_attack;
     bool move_valid;
+    extern int move_count;
 
     // Stored converted move data for start and end move
     move.start = convert_move(move.start, pieces);
@@ -230,9 +230,9 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
         std::cout << "Not a valid " << piece_type_str << " move\n"; return false; 
     } else {
         stored_moves.push_back(move); // store move
+        ++move_count;
         store_board_state(); // store previous
         //utils.print_game_history(); // print previous
-        is_attack = check_attack(move.start, move.end);
     }
     // Needed for certain rules
     pieces[move.start.piece_id].Set_Has_Moved(true); 
@@ -336,48 +336,23 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
     int move_number_squares = get_move_distance(move_start, move_end)[1];
 
-    // stop if piece is black and moving backwards, confused why this need be inverse
+    // stop if piece is black and moving backwards, reverse if board flipped
     if(move_start.color == PLAYER::BLACK && move_start.number > move_end.number){ return false; }
 
     // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
     if(move_number_squares > 2 || move_number_squares <= 0){return false;}
     if(pieces[move_start.piece_id].Get_Has_Moved() == true && move_number_squares > 1){return false;};
 
-
-    // ------------------------------------------------------ //
-    // SPECIAL CASE: En Passant - needs to be at least before other diagonal logic
-
-    // stores piece id to left and right of start piece
-    int id_right =  piece_map[move_start.number][move_start.letter+1];
-    int id_left = piece_map[move_start.number][move_start.letter-1];
-    int id_player = piece_map[move_start.number][move_start.letter];
-
-    // get piece type to left and right of start piece
-    Pieces type_right = pieces[id_right-1].get_piece_type();
-    Pieces type_left = pieces[id_left-1].get_piece_type();
-
-    // get left and right color to see if enemy
-    int color_right = pieces[id_right-1].Get_Color_ID();
-    int color_left = pieces[id_left-1].Get_Color_ID();
-    int color_player = pieces[id_player-1].Get_Color_ID();
-
-    // later more logical for this, this broken atm was working before
-    int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
-    pieces[attacked_piece_id-1].Get_Has_Moved();
-
-    std::cout << color_left << " " << color_player << " " << color_right << std::endl;
-    // if type is a pawn and not of the same color and if move is diagonal consider move valid
-    if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
-        if(move_number_squares == 1 && move_letter_squares == 1){ 
-            // finally if color is white note the removal can only be +1, black -1 notation number
+    // if pawn attack check en passant - if passant is true capture passed pawn 
+    if(move_number_squares == 1 && move_letter_squares == 1){ 
+        if(En_passant(move_start, move_end, pieces)){
             if(move_start.color == PLAYER::WHITE){
-                puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
-                puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
+                piece_map[move_end.number+1][move_end.letter] = 0; } else{ 
+                piece_map[move_end.number-1][move_end.letter] = 0; }
+            puts("En Passant!");
+            return true;
         }
-    } // just need to lastly check if it was previously the pawns first move && it was 2 spots
-    // ------------------------------------------------------ //
-
-
+    }
     // stop move diagonal 2 spaces on first move or any move
     if((move_number_squares == 2 && move_letter_squares > 0) || move_letter_squares > 1){return false;}
 
@@ -396,41 +371,43 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
 
 bool Pawn::En_passant(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
 
-    // Dont use yet
+    // previous move info
+    int previous_move_start_number = stored_moves[move_count-1].start.number;
+    int previous_move_end_letter = stored_moves[move_count-1].end.letter;
+    int previous_move_end_number = stored_moves[move_count-1].end.number;
+    int previous_move_length = abs(previous_move_start_number - previous_move_end_number);
 
-    // stores piece id to left and right of start piece
-    int id_right =  piece_map[move_start.number][move_start.letter+1];
-    int id_left = piece_map[move_start.number][move_start.letter-1];
+    // player info
     int id_player = piece_map[move_start.number][move_start.letter];
-
-    // get piece type to left and right of start piece
-    Pieces type_right = pieces[id_right-1].get_piece_type();
-    Pieces type_left = pieces[id_left-1].get_piece_type();
-
-    // get left and right color to see if enemy
-    int color_right = pieces[id_right-1].Get_Color_ID();
-    int color_left = pieces[id_left-1].Get_Color_ID();
     int color_player = pieces[id_player-1].Get_Color_ID();
 
-    // later more logical for this, this broken atm was working before
-    int attacked_piece_id = piece_map[move_end.number+1][move_end.letter];
-    pieces[attacked_piece_id-1].Get_Has_Moved();
+    // get enemy piece id
+    int enemy_piece_id;
+    if(move_start.color == PLAYER::WHITE){
+        enemy_piece_id = piece_map[move_end.number+1][move_end.letter]; 
+    } else {
+        enemy_piece_id = piece_map[move_end.number-1][move_end.letter]; }
 
-    std::cout << color_left << " " << color_player << " " << color_right << std::endl;
+    // enemy info - check first if player is white or black
+    int enemy_color_id = pieces[enemy_piece_id-1].Get_Color_ID();
+    Pieces enemy_type = pieces[enemy_piece_id-1].get_piece_type();
+
+    // Get the id of previous move and compare with attacked piece id
+    int previous_move_id = piece_map[previous_move_end_number][previous_move_end_letter];
+    if(previous_move_id != enemy_piece_id){ return false; }
+
     // if type is a pawn and not of the same color and if move is diagonal consider move valid
-    if((type_left == Pieces::P || type_right == Pieces::P) && (color_left != color_player || color_right != color_player)){
+    if(previous_move_length == 2 && (enemy_type == Pieces::P && enemy_color_id != color_player))
+    {
+        puts("logic passed");
+        return true;
+    }
 
-        // finally if color is white note the removal can only be +1, black -1 notation number
-        if(move_start.color == PLAYER::WHITE){
-            puts("En Passant!"); piece_map[move_end.number+1][move_end.letter] = 0; return true; } else{
-            puts("En Passant!"); piece_map[move_end.number-1][move_end.letter] = 0; return true; }
-
-    } 
+    return false;
 
 }
 
 bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end){
-
 
     int move_letter_squares = get_move_distance(move_start, move_end)[0];
     int move_number_squares = get_move_distance(move_start, move_end)[1];

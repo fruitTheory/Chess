@@ -109,7 +109,6 @@ public:
 class Pawn : public ChessPieces{
 
     private:
-        bool double_step;
 
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
