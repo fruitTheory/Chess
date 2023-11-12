@@ -32,6 +32,7 @@ int main(){
     std::string user_input; // users move input
     std::thread white_clock_thread(start_clock_white); // create thread for timer 
     std::thread black_clock_thread(start_clock_black);
+    ChessPieces::Move_data move_temporary;
     puts("Select a piece and destination - Ex: c1 f4, c2 c4");
 
     while ( window.isOpen() ){
@@ -58,6 +59,15 @@ int main(){
                                 utils.change_turn();
                                 move.start = move_from_click(board, mouse_position);
                                 move.end = {Pieces::None, -1, -1, -1, -1};
+
+                                // create temporary move conversion to check data from arrays
+                                move_temporary = chess_pieces.convert_move(move.start, pieces);
+                                int piece_id = piece_map[move_temporary.number][move_temporary.letter];
+
+                                // if the selection square is empty or the opposite teams color then clear
+                                if(piece_id == 0 
+                                || pieces[piece_id-1].Get_Color_ID() != players_turn)
+                                { press_count = 0; }
                             }
                         }
 
