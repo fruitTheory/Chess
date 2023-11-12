@@ -30,7 +30,8 @@ int main(){
 
     sf::Event event;
     std::string user_input; // users move input
-    std::thread clock_thread(start_internal_clock); // create thread for timer function
+    std::thread white_clock_thread(start_clock_white); // create thread for timer 
+    std::thread black_clock_thread(start_clock_black);
     puts("Select a piece and destination - Ex: c1 f4, c2 c4");
 
     while ( window.isOpen() ){
@@ -54,7 +55,7 @@ int main(){
                         // first click move
                         if (event.mouseButton.button == sf::Mouse::Left && press_count == 1){
                             if(mouse_position.x > 0 && mouse_position.y > 0){
-                                utils.check_turn();
+                                utils.change_turn();
                                 move.start = move_from_click(board, mouse_position);
                                 move.end = {Pieces::None, -1, -1, -1, -1};
                             }
@@ -62,7 +63,7 @@ int main(){
 
                         // second click move
                         if(event.mouseButton.button == sf::Mouse::Left && press_count == 2){
-                            utils.check_turn();
+                            utils.change_turn();
                             move.end = move_from_click(board, mouse_position);
                             piece_moved = chess_pieces.move_piece(window, board, pieces, move);
 
@@ -90,7 +91,7 @@ int main(){
 
                     // Unicode 13 represents Enter
                     if (event.text.unicode == 13){
-                        utils.check_turn();
+                        utils.change_turn();
                         // If user input is valid, then allow move piece
                         if(utils.user_input_valid(user_input)){
                             move = utils.convert_user_input(user_input);
@@ -123,14 +124,16 @@ int main(){
         // Default update and draw display
         window.clear();
         chess_pieces.update_pieces(window, board, pieces);
-        draw_clock_display(window);
+        draw_clock_white(window); draw_clock_black(window);
         draw_textbox(window, user_input);
         window.display();
     }
 
-    clock_thread.join();
+    white_clock_thread.join();
+    black_clock_thread.join();
     exit:
-    clock_thread.detach();
+    white_clock_thread.detach();
+    black_clock_thread.detach();
     return EXIT_SUCCESS;
 }
 

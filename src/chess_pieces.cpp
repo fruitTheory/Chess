@@ -60,6 +60,7 @@ void ChessPieces::Set_Object_Value(Pieces type){
         case Pieces::R: object_value = Piece_Value::Rook; break;
         case Pieces::Q: object_value = Piece_Value::Queen; break;
         case Pieces::K: object_value = Piece_Value::Pawn; break;
+        case Pieces::None: object_value = Piece_Value::None; break;
     }
 }
 Piece_Value ChessPieces::Get_Object_Value(){ return object_value; }
@@ -225,31 +226,33 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     // Move validity
     move_valid = check_move_validity(move.start, move.end, pieces);
-    std::string piece_type_str = get_piece_type_str(move.start.piece_type);
     if(!move_valid){ 
+        std::string piece_type_str = get_piece_type_str(move.start.piece_type);
         std::cout << "Not a valid " << piece_type_str << " move\n"; return false; 
     } else {
+        // Below done if move is valid
         stored_moves.push_back(move); // store move
         ++move_count;
         store_board_state(); // store previous
-        //utils.print_game_history(); // print previous
+        set_piece(move, pieces);
+        store_board_state(); // store new
+        //utils.print_game_history(); // print new
     }
-    // Needed for certain rules
-    pieces[move.start.piece_id].Set_Has_Moved(true); 
-
-    // Clear start piece space, and move start to end pos
-    piece_map[move.start.number][move.start.letter] = 0;
-    PIECE_END_ID = move.start.piece_id;
-
-    store_board_state(); // store new
-    //utils.print_game_history(); // print new
 
     // Re-draw everything
     update_pieces(window, board, pieces);
-    draw_clock_display(window);
+    draw_clock_white(window); draw_clock_black(window);
 
     return true;
 
+}
+
+// Set end position to piece id and start position to empty
+void ChessPieces::set_piece(Move move, std::vector<ChessPieces>& pieces){
+    // Clear start piece space, and move start to end pos
+    piece_map[move.start.number][move.start.letter] = 0;
+    PIECE_END_ID = move.start.piece_id;
+    pieces[move.start.piece_id].Set_Has_Moved(true); // Needed for certain rules
 }
 
 // Convert move type to usable data for array and embed additional data
@@ -297,7 +300,9 @@ bool ChessPieces::check_move_validity(const Move_data& move_start, const Move_da
          std::cout << "Warning: Space occupied" << std::endl; return false; }
 
     // if not a knight check path obstruction
-    // if(move_start.piece_type != Pieces::N){check_obstruction(move_start, move_end)}
+    if(move_start.piece_type != Pieces::N){ if(check_obstruction(move_start, move_end, pieces)){
+        std::cout << "Warning: Path obstructed" << std::endl; return false; }
+    }
 
     // check if valid move for specific piece
     switch (move_start.piece_type){
@@ -333,18 +338,18 @@ std::array<int, 2> ChessPieces::get_move_distance(const Move_data& move_start, c
 // Checks if move is valid and if it is an attack
 bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop if piece is black and moving backwards, reverse if board flipped
     if(move_start.color == PLAYER::BLACK && move_start.number > move_end.number){ return false; }
 
     // Pawn can only move two spots on first move, also note <= 0 stops sideways moves
-    if(move_number_squares > 2 || move_number_squares <= 0){return false;}
-    if(pieces[move_start.piece_id].Get_Has_Moved() == true && move_number_squares > 1){return false;};
+    if(dist_number_squares > 2 || dist_number_squares <= 0){return false;}
+    if(pieces[move_start.piece_id].Get_Has_Moved() == true && dist_number_squares > 1){return false;};
 
     // if pawn attack check en passant - if passant is true capture passed pawn 
-    if(move_number_squares == 1 && move_letter_squares == 1){ 
+    if(dist_number_squares == 1 && dist_letter_squares == 1){ 
         if(En_passant(move_start, move_end, pieces)){
             if(move_start.color == PLAYER::WHITE){
                 piece_map[move_end.number+1][move_end.letter] = 0; } else{ 
@@ -354,16 +359,16 @@ bool Pawn::valid_move(const Move_data& move_start, const Move_data& move_end, st
         }
     }
     // stop move diagonal 2 spaces on first move or any move
-    if((move_number_squares == 2 && move_letter_squares > 0) || move_letter_squares > 1){return false;}
+    if((dist_number_squares == 2 && dist_letter_squares > 0) || dist_letter_squares > 1){return false;}
 
     // stop from moving to occupied square if cannot attack
-    if(move_letter_squares == 0 && PIECE_END_ID_REF != 0){return false;}
+    if(dist_letter_squares == 0 && PIECE_END_ID_REF != 0){return false;}
 
     // if move is diagonal, check if occupied - dont allow if not occupied
-    if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF == 0)){return false;}
+    if((dist_number_squares == 1 && dist_letter_squares == 1) && (PIECE_END_ID_REF == 0)){return false;}
 
     // if move is diagonal, and if occupied, cant attack if same color piece
-    if((move_number_squares == 1 && move_letter_squares == 1) && (PIECE_END_ID_REF != 0
+    if((dist_number_squares == 1 && dist_letter_squares == 1) && (PIECE_END_ID_REF != 0
     && move_start.color == move_end.color)){ return false;}
     
     return true;
@@ -409,49 +414,49 @@ bool Pawn::En_passant(const Move_data& move_start, const Move_data& move_end, st
 
 bool Bishop::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop from moving horizontally
-    if(!( move_number_squares >= 1 && move_letter_squares >= 1 )){return false;}
+    if(!( dist_number_squares >= 1 && dist_letter_squares >= 1 )){return false;}
     // must be stair-stepped
-    if(( move_number_squares != move_letter_squares )){return false;}
+    if(( dist_number_squares != dist_letter_squares )){return false;}
 
     return true;
 }
 
 bool Knight::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop move just one square
-    if( move_number_squares <= 1 && move_letter_squares <= 1 ){return false;}
+    if( dist_number_squares <= 1 && dist_letter_squares <= 1 ){return false;}
     // stop move more than 2 square
-    if( move_number_squares > 2 || move_letter_squares > 2 ){return false;}
+    if( dist_number_squares > 2 || dist_letter_squares > 2 ){return false;}
 
     // only allow +2 for number or letter, and + 1 on opposite 
-    if( move_number_squares == 2 && move_letter_squares != 1 ){return false;}
-    if( move_letter_squares == 2 && move_number_squares != 1 ){return false;}
+    if( dist_number_squares == 2 && dist_letter_squares != 1 ){return false;}
+    if( dist_letter_squares == 2 && dist_number_squares != 1 ){return false;}
 
     return true;
 }
 
 bool Rook::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop from moving diagonally
-    if( move_number_squares >= 1 && move_letter_squares >= 1 ){return false;}
+    if( dist_number_squares >= 1 && dist_letter_squares >= 1 ){return false;}
 
     return true;
 }
 
 bool Queen::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    // int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    // int move_number_squares = get_move_distance(move_start, move_end)[1];
+    // int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    // int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // queen can move anywhere
 
@@ -460,11 +465,11 @@ bool Queen::valid_move(const Move_data& move_start, const Move_data& move_end){
 
 bool King::valid_move(const Move_data& move_start, const Move_data& move_end){
 
-    int move_letter_squares = get_move_distance(move_start, move_end)[0];
-    int move_number_squares = get_move_distance(move_start, move_end)[1];
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
 
     // stop from moving more than one space
-    if( move_number_squares > 1 || move_letter_squares > 1 ){return false;}
+    if( dist_number_squares > 1 || dist_letter_squares > 1 ){return false;}
 
     return true;
 }
@@ -472,26 +477,122 @@ bool King::valid_move(const Move_data& move_start, const Move_data& move_end){
 // Check if move is an attack
 bool ChessPieces::check_attack(const Move_data& move_start, const Move_data& move_end){
 
-    // if opposite color an not empty square consider attack
+    // if not an empty square and opposite color piece consider attack
     if(move_start.color != move_end.color && move_end.piece_id != 0){ puts("attack!"); return true;}
 
     return false;
 
 }
 
-// Board vision 
-void ChessPieces::check_valid_squares(const Move_data& move_start, const Move_data& move_end){
+// Basic board vision for game logic 
+bool ChessPieces::check_obstruction(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
 
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    int dist_number_squares = get_move_distance(move_start, move_end)[1];
+
+    // get gap amount between start and end
+    int dist_letter_gap = dist_letter_squares - 1;
+    int dist_number_gap = dist_number_squares - 1;
+
+    int piece_id;
+    DIRECTION direction = get_move_direction(move_start, move_end);
+
+    // Check for piece direction and if theres obscurification
+    switch(direction){
+
+        case DIRECTION::DOWN:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number - x][move_start.letter];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::UP:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number + x][move_start.letter];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::LEFT:{
+            for(int x = 0; x < dist_letter_squares; x++){
+                piece_id = piece_map[move_start.number][move_start.letter - x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::RIGHT:{
+            for(int x = 0; x < dist_letter_squares; x++){
+                piece_id = piece_map[move_start.number][move_start.letter + x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::DOWN_LEFT:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number - x][move_start.letter - x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::DOWN_RIGHT:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number - x][move_start.letter + x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::UP_LEFT:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number + x][move_start.letter - x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        case DIRECTION::UP_RIGHT:{
+            for(int x = 0; x < dist_number_squares; x++){
+                piece_id = piece_map[move_start.number + x][move_start.letter + x];
+                if(x > 0 && piece_id != 0){ return true; }
+            }
+            break;
+        }
+        default: break;
+    }
+
+    return false;
+
+}
+
+// Returns both letter and number distance in an array, 0 for letter 1 for number
+DIRECTION ChessPieces::get_move_direction(const Move_data& move_start, const Move_data& move_end){
+
+    DIRECTION direction;
+
+    // number distance based on board travel
+    int number_distance = move_end.number - move_start.number; // negative down board
+    int letter_distance = move_end.letter - move_start.letter; // negative left board
+
+    if(number_distance < 0){ direction = DIRECTION::DOWN; }
+    if(number_distance > 0){ direction = DIRECTION::UP; }
+    if(letter_distance < 0){ direction = DIRECTION::LEFT; }
+    if(letter_distance > 0){ direction = DIRECTION::RIGHT; }
+
+    if(number_distance < 0 && letter_distance < 0){ direction = DIRECTION::DOWN_LEFT; }
+    if(number_distance < 0 && letter_distance > 0){ direction = DIRECTION::DOWN_RIGHT;}
+    if(number_distance > 0 && letter_distance < 0){ direction = DIRECTION::UP_LEFT; }
+    if(number_distance > 0 && letter_distance > 0){ direction = DIRECTION::UP_RIGHT; }
+
+    return direction;
 }
 
 /*
 
 TODO Special Cases
 
-En passant
-Castling - queenside, kingside
-Move storage - reverse moves - arrow keys
+Castling - kingside, queenside 
 King state - checks / checkmate / stalemate
 Piece promotion
+
+Extra: go back and forward in history with arrow keys
 
 */

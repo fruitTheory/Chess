@@ -5,7 +5,7 @@
 int players_turn = PLAYER::WHITE; // global player turn white:1 black:0
 
 // A check for whos turn it is, will set the correct players turn globally
-void ChessUtility::check_turn(){
+void ChessUtility::change_turn(){
     players_turn == 1 ? players_turn = PLAYER::WHITE : players_turn = PLAYER::BLACK;
 }
 

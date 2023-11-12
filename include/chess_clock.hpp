@@ -2,5 +2,7 @@
 
 #include "chessboard_window.hpp"
 
-void start_internal_clock();
-void draw_clock_display(sf::RenderWindow& window);
+void start_clock_white();
+void start_clock_black();
+void draw_clock_white(sf::RenderWindow& window);
+void draw_clock_black(sf::RenderWindow& window);

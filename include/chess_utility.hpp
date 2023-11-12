@@ -11,6 +11,10 @@ namespace PLAYER{
     enum ePLAYER { BLACK = 0, WHITE = 1};
 }
 
+enum class DIRECTION{ DOWN = 0, UP = 1, LEFT = 2, RIGHT = 3, 
+            DOWN_LEFT = 4, DOWN_RIGHT = 5, UP_LEFT = 6, UP_RIGHT= 7 };
+
+
 class ChessUtility{
     private:
         //int game_page;
@@ -22,6 +26,7 @@ class ChessUtility{
         void print_game_history();
         void print_stored_moves();
         void print_last_move();
-        void check_turn();
+        void change_turn();
+
 };
 

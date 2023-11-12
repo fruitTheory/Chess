@@ -11,7 +11,9 @@ std::ostream& operator<<(std::ostream& os, const Pieces& value);
 enum class Letters { a = 1, b, c, d, e, f, g, h };
 extern const std::map<char, Letters> letter_notation_map;
 
-enum class Piece_Value { Pawn = 1, Knight = 3, Bishop = 3, Rook = 5, Queen = 9 };
+enum class Piece_Value { None = 0, Pawn = 1, Knight = 3, Bishop = 3, Rook = 5, Queen = 9 };
+
+enum class DIRECTION;
 
 extern int piece_map[8][8];
 
@@ -80,6 +82,7 @@ public:
     Move_data convert_move(const Move_data& move, std::vector<ChessPieces>& pieces);
     bool move_piece(sf::RenderWindow& window, Chessboard& board, 
                     std::vector<ChessPieces>& pieces, ChessPieces::Move& move);
+    void set_piece(Move move, std::vector<ChessPieces>& pieces);
 
 
     // Getters and setters
@@ -95,12 +98,13 @@ public:
     Pieces get_piece_type();
     std::string get_piece_type_str(Pieces type);
     std::array<int, 2> get_move_distance(const Move_data& move_start, const Move_data& move_end);
+    DIRECTION get_move_direction(const Move_data& move_start, const Move_data& move_end);
 
 
     // Checkers 
-
-    void check_valid_squares(const Move_data& move_start, const Move_data& move_end);
+ 
     bool check_attack(const Move_data& move_start, const Move_data& move_end);
+    bool check_obstruction(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
     bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 
                              std::vector<ChessPieces>& pieces);
                              
@@ -153,4 +157,8 @@ class King : public ChessPieces{
 
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end);
+        void castling();
+        void check();
+        void checkmate();
+        void stalemate();
 };
