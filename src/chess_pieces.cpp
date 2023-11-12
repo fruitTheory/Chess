@@ -49,7 +49,7 @@ int ChessPieces::Get_Object_ID(){ return object_id; }
 void ChessPieces::Set_Color_ID(int ID){ color_id = ID; }
 int ChessPieces::Get_Color_ID(){ /* case of no piece */if(object_id == 0){return -1;} return color_id; }
 
-void ChessPieces::Set_Has_Moved(int ID){ has_moved = ID; }
+void ChessPieces::Set_Has_Moved(bool moved){ has_moved = moved; }
 bool ChessPieces::Get_Has_Moved(){ return has_moved; }
 
 void ChessPieces::Set_Object_Value(Pieces type){ 
@@ -226,6 +226,10 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     // Move validity
     move_valid = check_move_validity(move.start, move.end, pieces);
+
+    // Even if Move is not valid, if is a special case override move
+    if(catch_special_cases(move.start, move.end, pieces)){ move_valid = true;}
+
     if(!move_valid){ 
         std::string piece_type_str = get_piece_type_str(move.start.piece_type);
         std::cout << "Not a valid " << piece_type_str << " move\n"; return false; 
@@ -252,7 +256,7 @@ void ChessPieces::set_piece(Move move, std::vector<ChessPieces>& pieces){
     // Clear start piece space, and move start to end pos
     piece_map[move.start.number][move.start.letter] = 0;
     PIECE_END_ID = move.start.piece_id;
-    pieces[move.start.piece_id].Set_Has_Moved(true); // Needed for certain rules
+    pieces[move.start.piece_id-1].Set_Has_Moved(true); // Needed for certain rules
 }
 
 // Convert move type to usable data for array and embed additional data
@@ -585,12 +589,125 @@ DIRECTION ChessPieces::get_move_direction(const Move_data& move_start, const Mov
     return direction;
 }
 
+bool ChessPieces::catch_special_cases(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+
+    if(move_start.piece_type == Pieces::K){
+
+        King king;
+
+        if(king.castling(move_start, move_end, pieces)){ puts("castling"); return true;}
+        // if(king.in_check()){ puts("king in check"); }
+        // if(king.checkmate()){ puts("king checkmated"); }
+        // if(king.stalemate()){ puts("king stalemated"); }
+    }
+
+    return false;
+
+}
+
+bool King::castling(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+    
+    /* Before anything happens check if path obstructed */
+    if(check_obstruction(move_start, move_end, pieces)){ return false; }
+
+    /* These are for checking if piece as moved yet, if so makes castling invalid */
+
+    bool long_white_rook_moved = pieces[ROOK_WHITE_1 - 1].Get_Has_Moved();
+    bool short_white_rook_moved = pieces[ROOK_WHITE_2 - 1].Get_Has_Moved();
+    bool white_king_moved = pieces[KING_WHITE - 1].Get_Has_Moved();
+
+    bool long_black_rook_moved = pieces[ROOK_BLACK_1 - 1].Get_Has_Moved();
+    bool short_black_rook_moved = pieces[ROOK_BLACK_2 - 1].Get_Has_Moved();
+    bool black_king_moved = pieces[KING_BLACK - 1].Get_Has_Moved();
+
+    /* If king has moved in any case will make castling invalid */
+
+    int player = move_start.color;
+    if(player == PLAYER::WHITE && white_king_moved == true
+    || player == PLAYER::BLACK && black_king_moved == true)
+    { return false; }
+
+    /* Distance to check if not within castling range */
+    int dist_letter_squares = get_move_distance(move_start, move_end)[0];
+    ChessPieces::Move move;
+    DIRECTION direction = get_move_direction(move_start, move_end);
+
+    /* please note if board is ever flipped the directions would be inverted
+        maybe cheap way to help would just be creating an invert direction func */
+
+    switch(direction){
+        case DIRECTION::LEFT:{
+            // Queenside
+            if(player == PLAYER::WHITE 
+            && long_white_rook_moved == false 
+            && dist_letter_squares == 3)
+            {
+                move.start.letter = 0; move.start.number = 7;
+                move.end.letter = 2; move.end.number = 7;
+                move.start.piece_id = ROOK_WHITE_1;
+
+                set_piece(move, pieces);
+
+                return true;
+            }
+            if(player == PLAYER::BLACK 
+            && long_black_rook_moved == false 
+            && dist_letter_squares == 3)
+            {
+                move.start.letter = 0; move.start.number = 0;
+                move.end.letter = 2; move.end.number = 0;
+                move.start.piece_id = ROOK_BLACK_1;
+
+                set_piece(move, pieces);
+
+                return true;
+            }
+        }
+            break;
+        case DIRECTION::RIGHT:{
+            // Kingside
+            if(player == PLAYER::WHITE 
+            && short_white_rook_moved == false 
+            && dist_letter_squares == 2)
+            {
+                move.start.letter = 7; move.start.number = 7;
+                move.end.letter = 5; move.end.number = 7;
+                move.start.piece_id = ROOK_WHITE_2;
+
+                set_piece(move, pieces);
+
+                return true;
+            }
+            if(player == PLAYER::BLACK 
+            && short_black_rook_moved == false 
+            && dist_letter_squares == 2)
+            {
+                move.start.letter = 7; move.start.number = 0;
+                move.end.letter = 5; move.end.number = 0;
+                move.start.piece_id = ROOK_BLACK_2;
+
+                set_piece(move, pieces);
+
+                return true;
+            }
+        }
+            break;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool King::in_check(){}
+bool King::checkmate(){}
+bool King::stalemate(){}
+
 /*
 
 TODO Special Cases
 
-Castling - kingside, queenside 
-King state - checks / checkmate / stalemate
+Castling - kingside, queenside - King state - checks / checkmate / stalemate
 Piece promotion
 
 Extra: go back and forward in history with arrow keys

@@ -91,7 +91,7 @@ public:
     int Get_Object_ID();
     void Set_Color_ID(int ID);
     int Get_Color_ID();
-    void Set_Has_Moved(int ID);
+    void Set_Has_Moved(bool moved);
     bool Get_Has_Moved();
     void Set_Object_Value(Pieces type);
     Piece_Value Get_Object_Value();
@@ -105,8 +105,10 @@ public:
  
     bool check_attack(const Move_data& move_start, const Move_data& move_end);
     bool check_obstruction(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+    bool catch_special_cases(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
     bool check_move_validity(const Move_data& move_start, const Move_data& move_end, 
                              std::vector<ChessPieces>& pieces);
+
                              
 };
 
@@ -157,8 +159,8 @@ class King : public ChessPieces{
 
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end);
-        void castling();
-        void check();
-        void checkmate();
-        void stalemate();
+        bool castling(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
+        bool in_check();
+        bool checkmate();
+        bool stalemate();
 };
