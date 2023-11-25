@@ -606,6 +606,7 @@ bool ChessPieces::catch_special_cases(const Move_data& move_start, const Move_da
         puts("castling"); return true;
     }
 
+    puts("special");
     if(king.in_check(pieces)){ puts("king in check"); }
 
     return false;
@@ -617,65 +618,121 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
     ChessUtility util;
     sf::Vector2i white_king_position;
     sf::Vector2i black_king_position;
-    int piece_id = -1;
-    int white_king_x = -1;
-    int white_king_y = -1;
-    int black_king_x = -1;
-    int black_king_y = -1;
+    int white_king_x;
+    int white_king_y;
+    int black_king_x;
+    int black_king_y;
 
-    // store kings square position check for players turn
-    switch(players_turn){
-        case PLAYER::WHITE:{
-            white_king_position = util.find_piece_position(KING_WHITE);
-            white_king_x = white_king_position.x;
-            white_king_y = white_king_position.y;
-            puts("white turn");
-        } break;
+    white_king_position = util.find_piece_position(KING_WHITE);
+    white_king_x = white_king_position.x;
+    white_king_y = white_king_position.y;
 
-        case PLAYER::BLACK:{
-            black_king_position = util.find_piece_position(KING_BLACK);
-            black_king_x = black_king_position.x;
-            black_king_y = black_king_position.y;
-            puts("black turn");
-        } break;
+    black_king_position = util.find_piece_position(KING_BLACK);
+    black_king_x = black_king_position.x;
+    black_king_y = black_king_position.y;
 
-        default:
-            puts("player turn fucked");
-            break;
-    }
+    std::cout << "king white y: " << white_king_y << std::endl;
+    std::cout << "king black y: " << black_king_y << std::endl;
 
+    int piece_id_neg;
+    int piece_id_pos;
 
-    // return 0 4 or 7 4, y and x (old)
-    for(int y = 1; y + white_king_y < 8; y++){
-        if(piece_map[white_king_y + y][white_king_x] != 0){
-            int piece_id_pos = piece_map[white_king_y + y][white_king_x];
-            int piece_id_neg = piece_map[white_king_y + -(y)][white_king_x];
-            Pieces type = pieces[piece_id_pos-1].get_piece_type();
-            std::cout << "type\n";
-            std::cout << type << std::endl;
+    struct white
+    {
+        Pieces pos_type_vert, neg_type_vert, pos_type_horz, 
+               neg_type_horz, pos_type_diag, neg_type_diag;
+    };
+    
+    white white;
+    white.pos_type_vert;
+    
+    Pieces pos_type_vert, neg_type_vert, pos_type_horz, 
+           neg_type_horz, pos_type_diag, neg_type_diag;
+    // Pieces neg_type_vert;
+    // Pieces pos_type_horz;
+    // Pieces neg_type_horz;
+    // Pieces pos_type_diag;
+    // Pieces neg_type_diag;
+
+    // Find the type of pieces up board (behind white)
+    for(int y = 1; y < 8; y++){ 
+        if(!(white_king_y + y > 7)){ // array out of bounds
+            piece_id_pos = piece_map[white_king_y + (y)][white_king_x];
+            pos_type_vert = pieces[piece_id_pos-1].get_piece_type();
+            if(pos_type_vert != Pieces::None){ // getting first piece hit
+                // std::cout << "p ";
+                // std::cout << pos_type_vert << std::endl;
+                break;
+            }
         }
     }
 
-    // check all 64 squares
+    // Find the type of pieces down board (infront white)
+    for(int y = 1; y < 8; y++){ 
+        if(!(white_king_y + -(y) < 0)){ // array out of bounds
+            piece_id_neg = piece_map[white_king_y + -(y)][white_king_x];
+            neg_type_vert = pieces[piece_id_neg-1].get_piece_type();
+            if(neg_type_vert != Pieces::None){ // getting first piece hit
+                // std::cout << "n ";
+                // std::cout << neg_type_vert << std::endl;
+                break;
+            }
+        }
+    }
 
+    std::cout << neg_type_vert << std::endl;
+    std::cout << pos_type_vert << std::endl;
+
+    // check_line_vertical, check_line_horizontal, check_line_diagonal
+
+    //if(piece_map[white_king_y + y][white_king_x] != 0);
+
+        // std::cout << "king y: " << white_king_y << std::endl;
+        // std::cout << "king x: " << white_king_x << std::endl;
+        // std::cout << "king y + y: " << white_king_y + y << std::endl;
+        // std::cout << "king y - y: " << white_king_y + -(y) << std::endl;
+        //std::cout << "y: " << y << "\n";
+    
+    // // store kings square position check for players turn
+    // switch(!players_turn){
+    //     case PLAYER::WHITE:{
+
+    //         puts("white turn");
+    //     } break;
+
+    //     case PLAYER::BLACK:{
+
+    //         puts("black turn");
+    //     } break;
+
+    //     default:
+    //         puts("player turn fucked");
+    //         break;
+    // }
+
+    // check all 64 squares
     // do a path trace for all but knights
     // special case for knights?
-
     //util.print_piece_map();
 
     return false;
 
 }
-bool King::checkmate(){}
-bool King::stalemate(){}
-
+bool King::checkmate(){
+    // if check is true, can king move to a non occupied sqaure
+    // check lines around king then special case knight
+}
+bool King::stalemate(){
+    // filter for every piece left on board
+    // test if any of legal move
+}
 
 bool King::castling(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
     
-    /* Before anything happens check if path obstructed */
+    /* Before anything happens check if path physically obstructed */
     if(check_obstruction(move_start, move_end, pieces)){ return false; }
 
-    /* These are for checking if piece as moved yet, if so makes castling invalid */
+    /* Check if pieces involved have moved yet, if so makes castling invalid */
 
     bool long_white_rook_moved = pieces[ROOK_WHITE_1 - 1].Get_Has_Moved();
     bool short_white_rook_moved = pieces[ROOK_WHITE_2 - 1].Get_Has_Moved();
