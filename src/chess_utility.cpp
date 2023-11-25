@@ -80,6 +80,24 @@ bool ChessUtility::user_input_valid( std::string user_input ) {
     return false;
 }
 
+// gets piece identification converted for array usage
+sf::Vector2i ChessUtility::find_piece_position(int piece_id){
+
+    sf::Vector2i piece_position;
+
+     //int piece_id = piece_map[y][x];
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            if(piece_map[y][x] == piece_id){
+                piece_position = {x, y};
+                break;
+            }
+        }
+    }
+
+    return piece_position;
+}
+
 void ChessUtility::print_piece_map(){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){

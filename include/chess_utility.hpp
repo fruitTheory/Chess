@@ -21,7 +21,7 @@ class ChessUtility{
     public:
         ChessPieces::Move convert_user_input( std::string user_input );
         bool user_input_valid( std::string user_input );
-
+        sf::Vector2i find_piece_position(int piece_id);
         void print_piece_map();
         void print_game_history();
         void print_stored_moves();

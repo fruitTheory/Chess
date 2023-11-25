@@ -60,11 +60,11 @@ int main(){
                                 move.start = move_from_click(board, mouse_position);
                                 move.end = {Pieces::None, -1, -1, -1, -1};
 
-                                // create temporary move conversion to check data from arrays
+                                // create temporary move to confirm data from array is valid
                                 move_temporary = chess_pieces.convert_move(move.start, pieces);
                                 int piece_id = piece_map[move_temporary.number][move_temporary.letter];
 
-                                // if the selection square is empty or the opposite teams color then clear
+                                // if the selection square is empty or is opposite teams color then clear
                                 if(piece_id == 0 
                                 || pieces[piece_id-1].Get_Color_ID() != players_turn)
                                 { press_count = 0; }
@@ -152,14 +152,11 @@ int main(){
     -Previous mouse click stuff, from inside if clicked
 
     // board.reset_board(window, board, pieces);
-    
     // get piece from chess pieces
     // sf::CircleShape& A2_pawn = chess_pieces.get_piece_basic(1);
     // board.create(window);
     // // set position of object to cursor position offset by size of object to center
-
     // A2_pawn.setPosition(mouse_position.x-48, mouse_position.y-48);
-
     // window.draw(A2_pawn);
     // chess_pieces.init_piece_position(window);
 */

@@ -19,7 +19,7 @@ extern int piece_map[8][8];
 
 class Chessboard;
 
-// Class for all chess pieces - uses shapes for now
+// Class for all chess pieces - uses smfl shapes - specific piece classes are just for organization
 class ChessPieces{
     
 private:
@@ -37,7 +37,7 @@ private:
     // Piece data
 
     Piece_Value object_value; // value of piece
-    int object_id; // generally linked with piece_id
+    int object_id; // typically linked with piece_id, but more static use case
     int color_id; // 0:black 1:white
     bool has_moved; // if piece has moved
 
@@ -160,7 +160,7 @@ class King : public ChessPieces{
     public:
         bool valid_move(const Move_data& move_start, const Move_data& move_end);
         bool castling(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces);
-        bool in_check();
+        bool in_check(std::vector<ChessPieces>& pieces);
         bool checkmate();
         bool stalemate();
 };

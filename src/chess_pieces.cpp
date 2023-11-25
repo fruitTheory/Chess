@@ -590,20 +590,85 @@ DIRECTION ChessPieces::get_move_direction(const Move_data& move_start, const Mov
 }
 
 bool ChessPieces::catch_special_cases(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
+    
+    King king;
+    
+    // if(move_start.piece_type == Pieces::K){
 
-    if(move_start.piece_type == Pieces::K){
-
-        King king;
-
-        if(king.castling(move_start, move_end, pieces)){ puts("castling"); return true;}
-        // if(king.in_check()){ puts("king in check"); }
-        // if(king.checkmate()){ puts("king checkmated"); }
-        // if(king.stalemate()){ puts("king stalemated"); }
+    //     if(move_start.piece_type == Pieces::K && king.castling(move_start, move_end, pieces)){ puts("castling"); return true;}
+    //     // if(king.in_check()){ puts("king in check"); }
+    //     // if(king.checkmate()){ puts("king checkmated"); }
+    //     // if(king.stalemate()){ puts("king stalemated"); }
+    // }
+    
+    if(move_start.piece_type == Pieces::K 
+    && king.castling(move_start, move_end, pieces)){ 
+        puts("castling"); return true;
     }
+
+    if(king.in_check(pieces)){ puts("king in check"); }
 
     return false;
 
 }
+
+bool King::in_check(std::vector<ChessPieces>& pieces){
+
+    ChessUtility util;
+    sf::Vector2i white_king_position;
+    sf::Vector2i black_king_position;
+    int piece_id = -1;
+    int white_king_x = -1;
+    int white_king_y = -1;
+    int black_king_x = -1;
+    int black_king_y = -1;
+
+    // store kings square position check for players turn
+    switch(players_turn){
+        case PLAYER::WHITE:{
+            white_king_position = util.find_piece_position(KING_WHITE);
+            white_king_x = white_king_position.x;
+            white_king_y = white_king_position.y;
+            puts("white turn");
+        } break;
+
+        case PLAYER::BLACK:{
+            black_king_position = util.find_piece_position(KING_BLACK);
+            black_king_x = black_king_position.x;
+            black_king_y = black_king_position.y;
+            puts("black turn");
+        } break;
+
+        default:
+            puts("player turn fucked");
+            break;
+    }
+
+
+    // return 0 4 or 7 4, y and x (old)
+    for(int y = 1; y + white_king_y < 8; y++){
+        if(piece_map[white_king_y + y][white_king_x] != 0){
+            int piece_id_pos = piece_map[white_king_y + y][white_king_x];
+            int piece_id_neg = piece_map[white_king_y + -(y)][white_king_x];
+            Pieces type = pieces[piece_id_pos-1].get_piece_type();
+            std::cout << "type\n";
+            std::cout << type << std::endl;
+        }
+    }
+
+    // check all 64 squares
+
+    // do a path trace for all but knights
+    // special case for knights?
+
+    //util.print_piece_map();
+
+    return false;
+
+}
+bool King::checkmate(){}
+bool King::stalemate(){}
+
 
 bool King::castling(const Move_data& move_start, const Move_data& move_end, std::vector<ChessPieces>& pieces){
     
@@ -699,15 +764,13 @@ bool King::castling(const Move_data& move_start, const Move_data& move_end, std:
     return false;
 }
 
-bool King::in_check(){}
-bool King::checkmate(){}
-bool King::stalemate(){}
 
 /*
 
 TODO Special Cases
 
-Castling - kingside, queenside - King state - checks / checkmate / stalemate
+King state - checks / checkmate / stalemate
+Enemy blocking castling
 Piece promotion
 
 Extra: go back and forward in history with arrow keys
