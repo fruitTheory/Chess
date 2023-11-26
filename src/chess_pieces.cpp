@@ -229,6 +229,7 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     // Even if Move is not valid, if is a special case override move
     if(catch_special_cases(move.start, move.end, pieces)){ move_valid = true;}
+    else{ move_valid = false; }
 
     if(!move_valid){ 
         std::string piece_type_str = get_piece_type_str(move.start.piece_type);
@@ -606,10 +607,11 @@ bool ChessPieces::catch_special_cases(const Move_data& move_start, const Move_da
         puts("castling"); return true;
     }
 
-    puts("special");
-    if(king.in_check(pieces)){ puts("king in check"); }
+    puts("special");\
+    // note need to figure out, how player can block this check if this is raised
+    if(king.in_check(pieces)){ puts("king in check"); return false;}
 
-    return false;
+    //return false;
 
 }
 
@@ -631,18 +633,19 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
     black_king_x = black_king_position.x;
     black_king_y = black_king_position.y;
 
-    std::cout << "king white y: " << white_king_y << std::endl;
-    std::cout << "king white x: " << white_king_x << std::endl;
-    std::cout << "king black y: " << black_king_y << std::endl;
-    std::cout << "king black x: " << black_king_x << std::endl;
+    // std::cout << "king white y: " << white_king_y << std::endl;
+    // std::cout << "king white x: " << white_king_x << std::endl;
+    // std::cout << "king black y: " << black_king_y << std::endl;
+    // std::cout << "king black x: " << black_king_x << std::endl;
 
     Pieces piece_type;
     int piece_id;
+    int piece_color;
     int king_y = NULL;
     int king_x = NULL;
 
     // Note this needs to be inverse to activate on correct players turn
-    if(!(players_turn == PLAYER::WHITE)){
+    if((players_turn == PLAYER::WHITE)){
         king_y = white_king_y;
         king_x = white_king_x;
     } else {
@@ -650,18 +653,23 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         king_x = black_king_x;
     }
 
-    std::cout << "king y: " << king_y << std::endl;
-    std::cout << "king x: " << king_x << std::endl;
+    // std::cout << "king y: " << king_y << std::endl;
+    // std::cout << "king x: " << king_x << std::endl;
 
+    std::vector<std::pair<Pieces, int>> pieces_hit; // array of pieces hit
 
     // Find the type of pieces down board (behind white)
     for(int y = 1; y < 8; y++){ 
         if(!(king_y + y > 7)){ // array out of bounds
             piece_id = piece_map[king_y + (y)][king_x];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "d ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color d ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -672,9 +680,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_y + -(y) < 0)){ // array out of bounds
             piece_id = piece_map[king_y + -(y)][king_x];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "u ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color u ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -685,9 +697,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_x + -(x) < 0)){ // array out of bounds
             piece_id = piece_map[king_y][king_x + -(x)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "l ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color l ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -698,9 +714,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_x + + (x) > 7)){ // array out of bounds
             piece_id = piece_map[king_y][king_x + (x)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "r ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color r ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -711,9 +731,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_y + (z) > 7) && !(king_x + (z) > 7)){ // array out of bounds
             piece_id = piece_map[king_y + (z)][king_x + (z)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "dr ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color dr ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -724,9 +748,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_y + -(z) < 0) && !(king_x + (z) > 7)){ // array out of bounds
             piece_id = piece_map[king_y + -(z)][king_x + (z)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "ur ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color ur ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -737,9 +765,13 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_y + -(z) < 0) && !(king_x + -(z) < 0)){ // array out of bounds
             piece_id = piece_map[king_y + -(z)][king_x + -(z)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "ul ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color ul ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
@@ -750,13 +782,28 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
         if(!(king_y + (z) > 7) && !(king_x + -(z) < 0)){ // array out of bounds
             piece_id = piece_map[king_y + (z)][king_x + -(z)];
             piece_type = pieces[piece_id-1].get_piece_type();
+            piece_color = pieces[piece_id-1].Get_Color_ID();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "dl ";
                 std::cout << piece_type << std::endl;
+                std::cout << "color dl ";
+                std::cout << piece_color << std::endl;
+                pieces_hit.push_back(std::make_pair(piece_type, piece_color));
                 break;
             }
         }
     }
+
+    for(int x = 0; x < pieces_hit.size(); x++){
+        if(pieces_hit.at(x).second != players_turn){
+            return true;
+        }
+    }
+
+    // std::cout << "size: " << pieces_hit.size() << "\n";
+    // std::cout << pieces_hit.at(0) << "\n";
+    // pieces_hit.clear();
+    puts("");
 
     return false;
 
