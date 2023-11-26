@@ -632,10 +632,11 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
     black_king_y = black_king_position.y;
 
     std::cout << "king white y: " << white_king_y << std::endl;
-    std::cout << "king black y: " << black_king_y << std::endl;
+    std::cout << "king white x: " << white_king_x << std::endl;
+    // std::cout << "king black y: " << black_king_y << std::endl;
 
-    int piece_id_neg;
-    int piece_id_pos;
+    int piece_id;
+    Pieces piece_type;
 
     struct white
     {
@@ -645,43 +646,158 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
     
     white white;
     white.pos_type_vert;
-    
-    Pieces pos_type_vert, neg_type_vert, pos_type_horz, 
-           neg_type_horz, pos_type_diag, neg_type_diag;
-    // Pieces neg_type_vert;
-    // Pieces pos_type_horz;
-    // Pieces neg_type_horz;
-    // Pieces pos_type_diag;
-    // Pieces neg_type_diag;
 
-    // Find the type of pieces up board (behind white)
+
+    // Find the type of pieces down board (behind white)
     for(int y = 1; y < 8; y++){ 
         if(!(white_king_y + y > 7)){ // array out of bounds
-            piece_id_pos = piece_map[white_king_y + (y)][white_king_x];
-            pos_type_vert = pieces[piece_id_pos-1].get_piece_type();
-            if(pos_type_vert != Pieces::None){ // getting first piece hit
-                // std::cout << "p ";
-                // std::cout << pos_type_vert << std::endl;
+            piece_id = piece_map[white_king_y + (y)][white_king_x];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "d ";
+                std::cout << piece_type << std::endl;
                 break;
             }
         }
     }
 
-    // Find the type of pieces down board (infront white)
+    // Find the type of pieces up board (infront white)
     for(int y = 1; y < 8; y++){ 
         if(!(white_king_y + -(y) < 0)){ // array out of bounds
-            piece_id_neg = piece_map[white_king_y + -(y)][white_king_x];
-            neg_type_vert = pieces[piece_id_neg-1].get_piece_type();
-            if(neg_type_vert != Pieces::None){ // getting first piece hit
-                // std::cout << "n ";
-                // std::cout << neg_type_vert << std::endl;
+            piece_id = piece_map[white_king_y + -(y)][white_king_x];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "u ";
+                std::cout << piece_type << std::endl;
                 break;
             }
         }
     }
 
-    std::cout << neg_type_vert << std::endl;
-    std::cout << pos_type_vert << std::endl;
+    // Find the type of pieces to the left
+    for(int x = 1; x < 8; x++){ 
+        if(!(white_king_x + -(x) < 0)){ // array out of bounds
+            piece_id = piece_map[white_king_y][white_king_x + -(x)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "l ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+    // Find the type of pieces to the right
+    for(int x = 1; x < 8; x++){ 
+        if(!(white_king_x + + (x) > 7)){ // array out of bounds
+            piece_id = piece_map[white_king_y][white_king_x + (x)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "r ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+    // Find the type of pieces to the down right
+    for(int z = 1; z < 8; z++){ 
+        if(!(white_king_y + (z) > 7) && !(white_king_x + (z) > 7)){ // array out of bounds
+            piece_id = piece_map[white_king_y + (z)][white_king_x + (z)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "dr ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+    // Find the type of pieces to the up right
+    for(int z = 1; z < 8; z++){ 
+        if(!(white_king_y + -(z) < 0) && !(white_king_x + (z) > 7)){ // array out of bounds
+            piece_id = piece_map[white_king_y + -(z)][white_king_x + (z)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "ur ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+    // Find the type of pieces to the up left
+    for(int z = 1; z < 8; z++){ 
+        if(!(white_king_y + -(z) < 0) && !(white_king_x + -(z) < 0)){ // array out of bounds
+            piece_id = piece_map[white_king_y + -(z)][white_king_x + -(z)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "ul ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+    // Find the type of pieces to the down left
+    for(int z = 1; z < 8; z++){ 
+        if(!(white_king_y + (z) > 7) && !(white_king_x + -(z) < 0)){ // array out of bounds
+            piece_id = piece_map[white_king_y + (z)][white_king_x + -(z)];
+            piece_type = pieces[piece_id-1].get_piece_type();
+            if(piece_type != Pieces::None){ // stopping at first piece hit
+                std::cout << "dl ";
+                std::cout << piece_type << std::endl;
+                break;
+            }
+        }
+    }
+
+
+    
+    // enum range { DOWN = 0, UP = 1, LEFT = 2, RIGHT = 3, 
+    //              DOWN_LEFT = 4, DOWN_RIGHT = 5, UP_LEFT = 6, UP_RIGHT= 7 };
+    // int range;
+
+    // for(int range = 0; range < 7; range++){
+    //     std::cout << "range: " << range << std::endl;
+    //     // Find the type of pieces down board (infront white)
+    //     for(int y = 1; y < 8; y++){
+
+    //         switch(range){
+
+    //             case DOWN:{
+    //                 if(!(white_king_y + -(y) < 0)){ // array out of bounds
+    //                     piece_id = piece_map[white_king_y + -(y)][white_king_x];
+    //                     type = pieces[piece_id-1].get_piece_type();
+    //                     if(type != Pieces::None){ // getting first piece hit
+    //                         std::cout << "n ";
+    //                         std::cout << type << std::endl;
+    //                         break;
+    //                     }
+    //                 }
+    //             } break;
+
+    //             case UP:{
+    //                 if(!(white_king_y + y > 7)){ // array out of bounds
+    //                     piece_id = piece_map[white_king_y + (y)][white_king_x];
+    //                     type = pieces[piece_id-1].get_piece_type();
+    //                     if(type != Pieces::None){ // getting first piece hit
+    //                         std::cout << "p ";
+    //                         std::cout << type << std::endl;
+    //                         break;
+    //                     }
+    //                 }
+    //             } break;
+
+    //             default:
+    //                 break;
+    //                 //puts("default");
+    //         }
+    //     }
+    // }
+
+    // std::cout << type << std::endl;
+    // std::cout << type << std::endl;
 
     // check_line_vertical, check_line_horizontal, check_line_diagonal
 
