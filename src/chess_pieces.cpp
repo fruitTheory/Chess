@@ -633,25 +633,31 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     std::cout << "king white y: " << white_king_y << std::endl;
     std::cout << "king white x: " << white_king_x << std::endl;
-    // std::cout << "king black y: " << black_king_y << std::endl;
+    std::cout << "king black y: " << black_king_y << std::endl;
+    std::cout << "king black x: " << black_king_x << std::endl;
 
-    int piece_id;
     Pieces piece_type;
+    int piece_id;
+    int king_y = NULL;
+    int king_x = NULL;
 
-    struct white
-    {
-        Pieces pos_type_vert, neg_type_vert, pos_type_horz, 
-               neg_type_horz, pos_type_diag, neg_type_diag;
-    };
-    
-    white white;
-    white.pos_type_vert;
+    // Note this needs to be inverse to activate on correct players turn
+    if(!(players_turn == PLAYER::WHITE)){
+        king_y = white_king_y;
+        king_x = white_king_x;
+    } else {
+        king_y = black_king_y;
+        king_x = black_king_x;
+    }
+
+    std::cout << "king y: " << king_y << std::endl;
+    std::cout << "king x: " << king_x << std::endl;
 
 
     // Find the type of pieces down board (behind white)
     for(int y = 1; y < 8; y++){ 
-        if(!(white_king_y + y > 7)){ // array out of bounds
-            piece_id = piece_map[white_king_y + (y)][white_king_x];
+        if(!(king_y + y > 7)){ // array out of bounds
+            piece_id = piece_map[king_y + (y)][king_x];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "d ";
@@ -663,8 +669,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces up board (infront white)
     for(int y = 1; y < 8; y++){ 
-        if(!(white_king_y + -(y) < 0)){ // array out of bounds
-            piece_id = piece_map[white_king_y + -(y)][white_king_x];
+        if(!(king_y + -(y) < 0)){ // array out of bounds
+            piece_id = piece_map[king_y + -(y)][king_x];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "u ";
@@ -676,8 +682,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the left
     for(int x = 1; x < 8; x++){ 
-        if(!(white_king_x + -(x) < 0)){ // array out of bounds
-            piece_id = piece_map[white_king_y][white_king_x + -(x)];
+        if(!(king_x + -(x) < 0)){ // array out of bounds
+            piece_id = piece_map[king_y][king_x + -(x)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "l ";
@@ -689,8 +695,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the right
     for(int x = 1; x < 8; x++){ 
-        if(!(white_king_x + + (x) > 7)){ // array out of bounds
-            piece_id = piece_map[white_king_y][white_king_x + (x)];
+        if(!(king_x + + (x) > 7)){ // array out of bounds
+            piece_id = piece_map[king_y][king_x + (x)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "r ";
@@ -702,8 +708,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the down right
     for(int z = 1; z < 8; z++){ 
-        if(!(white_king_y + (z) > 7) && !(white_king_x + (z) > 7)){ // array out of bounds
-            piece_id = piece_map[white_king_y + (z)][white_king_x + (z)];
+        if(!(king_y + (z) > 7) && !(king_x + (z) > 7)){ // array out of bounds
+            piece_id = piece_map[king_y + (z)][king_x + (z)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "dr ";
@@ -715,8 +721,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the up right
     for(int z = 1; z < 8; z++){ 
-        if(!(white_king_y + -(z) < 0) && !(white_king_x + (z) > 7)){ // array out of bounds
-            piece_id = piece_map[white_king_y + -(z)][white_king_x + (z)];
+        if(!(king_y + -(z) < 0) && !(king_x + (z) > 7)){ // array out of bounds
+            piece_id = piece_map[king_y + -(z)][king_x + (z)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "ur ";
@@ -728,8 +734,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the up left
     for(int z = 1; z < 8; z++){ 
-        if(!(white_king_y + -(z) < 0) && !(white_king_x + -(z) < 0)){ // array out of bounds
-            piece_id = piece_map[white_king_y + -(z)][white_king_x + -(z)];
+        if(!(king_y + -(z) < 0) && !(king_x + -(z) < 0)){ // array out of bounds
+            piece_id = piece_map[king_y + -(z)][king_x + -(z)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "ul ";
@@ -741,8 +747,8 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
 
     // Find the type of pieces to the down left
     for(int z = 1; z < 8; z++){ 
-        if(!(white_king_y + (z) > 7) && !(white_king_x + -(z) < 0)){ // array out of bounds
-            piece_id = piece_map[white_king_y + (z)][white_king_x + -(z)];
+        if(!(king_y + (z) > 7) && !(king_x + -(z) < 0)){ // array out of bounds
+            piece_id = piece_map[king_y + (z)][king_x + -(z)];
             piece_type = pieces[piece_id-1].get_piece_type();
             if(piece_type != Pieces::None){ // stopping at first piece hit
                 std::cout << "dl ";
@@ -751,85 +757,6 @@ bool King::in_check(std::vector<ChessPieces>& pieces){
             }
         }
     }
-
-
-    
-    // enum range { DOWN = 0, UP = 1, LEFT = 2, RIGHT = 3, 
-    //              DOWN_LEFT = 4, DOWN_RIGHT = 5, UP_LEFT = 6, UP_RIGHT= 7 };
-    // int range;
-
-    // for(int range = 0; range < 7; range++){
-    //     std::cout << "range: " << range << std::endl;
-    //     // Find the type of pieces down board (infront white)
-    //     for(int y = 1; y < 8; y++){
-
-    //         switch(range){
-
-    //             case DOWN:{
-    //                 if(!(white_king_y + -(y) < 0)){ // array out of bounds
-    //                     piece_id = piece_map[white_king_y + -(y)][white_king_x];
-    //                     type = pieces[piece_id-1].get_piece_type();
-    //                     if(type != Pieces::None){ // getting first piece hit
-    //                         std::cout << "n ";
-    //                         std::cout << type << std::endl;
-    //                         break;
-    //                     }
-    //                 }
-    //             } break;
-
-    //             case UP:{
-    //                 if(!(white_king_y + y > 7)){ // array out of bounds
-    //                     piece_id = piece_map[white_king_y + (y)][white_king_x];
-    //                     type = pieces[piece_id-1].get_piece_type();
-    //                     if(type != Pieces::None){ // getting first piece hit
-    //                         std::cout << "p ";
-    //                         std::cout << type << std::endl;
-    //                         break;
-    //                     }
-    //                 }
-    //             } break;
-
-    //             default:
-    //                 break;
-    //                 //puts("default");
-    //         }
-    //     }
-    // }
-
-    // std::cout << type << std::endl;
-    // std::cout << type << std::endl;
-
-    // check_line_vertical, check_line_horizontal, check_line_diagonal
-
-    //if(piece_map[white_king_y + y][white_king_x] != 0);
-
-        // std::cout << "king y: " << white_king_y << std::endl;
-        // std::cout << "king x: " << white_king_x << std::endl;
-        // std::cout << "king y + y: " << white_king_y + y << std::endl;
-        // std::cout << "king y - y: " << white_king_y + -(y) << std::endl;
-        //std::cout << "y: " << y << "\n";
-    
-    // // store kings square position check for players turn
-    // switch(!players_turn){
-    //     case PLAYER::WHITE:{
-
-    //         puts("white turn");
-    //     } break;
-
-    //     case PLAYER::BLACK:{
-
-    //         puts("black turn");
-    //     } break;
-
-    //     default:
-    //         puts("player turn fucked");
-    //         break;
-    // }
-
-    // check all 64 squares
-    // do a path trace for all but knights
-    // special case for knights?
-    //util.print_piece_map();
 
     return false;
 
