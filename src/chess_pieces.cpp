@@ -229,7 +229,6 @@ bool ChessPieces::move_piece( sf::RenderWindow& window, Chessboard& board,
 
     // Even if Move is not valid, if is a special case override move
     if(catch_special_cases(move.start, move.end, pieces)){ move_valid = true;}
-    else{ move_valid = false; }
 
     if(!move_valid){ 
         std::string piece_type_str = get_piece_type_str(move.start.piece_type);
@@ -611,7 +610,7 @@ bool ChessPieces::catch_special_cases(const Move_data& move_start, const Move_da
     // note need to figure out, how player can block this check if this is raised
     if(king.in_check(pieces)){ puts("king in check"); return false;}
 
-    //return false;
+    return false;
 
 }
 
